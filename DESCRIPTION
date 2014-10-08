@@ -1,0 +1,57 @@
+Package: kebabs
+Type: Package
+Title: Kernel-Based Analysis Of Biological Sequences
+Version: 0.99.2
+Date: 2014-09-30
+Author: Johannes Palme
+Maintainer: Ulrich Bodenhofer <bodenhofer@bioinf.jku.at>
+Description: The package provides functionality for kernel-based
+        analysis of DNA, RNA, and amino acid sequences via SVM-based
+        methods. As core functionality, kebabs implements following
+        sequence kernels: spectrum kernel, mismatch kernel, gappy pair
+        kernel, and motif kernel. Apart from an efficient
+        implementation of standard position-independent functionality,
+        the kernels are extended in a novel way to take the position of
+        patterns into account for the similarity measure. Because of
+        the flexibility of the kernel formulation, other kernels like
+        the weighted degree kernel or the shifted weighted degree
+        kernel with constant weighting of positions are included as
+        special cases. An annotation-specific variant of the kernels
+        uses annotation information placed along the sequence together
+        with the patterns in the sequence. The package allows for the
+        generation of a kernel matrix or an explicit feature
+        representation in dense or sparse format for all available
+        kernels which can be used with methods implemented in other R
+        packages. With focus on SVM-based methods, kebabs provides a
+        framework which simplifies the usage of existing SVM
+        implementations in kernlab, e1071, and LiblineaR. Binary and
+        multi-class classification as well as regression tasks can be
+        used in a unified way without having to deal with the different
+        functions, parameters, and formats of the selected SVM. As
+        support for choosing hyperparameters, the package provides
+        cross validation - including grouped cross validation, grid
+        search and model selection functions. For easier biological
+        interpretation of the results, the package computes feature
+        weights for all SVMs and prediction profiles which show the
+        contribution of individual sequence positions to the prediction
+        result and indicate the relevance of sequence sections for the
+        learning result and the underlying biological functions.
+URL: http://www.bioinf.jku.at/software/kebabs/
+Roxygen: list(wrap=TRUE)
+License: GPL (>= 2.1)
+Collate: AllClasses.R AllGenerics.R access-methods.R svmModel.R
+        kebabs.R kebabsData.R runtimeMessage.R parameters.R
+        sequenceKernel.R annotationSpecificKernel.R
+        positionDependentKernel.R spectrum.R mismatch.R gappyPair.R
+        motif.R explicitRepresentation.R coerce-methods.R
+        featureWeights.R kbsvm-methods.R
+        performCrossValidation-methods.R gridSearch.R modelSelection.R
+        trainsvm-methods.R predictsvm-methods.R predict-methods.R
+        predictionProfile.R plot-methods.R kebabsDemo.R show-methods.R
+        symmetricPair.R runUnitTests.R utils.R zzz.R
+Depends: R (>= 3.1.1), Biostrings (>= 2.33.14), kernlab
+Imports: methods, Rcpp (>= 0.11.2), Matrix, XVector (>= 0.5.8),
+        S4Vectors (>= 0.2.4), e1071, LiblineaR
+LinkingTo: IRanges, XVector, Biostrings, Rcpp, S4Vectors
+Suggests: SparseM, apcluster, Biobase, RUnit, BiocGenerics
+biocViews: SupportVectorMachine, Classification, Clustering, Regression

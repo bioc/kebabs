@@ -1,0 +1,33 @@
+##345678901234567890123456789012345678901234567890123456789012345678901234567890
+citHeader("To cite package 'kebabs' in publications use:")
+
+#year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE) 
+#vers <- paste("R package version", meta$Version)
+desc <- packageDescription("kebabs")
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", desc$Date)
+vers <- paste("R package version", desc$Version)
+url  <- desc$URL
+
+
+citEntry(entry="Manual", 
+         title = "KeBABS -- An R Package for Kernel Based Analysis of Biological Sequences.", 
+         author = personList(as.person("Johannes Palme"), as.person("Ulrich Bodenhofer")),
+         year = year, 
+         note = vers,
+         organization=paste("Institute of Bioinformatics",
+                            "Johannes Kepler University", sep=", "),
+         address="Linz, Austria",
+         url=url,
+         textVersion = 
+             paste("Johannes Palme and Ulrich Bodenhofer (", year, "). ",
+                   "KeBABS -- An R Package for Kernel Based Analysis of Biological Sequences. ",
+                   vers, ".", sep="")
+)
+
+citFooter(
+"If you use a specific kernel please additionally cite the publications",
+"shown in the help page of the respective kernel. For used SVMs cite the",
+"publications mentioned in the package providing the SVM implementation.\n\n",
+"To obtain the reference in BibTex format, enter",
+"'toBibtex(citation(\"kebabs\"))'"
+)

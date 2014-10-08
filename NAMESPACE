@@ -1,0 +1,33 @@
+useDynLib("kebabs", .registration=TRUE)
+
+import(methods)
+import(Matrix)
+import(e1071)
+import(LiblineaR)
+importFrom(kernlab, ksvm, predict, kernelMatrix, as.kernelMatrix, kpar, 
+           vanilladot, polydot, plot)
+import(Rcpp)
+importFrom(XVector, subseq, width)
+importFrom(S4Vectors, DataFrame, metadata, "metadata<-", elementMetadata,
+           "elementMetadata<-", mcols, "mcols<-")
+import(Biostrings)
+
+export(DNAVector, RNAVector, AAVector, genRandBioSeqs, annotationMetadata,
+       "annotationMetadata<-", annotationCharset, positionMetadata,
+       "positionMetadata<-", spectrumKernel, mismatchKernel, motifKernel,
+       gappyPairKernel, linearKernel, symmetricPairKernel, getKernelMatrix,
+       getExRep, getExRepQuadratic,  getFeatureWeights, linWeight, expWeight,
+       gaussWeight, swdWeight, getSVMSlotValue, seqKernelAsChar,
+       evaluatePrediction, showAnnotatedSeq, kebabsDemo, runit)
+
+exportClasses("DNAVector", "RNAVector", "AAVector")
+
+exportMethods(kbsvm, predict, show, kernelParameters, as.KernelMatrix,
+              getPredictionProfile, plot, profiles, baselines, sequences,
+              featureWeights, "featureWeights<-", modelOffset, "modelOffset<-",
+              cvResult, "cvResult<-", modelSelResult, "modelSelResult<-",
+              svmModel, "svmModel<-", probabilityModel, "probabilityModel<-",
+              gridRows, gridColumns, gridErrors, performance, length, width,
+              names, "names<-", width, performCrossValidation,
+              trainSVM, predictSVM, getFeatureSpaceDimension)
+

@@ -1,0 +1,20 @@
+Change history of package kebabs:
+====================================
+
+Version 0.99.0:
+- first version for package announcement
+
+Version 0.99.1:
+- silent package loading of SVM packages
+- SVM packages moved to Import
+- examples in help pages modified
+- SupportVectorMachine added to BiocView
+- main kebabs page with demo function
+- C header file BioCharsets.h removed
+- several corrections in help files
+
+Version 0.99.2:
+- unit tests for all kernels
+- registration of native routines
+
+

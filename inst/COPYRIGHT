@@ -1,0 +1,15 @@
+This R package includes two C header files not written by the package authors:
+
+--------------------------------------------------------------------------------
+src/khash.h:
+
+The copyright for khash.h is held by Attractive Chaos <attractor@live.co.uk>.
+khash.h is distributed under the MIT License. 
+
+--------------------------------------------------------------------------------
+src/ksort.h:
+
+The copyright for ksort.h is held by Attractive Chaos <attractor@live.co.uk>.
+ksort.h is distributed under the MIT License. 
+
+--------------------------------------------------------------------------------

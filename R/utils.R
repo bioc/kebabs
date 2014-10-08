@@ -1,0 +1,676 @@
+#2345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+isTRUEorFALSE <- function(x)
+{
+    !is.null(x) && !is.na(x) && is.logical(x) && length(x) == 1L
+}
+
+isSingleInteger <- function(x)
+{
+    !is.null(x) && !is.na(x) && is.integer(x) && length(x) == 1L
+}
+
+isSingleNumber <- function(x)
+{
+    !is.null(x) && !is.na(x) && is.numeric(x) && length(x) == 1L
+}
+
+isSingleString <- function(x)
+{
+    !is.null(x) && !is.na(x) && is.character(x) && length(x) == 1L
+}
+
+supportsExplicitRep <- function(kernel)
+{
+    if (inherits(kernel, "SequenceKernel") &&
+        (length(kernelParameters(kernel)$distWeight) == 0))
+        return(TRUE)
+    else
+        return(FALSE)
+}
+
+#' @rdname KernelMatrixAccessors
+#' @aliases
+#' linearKernel
+#'
+#' @param x a dense or sparse explicit representation
+#' @param y a dense or sparse explicit representation
+#' @param selx a numeric or character vector for defining a subset of 'x'
+#' @param sely a numeric or character vector for defining a subset of 'y'
+#' @return of linearKernel:
+#' kernel matrix as class \code{\linkS4class{KernelMatrix}}.
+#' @export
+
+linearKernel <- function(x, y=NULL, selx=NULL, sely=NULL)
+{
+    if (is(x, "ExplicitRepresentationSparse"))
+    {
+        if (is.null(y))
+        {
+            km <- .Call("linearKerneldgRMatrixC", as.integer(nrow(x)), x@p, x@j,
+                        x@x, selx, as.integer(nrow(x)), NULL, NULL, NULL, NULL,
+                        TRUE);
+
+            if (length(rownames(x)) > 0)
+            {
+                rownames(km) <- rownames(x)
+                colnames(km) <- rownames(x)
+            }
+        }
+        else
+        {
+            km <- .Call("linearKerneldgRMatrixC", as.integer(nrow(x)), x@p, x@j,
+                        x@x, selx, as.integer(nrow(y)), y@p, y@j, y@x, sely,
+                        FALSE);
+
+            if (length(rownames(x)) > 0)
+                rownames(km) <- rownames(x)
+
+            if (length(rownames(y)) > 0)
+                colnames(km) <- rownames(y)
+        }
+
+        return(as.KernelMatrix(km))
+    }
+
+    if (!is.null(selx))
+    {
+        if (!is.numeric(selx) || any(selx < 1) || any(selx > length(x)))
+            stop("'selx' is not valid\n")
+    }
+    else
+        selx <- 1L:nrow(x)
+
+    if (!is.null(y) && !is.null(sely))
+    {
+        if (!is.numeric(sely) || any(sely < 1) || any(sely > length(y)))
+            stop("'sely' is not valid\n")
+
+        return(as.KernelMatrix(tcrossprod(x=x[selx], y=y[sely])))
+    }
+    else
+        return(as.KernelMatrix(tcrossprod(x=x[selx], y=y)))
+}
+
+## subsetting for Biovector, XStringSet, KernelMatrix and ExplicitRep
+subsetSeqRep <- function(x, sel)
+{
+    if (is.null(sel))
+        stop("'sel' is null in subset operation\n")
+
+    if (is(x, "KernelMatrix") || is(x, "kernelMatrix"))
+        noElem <- nrow(x)
+    else
+        noElem <- length(x)
+
+    if (!is.numeric(sel) || any(sel < 1) || any(sel > noElem))
+        stop("'sel' is not valid\n")
+
+    if (is(x, "KernelMatrix") || is(x, "kernelMatrix"))
+        return(x[sel, sel])
+    else
+        return(x[sel])
+}
+
+## no of elements for Biovector, XStringSet, KernelMatrix and ExplicitRep
+getNoOfElementsOfSeqRep <- function(x)
+{
+    if (is.null(x))
+        return(0)
+
+    if (is(x, "BioVector") || is(x, "XStringSet"))
+        return(length(x))
+    else
+        return(nrow(x))
+}
+
+listToString <- function(x)
+{
+    if (!is.list(x))
+        stop("'x' must be a list\n")
+
+    temp <- paste(deparse(x), collapse="")
+    endPos <- regexpr(".Names = ", temp) - 4
+
+    if (endPos > 0)
+        return(substr(temp, 16, endPos))
+    else
+        return(NULL)
+}
+
+#' @rdname ExplicitRepresentationAccessors
+#' @aliases
+#' %*%,matrix,dgRMatrix-method
+#' @param y in the first case and explicit representation and \code{x} is a
+#' \code{matrix}, for the second case a numeric matrix and x is an explicit
+#' representation
+#' @section Accessor-like methods:
+#' \describe{
+#'   \item{}{\code{\%*\%}:
+#'   this function provides the multiplication of a \code{dgRMatrix} or
+#'   a sparse explicit representation (which is derived from \code{dgRMatrix})
+#'   with a matrix or a vector. This functionality is not available in package
+#'   \bold{Matrix} for a \code{dgRMatrix}.
+#'   }
+#' }
+#' @export
+#'
+
+## matrix multiplication of dense matrix with dgRMatrix
+## is not implemented in Matrix package
+setMethod("%*%", signature(x="matrix", y="dgRMatrix"),
+    function(x, y)
+    {
+        if (ncol(x) == 0 && nrow(y) == 0)
+            return(matrix(nrow=0,ncol=0))
+
+        if (ncol(x) != nrow(y))
+            stop("non-conformable arguments\n")
+
+        ## dense matrix product is much faster if size allows
+        if (nrow(y) * ncol(y) < 10000000)
+            return(x %*% as(y, "matrix"))
+
+        result <- .Call("matrixdgRMatrixProductC", x, as.integer(nrow(x)),
+                        as.integer(ncol(x)), as.integer(nrow(y)),
+                        as.integer(ncol(y)), y@p, y@j, y@x)
+
+        if (length(rownames(x)) > 0)
+            rownames(result) <- rownames(x)
+
+        if (length(colnames(y)) > 0)
+            colnames(result) <- colnames(y)
+
+        return(result)
+    }
+)
+
+#' @rdname ExplicitRepresentationAccessors
+#' @aliases
+#' %*%,dgRMatrix,numeric-method
+#' @export
+#'
+
+## multiplication of dgRMatrix with vector
+setMethod("%*%", signature(x="dgRMatrix", y="numeric"),
+    function(x, y)
+    {
+        if (ncol(x) == 0 && length(y) == 0)
+            return(matrix(nrow=0,ncol=0))
+
+        if (ncol(x) != length(y))
+            stop("non-conformable arguments\n")
+
+        ## dense matrix product is much faster if size allows
+        if (nrow(x) * ncol(x) < 10000000)
+            return(as(x, "matrix") %*% y)
+
+        result <- .Call("dgRMatrixNumericVectorProductC", x@p, x@j, x@x,
+                        as.integer(nrow(x)), as.integer(ncol(y)), y,
+                        as.integer(length(y)))
+
+        if (length(rownames(x)) > 0)
+            names(result) <- rownames(x)
+
+        return(result)
+    }
+)
+
+#' @rdname genRandBioSeqs
+#' @title Generate Random Biological Sequences
+#'
+#' @description Generate biological sequences with uniform random distribution
+#' of alphabet characters.
+#'
+#' @param seqType defines the type of sequence as DNA, RNA or AA and the
+#' underlying alphabet. Default="DNA"
+#'
+#' @param numSequences single numeric value which specifies the number of
+#' sequences that should be generated.
+#'
+#' @param seqLength either a single numeric value or a numeric vector of length
+#' 'numSequences' which gives the length of the sequences to be generated.
+#'
+#' @param biostring if \code{TRUE} the sequences will be generated in XStringSet
+#' format otherwise as BioVector derived class. Default=TRUE
+#'
+#' @param seed when present the random generator will be seeded with the
+#' value passed in this parameter
+#'
+#' @details
+#' The function generates a set of sequences with uniform distribution of
+#' alphabet characters and returns it as XStringSet or BioVector dependent on
+#' the parameter \code{biostring}.
+#' @return
+#' When the parameter 'biostring' is set to FALSE the function returns a
+#' XStringSet derived class otherwise a BioVector derived class.
+#'
+#' @examples
+#' ## generate a set of AA sequences of fixed length as AAStringSet
+#' aaseqs <- genRandBioSeqs("AA", 100, 1000, biostring=TRUE)
+#'
+#' ## show AA sequence set
+#' aaseqs
+#'
+#' \dontrun{
+#' ## generate a set of "DNA" sequences as DNAStringSet with uniformly
+#' ## distributed lengths between 1500 and 3000 bases
+#' seqLength <- runif(300, min=1500, max=3500)
+#' dnaseqs <- genRandBioSeqs("DNA", 100, seqLength, biostring=TRUE)
+#'
+#' ## show DNA sequence set
+#' dnaseqs
+#' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' @keywords methods
+#' @export
+
+genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
+                           seqLength, biostring=TRUE, seed)
+{
+    if (!missing(seed))
+        set.seed(seed)
+
+    seqType = match.arg(seqType)
+
+    if (!(is.numeric(numSequences) && length(numSequences) == 1 &&
+          numSequences >= 1))
+        stop("'numSequences' must be a integer value larger than 0\n")
+
+    if (!(is.numeric(seqLength) && all(seqLength >= 1)))
+        stop("'seqLength' must be a numeric vector with values larger than 0\n")
+
+    numSequences <- as.integer(numSequences)
+    seqLength <- as.integer(seqLength)
+
+    if (length(seqLength == 1))
+        seqLength <- rep(seqLength, numSequences)
+
+    if (seqType == "DNA")
+    {
+        seqAlphabet <- c("A", "C", "G", "T")
+        seqs <- list()
+
+        for (i in 1:numSequences)
+        {
+            seqs <- list(seqs, paste(seqAlphabet[round(runif(seqLength[i],
+                                                    0.5, 4.5))], collapse=""))
+        }
+
+        if (biostring == "TRUE")
+            return(DNAStringSet(as.character(unlist(seqs))))
+        else
+            return(new("DNAVector",(as.character(unlist(seqs)))))
+    }
+    else if (seqType == "RNA")
+    {
+        seqAlphabet <- c("A", "C", "G", "U")
+        seqs <- list()
+
+        for (i in 1:numSequences)
+        {
+            seqs <- list(seqs, paste(seqAlphabet[round(runif(seqLength[i],
+                                                    0.5, 4.5))], collapse=""))
+        }
+
+        if (biostring == "TRUE")
+            return(RNAStringSet(as.character(unlist(seqs))))
+        else
+            return(new("RNAVector",(as.character(unlist(seqs)))))
+    }
+    else if (seqType == "AA")
+    {
+        seqAlphabet <- c("A","C","D","E","F","G","H","I","K","L","M","N",
+                         "P", "Q","R","S","T","U","V","W","Y")
+        seqs <- list()
+
+        for (i in 1:numSequences)
+        {
+            seqs <- list(seqs, paste(seqAlphabet[round(runif(seqLength[i],
+                                                    0.5, 21.5))], collapse=""))
+        }
+
+        if (biostring == "TRUE")
+            return(AAStringSet(as.character(unlist(seqs))))
+        else
+            return(new("AAVector",(as.character(unlist(seqs)))))
+    }
+}
+
+
+#' @rdname evaluatePrediction
+#' @title Evaluate Prediction
+#'
+#' @description Evaluate performance results of prediction on a testset based
+#' on given labels for binary classification
+#'
+#' @param prediction prediction results as returned by \code{\link{predict}}
+#' for predictionType="response".
+#'
+#' @param label label vector of same length as parameter 'prediction'.
+#'
+#' @param allLabels vector containing the labels. This parameter is required
+#' only if the label vector is numeric. Default=NULL
+#'
+#' @param print This parameter indicates whether performance values should be
+#' printed or returned as data frame without printing (for details see below).
+#' Default=TRUE
+#'
+#' @param confmatrix When set to TRUE a confusion matrix is printed.
+#' Default=TRUE
+#'
+#' @param numPrecision minimum number of digits to the right of the decimal
+#' point. Values between 0 and 20 are allowed. Default=3
+#'
+#' @param numPosNegTrainSamples optional integer vector with two values giving
+#' the number of positive and negative training samples. When this parameter
+#' is set the balancedness of the training set is reported. Default=numeric(0)
+#'
+#' @details
+#' For binary classfication this function computes the performance measures
+#' accuracy, balanced accuracy, sensitivity, specificity, precision and the
+#' Matthews Correlation Coefficient(MCC). When the number of positive and
+#' negative training samples is passed to the function it also shows the
+#' balancedness of the training set. The performance results are either
+#' printed by the routine directly or returned in a data frame. The columns
+#' of the data frame are:
+#'
+#' \tabular{ll}{
+#'   column name \tab performance measure\cr
+#'   -------------------- \tab -------------- \cr
+#'   TP          \tab true positive\cr
+#'   FP          \tab false positive\cr
+#'   FN          \tab false negative\cr
+#'   TN          \tab true negative\cr
+#'   ACC         \tab accuracy \cr
+#'   BAL_ACC     \tab balanced accuracy\cr
+#'   SENS        \tab sensitivity\cr
+#'   SPEC        \tab specificity\cr
+#'   PREC        \tab precision\cr
+#'   MAT_CC      \tab Matthews correlation coefficient\cr
+#'   PBAL        \tab prediction balancedness (fraction of positive samples)\cr
+#'   TBAL        \tab training balancedness (fraction of positive samples)\cr
+#' }
+#'
+#'
+#' @return
+#' When the parameter 'print' is set to FALSE the function returns a data frame
+#' containing the prediction performance values (for details see above).
+#' @seealso \code{\link{predict}}, \code{\link{kbsvm}}
+#' @examples
+#'
+#' ## set seed for random generator, included here only to make results
+#' ## reproducable for this example
+#' set.seed(456)
+#' ## load transcription factor binding site data
+#' data(TFBS)
+#' enhancerFB
+#' ## select 70% of the samples for training and the rest for test
+#' train <- sample(1:length(enhancerFB), length(enhancerFB) * 0.7)
+#' test <- c(1:length(enhancerFB))[-train]
+#' ## create the kernel object for gappy pair kernel with normalization
+#' gappy <- gappyPairKernel(k=1, m=3)
+#' ## show details of kernel object
+#' gappy
+#'
+#' ## run training with explicit representation
+#' model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=gappy,
+#'                pkg="LiblineaR", svm="C-svc", cost=80, explicit="yes",
+#'                featureWeights="no")
+#'
+#' ## predict the test sequences
+#' pred <- predict(model, enhancerFB[test])
+#'
+#' ## print prediction performance
+#' evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
+#'
+#' \dontrun{
+#' ## print prediction performance including training set balance
+#' trainPosNeg <- c(length(which(yFB[train] == 1)),
+#'                  length(which(yFB[train] == -1)))
+#' evaluatePrediction(pred, yFB[test], allLabels=unique(yFB),
+#'                    numPosNegTrainSamples=trainPosNeg)
+#'
+#' ## or get prediction performance as data frame
+#' perf <- evaluatePrediction(pred, yFB[test], allLabels=unique(yFB),
+#'                            print=FALSE)
+#'
+#' ## show performance values in data frame
+#' perf
+#' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' @keywords prediction performance
+#' @keywords methods
+#' @export
+
+evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
+                               confmatrix=TRUE, numPrecision=3,
+                               numPosNegTrainSamples=numeric(0))
+{
+    ## for binary classification only - first label must be the positive class
+    ## optional input pos and neg training samples for training balance
+
+    if (length(prediction) != length(label))
+        stop("length of 'prediction' and 'label' do not match\n")
+
+    if (is.factor(label))
+        allLabels <- levels(label)
+    else
+    {
+        if (!is.null(allLabels))
+            allLabels <- unique(allLabels)
+        else
+            stop("please specify all labels via parameter 'allLabels'\n")
+    }
+
+    if (length(allLabels) > 2)
+        allLabels <- sort(allLabels)
+    else
+        allLabels <- sort(allLabels, decreasing=TRUE)
+
+    x <- matrix(0, nrow=length(allLabels), ncol=length(allLabels))
+    rownames(x) <- allLabels
+    colnames(x) <- allLabels
+
+    for (i in 1:length(prediction))
+    {
+        predChar <- as.character(prediction[i])
+        labelChar <- as.character(label[i])
+        x[predChar, labelChar] <- x[predChar, labelChar] + 1
+    }
+
+    if(confmatrix && print)
+    {
+        print(x)
+        cat("\n")
+    }
+
+    if (length(allLabels) == 2)
+    {
+        tp <- x[1, 1]
+        tn <- x[2, 2]
+        fp <- x[1, 2]
+        fn <- x[2, 1]
+        l <- sum(x)
+        bal = sum(x[,1]) / l
+        accuracy = 100 * (tp + tn) / l
+
+        if (tp + fn > 0 && tn + fp > 0)
+        {
+            balAccuracy <- 50 * (tp / (tp + fn) + tn / (tn + fp))
+            sensitivity <- 100 * tp / (tp + fn)
+            specificity <- 100 * tn / (tn + fp)
+        }
+        else if (tp + fn > 0)
+        {
+            balAccuracy <- NA
+            sensitivity <- 100 * tp / (tp + fn)
+            specificity <- NA
+        }
+        else
+        {
+            balAccuracy <- NA
+            sensitivity <- NA
+            specificity <- 100 * tn / (tn + fp)
+        }
+
+        precision <- ifelse(tp + fp > 0, 100 * tp / (tp + fp), NA)
+        denominator <- sqrt((tp + fn) * (tp + fn) * (tn + fn) * (tn + fp))
+        mcc <- ifelse(denominator == 0, 0, (tp * tn - fp * fn) / denominator)
+
+        if (length(numPosNegTrainSamples) > 0)
+        {
+            trainBalance <- 100 * numPosNegTrainSamples[1] /
+            (numPosNegTrainSamples[1] + numPosNegTrainSamples[2])
+        }
+        else
+            trainBalance <- NA
+    }
+    else
+    {
+        ## Multiclass
+        bal <- NA
+        trainBalance <- NA
+        l <- sum(x)
+        corrClassified <- diag(x)
+        accuracy <- 100 * sum(corrClassified) / l
+        balAccuracy <- 0
+
+        for (i in 1:length(allLabels))
+        {
+            balAccuracy <- balAccuracy + corrClassified[i] / sum(x[,i])
+        }
+
+        balAccuracy <- 100 * balAccuracy / length(allLabels)
+
+        ## Multiclass MCC according to Gorodkin J.,
+        ## Comparing two K-category assignments by K-category correlation
+        ## coefficient, Comput. Biol. Chem., 2004 Dec, 28(5-6) 367-74.
+        ##
+        ## MCC = \frac{\sum_{i,j,k=1}^N (C_{ii} C_{kj} - C_{ji} C_{ik})}
+        ##   {\sqrt{(\sum_{i=1}^N ((\sum_{j=1}^N C_{ji}) 
+        ##    (\sum_{f,g=1 f \neq i}^N C_{gf})))}
+        ##   \sqrt{(\sum_{i=1}^N ((\sum_{j=1}^N C_{ij}) 
+        ##    (\sum_{f,g=1 f \neq i}^N C_{fg})))}}
+
+        mccNumerator <- 0
+
+        for (i in (1:length(allLabels)))
+        {
+            for (j in (1:length(allLabels)))
+            {
+                for (k in (1:length(allLabels)))
+                {
+                    mccNumerator <- mccNumerator + x[i,i] * x[k,j] 
+                                    - x[j,i]*x[i,k]
+                }
+            }
+        }
+        mccDenominator <- sqrt(sum(apply(x,2,sum) * 
+                                   apply(x,2,function(col) l-sum(col)))) *
+                          sqrt(sum(apply(x,1,sum) * 
+                                   apply(x,1,function(row) l-sum(row))))
+        mcc <- mccNumerator / mccDenominator;
+        sensitivity <- NA
+        specificity <- NA
+        precision <- NA
+        tp <- NA
+        tn <- NA
+        fp <- NA
+        fn <- NA
+    }
+
+    if (print)
+    {
+        if (length(allLabels) > 2)
+        {
+            cat("Accuracy:            ",
+                format(accuracy, width=8, digits=3, nsmall=numPrecision,
+                       trim=FALSE), "% (", sum(corrClassified), " of ", l, 
+                       ")\n", sep="")
+            cat("Balanced accuracy:   ",
+                format(balAccuracy, width=8, digits=3, nsmall=numPrecision,
+                       trim=FALSE), "%\n", sep="")
+            cat("Matthews CC:         ",
+                format(mcc, width=8, digits=3, nsmall=numPrecision, trim=FALSE),
+                "\n", sep="")
+
+            for (i in 1:length(allLabels))
+            {
+                cat("\nClass ", allLabels[i],":\n", sep="")
+                cat("Sensitivity:         ",
+                    format(100 * corrClassified[i] / sum(x[,i]), width=8,
+                           digits=3, nsmall=numPrecision, trim=FALSE),
+                    "% (", corrClassified[i] , " of ", sum(x[,i]), ")\n", 
+                    sep="")
+                cat("Specificity:         ",
+                    format(100 * sum(corrClassified[-i]) / sum(x[,-i]), width=8,
+                           digits=3, nsmall=numPrecision, trim=FALSE),
+                    "% (", sum(corrClassified[-i]), " of ", sum(x[,-i]), ")\n",
+                    sep="")
+                cat("Precision:           ",
+                    format(100 * corrClassified[i] / sum(x[i,]), width=8,
+                           digits=3, nsmall=numPrecision, trim=FALSE),
+                    "% (", corrClassified[i], " of ", sum(x[i,]), ")\n", sep="")
+            }
+        }
+        else
+        {
+            if (length(numPosNegTrainSamples) > 0)
+            {
+                cat("Training set balance:",
+                    format(trainBalance, width=8, digits=3, 
+                           nsmall=numPrecision),
+                    "% (", numPosNegTrainSamples[1], " positive of ",
+                    numPosNegTrainSamples[1] + numPosNegTrainSamples[1],
+                    ")\n", sep="")
+                cat("\n")
+            }
+
+            cat("Accuracy:            ",
+                format(accuracy, width=8, digits=3, nsmall=numPrecision,
+                       trim=FALSE), "% (", tp + tn, " of ", l, ")\n", sep="")
+            cat("Balanced accuracy:   ",
+                format(balAccuracy, width=8, digits=3, nsmall=numPrecision,
+                       trim=FALSE), "% (", tp, " of ", tp + fn, " and ",
+                tn, " of ", tn + fp, ")\n", sep="")
+            cat("Matthews CC:         ",
+                format(mcc, width=8, digits=3, nsmall=numPrecision, trim=FALSE),
+                "\n\n", sep="")
+            cat("Sensitivity:         ",
+                format(sensitivity, width=8, digits=3, nsmall=numPrecision,
+                       trim=FALSE), "% (", tp, " of ", tp + fn, ")\n", sep="")
+            cat("Specificity:         ",
+                format(specificity, width=8, digits=3, nsmall=numPrecision,
+                       trim=FALSE), "% (", tn, " of ", tn + fp, ")\n", sep="")
+            cat("Precision:           ",
+                format(precision, width=8, digits=3, nsmall=numPrecision,
+                       trim=FALSE), "% (", tp, " of ", tp + fp, ")\n", sep="")
+        }
+        return(invisible(NULL))
+    }
+    else
+    {
+        if (length(numPosNegTrainSamples) > 0)
+        {
+            return(data.frame(NUM=l, PBAL=bal, TP=tp, FP=fp, FN=fn, TN=tn,
+                              ACC=accuracy, BAL_ACC=balAccuracy,
+                              SENS=sensitivity, SPEC=specificity,
+                              PREC=precision, MAT_CC=mcc,
+                              TBAL=trainBalance,
+                              PT=numPosNegTrainSamples[1],
+                              NT=numPosNegTrainSamples[2]))
+        }
+        else
+        {
+            return(data.frame(NUM=l, PBAL=bal, TP=tp, FP=fp, FN=fn, TN=tn,
+                              ACC=accuracy, BAL_ACC=balAccuracy,
+                              SENS=sensitivity, SPEC=specificity,
+                              PREC=precision, MAT_CC=mcc))
+        }
+    }
+}
