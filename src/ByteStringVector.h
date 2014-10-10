@@ -1,6 +1,6 @@
-#ifndef __ByteStringVectorC_H__
+#ifndef __ByteStringVector_C_H__
 
-#define __ByteStringVectorC_H__
+#define __ByteStringVector_C_H__
 
 #include <Rinternals.h>
 

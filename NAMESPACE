@@ -18,7 +18,7 @@ export(DNAVector, RNAVector, AAVector, genRandBioSeqs, annotationMetadata,
        gappyPairKernel, linearKernel, symmetricPairKernel, getKernelMatrix,
        getExRep, getExRepQuadratic,  getFeatureWeights, linWeight, expWeight,
        gaussWeight, swdWeight, getSVMSlotValue, seqKernelAsChar,
-       evaluatePrediction, showAnnotatedSeq, kebabsDemo, runit)
+       evaluatePrediction, showAnnotatedSeq, kebabsDemo)
 
 exportClasses("DNAVector", "RNAVector", "AAVector")
 

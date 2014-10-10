@@ -1,6 +1,6 @@
-#ifndef __IntegerPowers64_CPP_H__
+#ifndef __IntegerPowers64_C_H__
 
-#define __IntegerPowers_CPP_H__
+#define __IntegerPowers64_C_H__
 
 
 // integer powers of uint64_t
