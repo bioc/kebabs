@@ -18,10 +18,19 @@
 #include "MotifC.h"
 #include "SparseMatrixHash.h"
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
 KHASH_MAP_INIT_INT(fwa32, uint32_t)
 KHASH_MAP_INIT_INT64(fwa64, uint32_t)
 static khash_t(fwa32) *pAccessHMap32;
 static khash_t(fwa64) *pAccessHMap64;
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
 using namespace Rcpp;
 

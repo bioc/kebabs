@@ -338,10 +338,10 @@ formatSVMSlotValue <- function(paramName, model, parValue)
     }
 
     if (paramName == "probA" && class(model@svmModel) == "ksvm")
-        parValue <- parValue$A
+        parValue <- unlist(parValue)[names(unlist(parValue)) == "A"]
 
     if (paramName == "probB" && class(model@svmModel) == "ksvm")
-        parValue <- parValue$B
+        parValue <- unlist(parValue)[names(unlist(parValue)) == "B"]
 
     if (paramName == "sigma" && class(model@svmModel) == "ksvm")
         parValue <- parValue[[1]]

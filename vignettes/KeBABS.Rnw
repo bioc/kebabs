@@ -604,27 +604,27 @@ With a parameterized distance function, the neighborhood can be adjusted as need
 In all three cases the parameter $sigma$ controls the proximity behavior with a strict cut off at sigma for linear distance weighting. For small sigma close to 0, the distance-weighted kernel becomes the position-specific kernel, for very large values of sigma the kernel becomes the position-independent kernel. The parameter sigma allows flexible blending between both extremes of strict position evaluation and complete position independency for all three distance weighting functions. Positive definiteness of the resulting kernel matrix is ensured for these functions for any parameter values. The following plot shows the three parameterized functions with parameter value 20 for sigma.
 
 <<eval=F>>=
-curve(linWeight(x, sigma=20), from=-40, to=40, xlab="p - q",
-      ylab="weight", main="Predefined Distance Weighting Functions",
-      col="green")
-curve(expWeight(x, sigma=20), from=-40, to=40, col="blue", add=TRUE)
-curve(gaussWeight(x, sigma=20), from=-40, to=40, col="red", add=TRUE)
-legend('topright', inset=0.03, title="Weighting Functions",
-       c("linWeight", "expWeight", "gaussWeight"),
-       fill=c("green", "blue", "red"))
-text(28, 0.75, "sigma = 20")
+curve(linWeight(x, sigma=5), from=-25, to=25, xlab="p - q", ylab="weight",
+      main="Predefined Distance Weighting Functions", col="green")
+curve(expWeight(x, sigma=5), from=-25, to=25, col="blue", add=TRUE)
+curve(gaussWeight(x, sigma=5), from=-25, to=25, col="red", add=TRUE)
+curve(swdWeight(x), from=-25, to=25, col="orange", add=TRUE)
+legend('topright', inset=0.03, title="Weighting Functions", c("linWeight",
+       "expWeight", "gaussWeight", "swdWeight"), fill=c("green", "blue",
+       "red", "orange"))
+text(17, 0.70, "sigma = 5")
 @
 
 <<fig=FALSE,echo=FALSE,results=hide>>=
 pdf("002.pdf")
 curve(linWeight(x, sigma=5), from=-25, to=25, xlab="p - q", ylab="weight",
-           main="Predefined Distance Weighting Functions", col="green")
+      main="Predefined Distance Weighting Functions", col="green")
 curve(expWeight(x, sigma=5), from=-25, to=25, col="blue", add=TRUE)
 curve(gaussWeight(x, sigma=5), from=-25, to=25, col="red", add=TRUE)
 curve(swdWeight(x), from=-25, to=25, col="orange", add=TRUE)
 legend('topright', inset=0.03, title="Weighting Functions", c("linWeight",
-              "expWeight", "gaussWeight", "swdWeight"), fill=c("green", "blue",
-              "red", "orange"))
+       "expWeight", "gaussWeight", "swdWeight"), fill=c("green", "blue",
+       "red", "orange"))
 text(17, 0.70, "sigma = 5")
 dev.off()
 @

@@ -21,10 +21,11 @@ extern "C"
 
 void freeHeapMismatch();
 
-void genPredProfileMismatch(Rcpp::NumericMatrix pprof, ByteStringVector x, Rcpp::IntegerVector selX, int numSamples,
-                            ByteStringVector annCharset, ByteStringVector annX, int maxSeqLength, bool unmapped,
-                            int kernelType, int k, int m, int bioCharset, Rcpp::NumericMatrix featureWeights,
-                            int svmIndex, bool lowercase, bool normalized, bool presence);
+void genPredProfileMismatch(Rcpp::NumericMatrix pprof, ByteStringVector x, Rcpp::IntegerVector selX,
+                            int numSamples, ByteStringVector annCharset, ByteStringVector annX,
+                            int maxSeqLength, bool unmapped, int kernelType, int k, int m, int bioCharset,
+                            Rcpp::NumericMatrix featureWeights, int svmIndex, bool lowercase, bool normalized,
+                            bool presence);
 
 RcppExport SEXP genExplRepMismatch(ByteStringVector x, int sizeX, Rcpp::IntegerVector selX, int maxSeqLength,
                                    int bioCharset, ByteStringVector features, int k, int m, bool presence,

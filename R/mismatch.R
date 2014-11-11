@@ -274,13 +274,14 @@ mismatchProcessing <- function(x, y, selx, sely, k, m, r, normalized,
 
     bioCharset <- getBioCharset(x, exact)
 
-    ## limit k to 64 bit feature space
-    if (names(bioCharset[[1]]) %in% c("AAexact", "AAiupac") && k > 14)
-        stop("'k' must be smaller than or equal to 14\n")
-    else if (names(bioCharset[[1]]) %in% c("DNAexact", "RNAexact") && k > 30)
-        stop("for exact charset 'k' must be smaller than or equal to 30\n")
-    else if (k > 15)
-        stop("for iupac charset 'k' must be smaller than or equal to 15\n")
+    ## limit k to 32 bit feature space
+    if (names(bioCharset[[1]]) %in% c("AAexact", "AAiupac") && k > 7)
+        stop("'k' must be smaller than or equal to 7\n")
+    else if (names(bioCharset[[1]]) %in% c("DNAexact", "RNAexact") && k > 15)
+        stop("for exact charset 'k' must be smaller than or equal to 15\n")
+    else if (names(bioCharset[[1]]) %in% c("DNAiupac", "RNAiupac") &&
+             k > 7)
+        stop("for iupac charset 'k' must be smaller than or equal to 7\n")
 
     if (!is.null(y))
         seqLength <- c(width(x)[selx], width(y)[sely])

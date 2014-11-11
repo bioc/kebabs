@@ -30,6 +30,11 @@ struct hmData
     uint32_t unweightedPosIndex;
 };
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
 // hash map for mapping 64 bit feature indices to feature weights
 KHASH_MAP_INIT_INT64(fw, struct hmData)
 // hash map for mapping 64 bit feature indices
@@ -71,6 +76,10 @@ static khash_t(fc) *pFeatureCountsHMap;
 static uint32_t *pFeatureCounts;
 static double *pNormValues;
 
+#if __clang__
+#pragma clang diagnostic pop
+#endif
+
 
 void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
                   int level, int noMism, double *sum, struct prefTree *pTree,
@@ -87,8 +96,7 @@ void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
             curr = pTree->node[curr].ib.idx[index];
             if (level == k - 1)
             {
-                // $$$ TODO Remove
-                if ((pTree->node[curr].leaf == TRUE))
+                if (pTree->node[curr].leaf == TRUE)
                 {
                     if (!presence)
                     {
@@ -163,8 +171,7 @@ void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
                 currNew = pTree->node[curr].ib.idx[i];
                 if (level == k - 1)
                 {
-                    // $$$ TODO Remove
-                    if ((pTree->node[currNew].leaf == TRUE))
+                    if (pTree->node[currNew].leaf == TRUE)
                     {
                         if (!presence)
                         {
@@ -200,7 +207,7 @@ void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
                 }
 
                 *freeNode = *freeNode + 1;
-                if (level == k-1)
+                if (level == k - 1)
                 {
                     pTree->node[currNew].leaf = TRUE;
                     pTree->node[currNew].value = 1;
@@ -285,14 +292,8 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
 
                 if (level == k - 1)
                 {
-                    // $$$ TODO Remove check - it must be a leaf
-                    if ((pTree->node[currNew].leaf == TRUE))
-                    {
+                    if (pTree->node[currNew].leaf == TRUE)
                         *kernelValue += pTree->node[currNew].value;
-
-                        //Rprintf("%c%c  KV: %f Val: %u\n", x[pos-1], x[pos],
-                        //       *kernelValue, pTree->node[currNew].value);
-                    }
                     else
                     {
                         if (*printWarning)
@@ -316,9 +317,7 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
 
                     curr = currNew;
                 }
-
             }
-
         }
         return;
     }
@@ -332,15 +331,8 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
 
                 if (level == k - 1)
                 {
-                    // $$$ TODO Remove
-                    if ((pTree->node[currNew].leaf == TRUE))
-                    {
+                    if (pTree->node[currNew].leaf == TRUE)
                         *kernelValue += pTree->node[currNew].value;
-
-                        //Rprintf("%c%c  KV: %f Val: %u\n", x[pos-1], x[pos],
-                        //       *kernelValue, pTree->node[currNew].value);
-
-                    }
                     else
                     {
                         if (*printWarning)
@@ -2076,8 +2068,7 @@ RcppExport SEXP mismatchKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
     int sizeX = as<int>(sizeXR);
     int sizeY = as<int>(sizeYR);
     int maxSeqLength = as<int>(maxSeqLengthR);
-    uint32_t maxUIndex32 = MAXUINT32;
-    uint64_t dimFeatureSpace, maxUIndex64 = MAXUINT64;
+    uint64_t dimFeatureSpace;
     bool symmetric = as<bool>(symmetricR);
     bool isXStringSet = as<bool>(isXStringSetR);
     struct alphaInfo alphaInf;

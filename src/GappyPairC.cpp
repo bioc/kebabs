@@ -34,6 +34,11 @@ struct hmData
     uint32_t unweightedPosIndex;
 };
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
 // hash map for mapping 64 bit feature indices to feature weights
 KHASH_MAP_INIT_INT64(fw, struct hmData)
 // hash map for mapping 64 bit feature indices to col indices
@@ -50,6 +55,10 @@ static uint32_t *pFeatureMap;
 static khash_t(fc) *pFeatureCountsHMap;
 static uint32_t *pFeatureCounts;
 static double *pNormValues;
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
 int findReverseComplementLeaf(const char *s, int slen, int currPos, const char* annptr, int k, int m, int g,
                               IntegerVector *annotationIndexMap, bool presence, struct prefTree *pTree,
