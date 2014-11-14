@@ -241,7 +241,7 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
                     if (length(perfParameters) > 0)
                     {
                         foldPerformance <-
-                            evaluatePrediction(as.numeric(pred), y[folds[[j]]],
+                            evaluatePrediction(pred, y[folds[[j]]],
                                                allLabels=tempModel@classNames,
                                                print=FALSE)
 
@@ -838,7 +838,7 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
                     if (length(perfParameters) > 0)
                     {
                         foldPerformance <-
-                            evaluatePrediction(as.numeric(pred), y[folds[[j]]],
+                            evaluatePrediction(pred, y[folds[[j]]],
                                                allLabels=tempModel@classNames,
                                                print=FALSE)
 

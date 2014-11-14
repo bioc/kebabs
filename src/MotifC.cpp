@@ -14,26 +14,30 @@
 #include "khash.h"
 #include "ksort.h"
 
-#define TF_NONE             0
-#define TF_LEAF             1
-#define TF_PATTERN_BLOCK    2
-#define TF_USED_MOTIF       4
-#define TF_MOTIF_IN_SAMPLE  8
-#define TF_ANNOTATED_LEAF   16
+#define TF_NONE               0
+#define TF_LEAF               1
+#define TF_PATTERN_BLOCK      2
+#define TF_USED_MOTIF         4
+#define TF_MOTIF_IN_SAMPLE    8
+#define TF_ANNOTATED_LEAF     16
 
-#define TF_CHAR_MATCH       0
-#define TF_GROUP_MATCH      1
-#define TF_NEG_GROUP_MATCH  2
+#define TF_CHAR_MATCH         0
+#define TF_GROUP_MATCH        1
+#define TF_NEG_GROUP_MATCH    2
 
-#define TF_RESET_FLAG       0
-#define TF_RESET_ANNOT_ROOT 1
+#define TF_RESET_FLAG         0
+#define TF_RESET_ANNOT_ROOT   1
 
-#define MAX_MOTIF_LENGTH    1000
-#define INIT_POOL_SIZE      67108864    // 64MB
+#define MAX_MOTIF_LENGTH      1000
+#define INIT_POOL_SIZE        67108864    // 64MB
 #define USER_INTERRUPT_LIMIT  100000
 
 using namespace Rcpp;
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
 
 struct fmData
 {
@@ -124,6 +128,10 @@ static khash_t(fim) *pFeatureHMap;
 static uint32_t *pUnweightedPos;
 static char *pKeypool;
 static char **pKeys;
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
 void descendMotif(struct prefTreeMotif *pTree, int index, char kmer[], int level, int k,
                   struct alphaInfo *alphaInf)
@@ -614,7 +622,6 @@ bool getLeaf(struct intfStorePattern *intf)
 
                     if (intf->pTree->node[currBlock].ib.idx[MAX_ALPHA_SIZE - 2] == 0)
                     {
-                        // $$$ TODO remove
                         Rprintf("Continuation block for motif not found\n");
                         return(FALSE);
                     }
@@ -659,7 +666,6 @@ bool getLeaf(struct intfStorePattern *intf)
                 }
                 else
                 {
-                    // $$$ TODO remove
                     Rprintf("Error in finding pattern in motif tree\n");
                     return(FALSE);
                 }
@@ -995,7 +1001,6 @@ bool findAnnotatedMotif(uint32_t leafBlock, uint32_t motifStart, uint32_t currPo
         }
         else
         {
-            // $$$  TODO remove Rprintf
             Rprintf("Annotated motif could not be stored in hash map\n");
             return(FALSE);
         }
@@ -1527,7 +1532,6 @@ void descendOnBranchPos(uint32_t startPos, uint32_t endPos, uint32_t startBlock,
                         }
                     }
 
-//                    descendOnBranchPos(l, l + upper - j - 1, currNext, motifBegin, intf);
                     descendOnBranchPos(l, l + 1, currNext, motifBegin, intf);
                 }
 
@@ -1570,7 +1574,6 @@ void descendOnBranchPos(uint32_t startPos, uint32_t endPos, uint32_t startBlock,
                                     }
                                 }
 
-//                                descendOnBranchPos(l, l + upper - j - 1, currGroup, motifBegin, intf);
                                 descendOnBranchPos(l, l + 1, currGroup, motifBegin, intf);
                             }
                         }
@@ -2007,7 +2010,6 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
 
     if (pTree == NULL)
     {
-        // $$$ TODO remove Rprintf
         Rprintf("Allocation of heap for tree failed\n");
         initMatrixWithNA(km, sizeX, sizeY);
         return;
@@ -2018,7 +2020,6 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
     if (!createMotifTree(motifs, maxMotifLength, pTree, maxNoOfNodes, &freeNode, &nullBlock,
                          &printWarning, alphaInf, TRUE))
     {
-        // $$$ TODO remove Rprintf
         Rprintf("Creation of tree failed\n");
         initMatrixWithNA(km, sizeX, sizeY);
         return;
@@ -2209,7 +2210,6 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
 
     if (pTree == NULL)
     {
-        // $$$ TODO remove Rprintf
         Rprintf("Allocation of heap for tree failed\n");
         initMatrixWithNA(km, sizeX, sizeY);
         return;
@@ -2219,7 +2219,6 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     if (!createMotifTree(motifs, maxMotifLength, pTree, maxNoOfNodes, &freeNode, &nullBlock,
                          &printWarning, alphaInf, TRUE))
     {
-        // $$$ TODO remove Rprintf
         Rprintf("Creation of tree failed\n");
         initMatrixWithNA(km, sizeX, sizeY);
         return;
@@ -2291,14 +2290,12 @@ void getERDMotif(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
                  IntegerVector *motifLengths, int maxPatternLength, bool normalized, uint64_t *dimFeatureSpace,
                  bool useHash, bool useRowNames, bool useColNames)
 {
-    int i, iX, j, numProtect, *pSelX;
+    int i, iX, j, numProtect;
     double *normValues;
     const void *vmax;
     SEXP rownames, colnames, dimnames;
 
-//    NumericMatrix erd(sizeX, intf->numUsedMotifs);
     intf->pErd = &erd;
-//    *pErd = &erd;
 
     if (useColNames)
         PROTECT(colnames = Rf_allocVector(STRSXP, intf->numUsedMotifs));
@@ -2322,7 +2319,6 @@ void getERDMotif(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
     intf->markUsedOnly = FALSE;
     intf->markMotifsInSample = FALSE;
     intf->getKernelValue = normalized;
-//    pSelX = selX.begin();
 
     for (i = 0; i < sizeX; i++)
     {
@@ -2332,8 +2328,6 @@ void getERDMotif(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
         intf->rowIndex = i;
         intf->seqptr = x.ptr[iX];
         intf->seqnchar = x.nchar[iX];
-//        intf->seqptr = x.ptr[*pSelX];
-//        intf->seqnchar = x.nchar[*pSelX];
 
         if (annX.length > 0)
             intf->annptr = annX.ptr[iX];
@@ -2342,8 +2336,6 @@ void getERDMotif(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
 
         if (normalized)
             normValues[i] = sqrt(intf->kernelValue);
-
-        pSelX++;
     }
 
     if (normalized)
@@ -2467,7 +2459,6 @@ void getERSMotif(SEXP **pErs, ByteStringVector x, int sizeX, IntegerVector selX,
                 UNPROTECT(numProtect);
                 vmaxset(vmax);
 
-                // $$$ TODO remove Rprintf
                 Rprintf("Determination of feature values failed\n");
                 ers1 = PROTECT(NEW_OBJECT(MAKE_CLASS("ExplicitRepresentationSparse")));
                 pErs = (SEXP **) ers1;
@@ -2578,7 +2569,6 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
 
     if (pTree == NULL)
     {
-        // $$$ TODO remove Rprintf
         Rprintf("Allocation of heap for tree failed\n");
         return(generateEmptyExplicitRep(sizeX, sparse));
     }
@@ -2587,7 +2577,6 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
     if (!createMotifTree(motifs, maxMotifLength, pTree, maxNoOfNodes, &freeNode, &nullBlock,
                          &printWarning, &alphaInf, FALSE))
     {
-        // $$$ TODO remove Rprintf
         Rprintf("Creation of tree failed\n");
         return(generateEmptyExplicitRep(sizeX, sparse));
     }
@@ -2639,7 +2628,6 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
 
             if (intf.kernelValue == -1)
             {
-                // $$$ TODO remove Rprintf
                 Rprintf("Determination of used features failed\n");
                 return(generateEmptyExplicitRep(sizeX, sparse));
             }
@@ -2943,7 +2931,6 @@ uint64_t * featureNamesToIndexMotif(SEXP featureNames, int numFeatures, void **p
         if (!createMotifTree(motifs, maxMotifLength, pTree, maxNoOfNodes, freeNode, &nullBlock,
                              &printWarning, alphaInf, TRUE))
         {
-            // $$$ TODO remove Rprintf
             Rprintf("Creation of motif tree failed\n");
             vmaxset(vmax);
             return(NULL);
@@ -2962,7 +2949,6 @@ uint64_t * featureNamesToIndexMotif(SEXP featureNames, int numFeatures, void **p
 
         if (!getLeaf(&intf))
         {
-            // $$$ TODO remove Rprintf
             Rprintf("Traversal of motif tree failed\n");
             vmaxset(vmax);
             return(NULL);
@@ -3018,7 +3004,6 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
         if (!createMotifTree(motifs, maxMotifLength, pTree, maxNoOfNodes, freeNode, &nullBlock,
                              &printWarning, alphaInf, TRUE))
         {
-            // $$$ TODO remove Rprintf
             Rprintf("Creation of motif tree failed\n");
             vmaxset(vmax);
             return;
@@ -3068,7 +3053,6 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
 
         if (intf.kernelValue == -1)
         {
-            // $$$ TODO Remove Rprintf
             Rprintf("Error in generating sparse feature vectors");
             return;
         }
@@ -3383,16 +3367,12 @@ RcppExport bool featuresToMotifTree(ByteStringVector motifs, int maxMotifLength,
                                     bool *printWarning, IntegerVector *unweightedPosStart, uint32_t **unweightedPos,
                                     struct allIndMaps *allIndexMaps)
 {
-//    int i, j, arraySize, currIndex, currPos;
-//    bool substGroupOpen;
-
     *freeNode = 1;
 
     *pTree = (struct prefTreeMotif *) R_alloc(maxNoOfNodes, sizeof(struct treeNode));
 
     if (*pTree == NULL)
     {
-        // $$$ TODO remove Rprintf
         Rprintf("Allocation of heap for tree failed\n");
         return(FALSE);
     }
@@ -3401,58 +3381,11 @@ RcppExport bool featuresToMotifTree(ByteStringVector motifs, int maxMotifLength,
     if (!createMotifTree(motifs, maxMotifLength, *pTree, maxNoOfNodes, freeNode, nullBlock,
                          printWarning, alphaInf, FALSE))
     {
-        // $$$ TODO remove Rprintf
         Rprintf("Creation of tree failed\n");
         return(FALSE);
     }
 
     findUnweightedPositions(motifs, unweightedPosStart, unweightedPos);
-//    arraySize = motifs.length * 2;
-//    pUnweightedPos = (uint32_t *) Calloc(arraySize, uint32_t);
-//    *unweightedPos = pUnweightedPos;
-//    currIndex = 0;
-//
-//    for (i = 0; i < motifs.length; i++)
-//    {
-//        (*unweightedPosStart)[i] = currIndex;
-//        currPos = -1;
-//        substGroupOpen = FALSE;
-//
-//        for (j = 0; j < motifs.nchar[i]; j++)
-//        {
-//            if (substGroupOpen)
-//            {
-//                if (motifs.ptr[i][j] == ']')
-//                {
-//                    currPos++;
-//                    substGroupOpen = FALSE;
-//                }
-//            }
-//            else
-//            {
-//                if (motifs.ptr[i][j] == '[')
-//                    substGroupOpen = TRUE;
-//                else
-//                {
-//                    currPos++;
-//
-//                    if (motifs.ptr[i][j] == '.')
-//                    {
-//                        if (currIndex >=  arraySize)
-//                        {
-//                            arraySize = arraySize * 2;
-//                            pUnweightedPos = Realloc(unweightedPos, arraySize, uint32_t);
-//                            *unweightedPos = pUnweightedPos;
-//                        }
-//
-//                        (*unweightedPos)[currIndex++] = currPos;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    (*unweightedPosStart)[motifs.length] = currIndex;
 
     return(TRUE);
 }
@@ -3489,7 +3422,7 @@ void genPredProfileMotif(NumericMatrix profiles, ByteStringVector x, IntegerVect
 
     // for ann spec kernel with original motifs
     // without annotation with motifs from feature names
-    if (!annX.length > 0 && !normalized)
+    if (!(annX.length > 0) && !normalized)
     {
         currMotifs = &fwMotifs;
         currMotifLengths = fwMotifLengths;
@@ -3605,9 +3538,6 @@ void genPredProfileMotif(NumericMatrix profiles, ByteStringVector x, IntegerVect
 
         findMotifs(&intf);
     }
-
-    // $$$ TODO remove dummy statement for debugging
-    intf.markUsedOnly = FALSE;
 
     return;
 }

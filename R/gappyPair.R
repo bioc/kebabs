@@ -388,7 +388,8 @@ gappyPairProcessing <- function(x, y, selx, sely, k, m, r, annSpec, distWeight,
         else if (names(bioCharset[[1]]) %in% c("DNAexact", "RNAexact") && 
                  k > 10)
             stop("for exact charset 'k' must be smaller than or equal to 10\n")
-        else if (k > 7)
+        else if (names(bioCharset[[1]]) %in% c("DNAiupac", "RNAiupac") &&
+                 k > 7)
             stop("for iupac charset 'k' must be smaller than or equal to 7\n")
     }
 

@@ -18,11 +18,20 @@ extern "C"
 
 using namespace Rcpp;
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
 KHASH_MAP_INIT_INT(access32, uint32_t)
 KHASH_MAP_INIT_INT64(access64, uint32_t)
 
 static khash_t(access32) *pAccessHashMap32;
 static khash_t(access64) *pAccessHashMap64;
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
 // only supports dgCMatrix from the Matrix package for bulk random access to elements
 void * generateAccessHashmap(int nrows, int ncols, uint64_t *rowIndices, int dimFeatureSpace, int minPos,
