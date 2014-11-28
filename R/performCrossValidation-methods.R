@@ -42,9 +42,6 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
     else
         numGroups <- 0
 
-    if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
-        perfParameters <- c("ACC", "BACC", "MCC")
-
     model@cvResult <- new("CrossValidationResult")
     model@cvResult@cross <- cross
     model@cvResult@noCross <- noCross
@@ -56,6 +53,7 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
     collectACC <- "ACC" %in% perfParameters
     collectBACC <- "BACC" %in% perfParameters
     collectMCC <- "MCC" %in% perfParameters
+    collectAUC <- "AUC" %in% perfParameters
 
     if (collectACC)
         model@cvResult@foldACC <- matrix(Inf, nrow=noCross, ncol=numFolds)
@@ -65,6 +63,9 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
 
     if (collectMCC)
         model@cvResult@foldMCC <- matrix(Inf, nrow=noCross, ncol=numFolds)
+
+    if (collectAUC)
+        model@cvResult@foldAUC <- matrix(Inf, nrow=noCross, ncol=numFolds)
 
     if (model@ctlInfo@classification == TRUE && model@numClasses == 0)
     {
@@ -108,6 +109,7 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
         noOfSVs <- rep(NA_real_, numFolds)
         sumAlphas <- rep(NA_real_, numFolds)
         foldError <- rep(NA_real_, numFolds)
+        predDecValues <- NA
 
         if (collectACC)
             foldACC <- rep(NA_real_, numFolds)
@@ -117,6 +119,9 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
 
         if (collectMCC)
             foldMCC <- rep(NA_real_, numFolds)
+
+        if (collectAUC)
+            foldAUC <- rep(NA_real_, numFolds)
 
         for (j in 1:numFolds)
         {
@@ -221,6 +226,14 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
                     pred <- predict(object=tempModel,
                                     x=exRep[folds[[j]],],
                                     predictionType="response", verbose=verbose)
+                    
+                    if (collectAUC)
+                    {
+                        predDecValues <- predict(object=tempModel,
+                                                 x=exRep[folds[[j]],],
+                                                 predictionType="decision",
+                                                 verbose=verbose)
+                    }
                 }
                 else
                 {
@@ -228,6 +241,14 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
                     pred <- predict(object=tempModel, x=object[folds[[j]],
                                     trainIndices[svIndices]],
                                     predictionType="response", verbose=verbose)
+                    
+                    if (collectAUC)
+                    {
+                        predDecValues <- predict(object=tempModel,
+                                                 x=object[folds[[j]],],
+                                                 predictionType="decision",
+                                                 verbose=verbose)
+                    }
                 }
 
                 if (is.null(pred))
@@ -243,6 +264,7 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
                         foldPerformance <-
                             evaluatePrediction(pred, y[folds[[j]]],
                                                allLabels=tempModel@classNames,
+                                               decValues=predDecValues,
                                                print=FALSE)
 
                         if (collectACC)
@@ -253,6 +275,9 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
 
                         if (collectMCC)
                             foldMCC[j] <- foldPerformance$MAT_CC
+
+                        if (collectAUC)
+                            foldAUC[j] <- foldPerformance$AUC
                     }
                 }
                 else
@@ -295,21 +320,21 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
         if (nonNA > 0)
         {
             model@cvResult@cvError[[i]] <- sum(foldError, na.rm=TRUE) /
-            nonNA
+                                           nonNA
             model@cvResult@foldErrors[i,] <- foldError
             model@cvResult@noSV[((i-1)*numFolds+1):
-            ((i)*numFolds)] <- noOfSVs
+                                ((i)*numFolds)] <- noOfSVs
             model@cvResult@sumAlphas[((i-1)*numFolds+1):
-            ((i)*numFolds)] <- sumAlphas
+                                     ((i)*numFolds)] <- sumAlphas
         }
         else
         {
             model@cvResult@cvError[[i]] <- NA
             model@cvResult@foldErrors[i,] <- NA
             model@cvResult@noSV[((i-1)*numFolds+1):
-            ((i)*numFolds)] <- rep(NA, numFolds)
+                                ((i)*numFolds)] <- rep(NA, numFolds)
             model@cvResult@sumAlphas[((i-1)*numFolds+1):
-            ((i)*numFolds)] <- rep(NA, numFolds)
+                                     ((i)*numFolds)] <- rep(NA, numFolds)
         }
 
         if (collectACC)
@@ -357,6 +382,22 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
             {
                 model@cvResult@MCC[[i]] <- NA
                 model@cvResult@foldMCC[i,] <- NA
+            }
+        }
+        
+        if (collectAUC)
+        {
+            nonNA <- sum((!is.na(foldAUC)))
+            
+            if (nonNA > 0)
+            {
+                model@cvResult@AUC[[i]] <- sum(foldAUC, na.rm=TRUE) / nonNA
+                model@cvResult@foldAUC[i,] <- foldAUC
+            }
+            else
+            {
+                model@cvResult@AUC[[i]] <- NA
+                model@cvResult@foldAUC[i,] <- NA
             }
         }
     }
@@ -637,9 +678,6 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
     else
         numGroups <- 0
 
-    if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
-        perfParameters <- c("ACC", "BACC", "MCC")
-
     model@cvResult <- new("CrossValidationResult")
     model@cvResult@cross <- cross
     model@cvResult@noCross <- noCross
@@ -651,6 +689,7 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
     collectACC <- "ACC" %in% perfParameters
     collectBACC <- "BACC" %in% perfParameters
     collectMCC <- "MCC" %in% perfParameters
+    collectAUC <- "AUC" %in% perfParameters
 
     if (collectACC)
         model@cvResult@foldACC <- matrix(Inf, nrow=noCross, ncol=numFolds)
@@ -660,6 +699,9 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
 
     if (collectMCC)
         model@cvResult@foldMCC <- matrix(Inf, nrow=noCross, ncol=numFolds)
+
+    if (collectAUC)
+        model@cvResult@foldAUC <- matrix(Inf, nrow=noCross, ncol=numFolds)
 
     if (model@ctlInfo@classification == TRUE && model@numClasses == 0)
     {
@@ -693,11 +735,11 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
         }
 
         numFolds <- length(folds)
-
         model@cvResult@folds[((i-1)*numFolds+1):((i)*numFolds)] <- folds
         noOfSVs <- rep(NA_real_, numFolds)
         sumAlphas <- rep(NA_real_, numFolds)
         foldError <- rep(NA_real_, numFolds)
+        predDecValues <- NA
 
         if (collectACC)
             foldACC <- rep(NA_real_, numFolds)
@@ -707,6 +749,9 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
 
         if (collectMCC)
             foldMCC <- rep(NA_real_, numFolds)
+
+        if (collectAUC)
+            foldAUC <- rep(NA_real_, numFolds)
 
         for (j in 1:numFolds)
         {
@@ -820,11 +865,27 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
                 {
                     pred <- predict(object=tempModel, x=exRepLin[folds[[j]],],
                                     predictionType="response", verbose=verbose)
+
+                    if (collectAUC)
+                    {
+                        predDecValues <- predict(object=tempModel,
+                                                 x=exRepLin[folds[[j]],],
+                                                 predictionType="decision",
+                                                 verbose=verbose)
+                    }
                 }
                 else
                 {
                     pred <- predict(object=tempModel, x=object[folds[[j]],],
                                     predictionType="response", verbose=verbose)
+                                    
+                    if (collectAUC)
+                    {
+                        predDecValues <- predict(object=tempModel,
+                                                 x=object[folds[[j]],],
+                                                 predictionType="decision",
+                                                 verbose=verbose)
+                    }
                 }
 
                 if (is.null(pred))
@@ -840,6 +901,7 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
                         foldPerformance <-
                             evaluatePrediction(pred, y[folds[[j]]],
                                                allLabels=tempModel@classNames,
+                                               decValues=predDecValues,
                                                print=FALSE)
 
                         if (collectACC)
@@ -850,6 +912,9 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
 
                         if (collectMCC)
                             foldMCC[j] <- foldPerformance$MAT_CC
+                            
+                        if (collectAUC)
+                            foldAUC[j] <- foldPerformance$AUC
                     }
                 }
                 else
@@ -955,6 +1020,22 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
             {
                 model@cvResult@MCC[[i]] <- NA
                 model@cvResult@foldMCC[i,] <- NA
+            }
+        }
+        
+        if (collectAUC)
+        {
+            nonNA <- sum((!is.na(foldAUC)))
+            
+            if (nonNA > 0)
+            {
+                model@cvResult@AUC[[i]] <- sum(foldAUC, na.rm=TRUE) / nonNA
+                model@cvResult@foldAUC[i,] <- foldAUC
+            }
+            else
+            {
+                model@cvResult@AUC[[i]] <- NA
+                model@cvResult@foldAUC[i,] <- NA
             }
         }
     }

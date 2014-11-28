@@ -541,11 +541,107 @@ performance.ModelSelectionResult <- function(object)
     if ("MCC" %in% object@perfParameters)
         result$MCC <- object@gridMCC
 
+    if ("AUC" %in% object@perfParameters)
+        result$AUC <- object@gridAUC
+
     result
 }
 
 setMethod("performance", "ModelSelectionResult",
           performance.ModelSelectionResult)
+
+###################################################
+##
+## ROCData accessors
+##
+###################################################
+
+#' @rdname ROCDataAccessors
+#' @name ROCDataAccessors
+#' @title ROCData Accessors
+#' @aliases
+#' auc
+#' auc,ROCData-method
+#' auc<-
+#' auc<-,ROCData-method
+#' tpr
+#' tpr,ROCData-method
+#' tpr<-
+#' tpr<-,ROCData-method
+#' fpr
+#' fpr,ROCData-method
+#' fpr<-
+#' fpr<-,ROCData-method
+#' @param object an object of class \code{\linkS4class{ROCData}}
+#' @section Accessor-like methods:
+#'
+#' \describe{
+#'   \item{}{\code{auc}:
+#'   returns the area under the ROC curve.
+#'   }
+#'   \item{}{\code{tpr}:
+#'   returns the true positive rate values as numeric vector.
+#'   }
+#'   \item{}{\code{fpr}:
+#'   returns the false positive rate values as numeric vector.
+#'   }
+#' }
+#' @return \code{auc}: returns a numeric value\cr
+#' \code{tpr}: returns a numeric vector\cr
+#' \code{fpr}: returns a numeric vector\cr
+#' @examples
+#' ## create kernel object for normalized spectrum kernel
+#' specK5 <- spectrumKernel(k=5)
+#' \dontrun{
+#' ## load data
+#' data(TFBS)
+#'
+#' ## select 70% of the samples for training and the rest for test
+#' train <- sample(1:length(enhancerFB), length(enhancerFB) * 0.7)
+#' test <- c(1:length(enhancerFB))[-train]
+#'
+#' ## perform training - feature weights are computed by default
+#' model <- kbsvm(enhancerFB[train], yFB[train], specK5, pkg="LiblineaR",
+#'                svm="C-svc", cost=15)
+#' preddec <- predict(model, enhancerFB[test], predictionType="decision")
+#' rocdata <- computeROCandAUC(preddec, yFB[test], allLabels=unique(yFB))
+#'
+#' ## accessor for auc
+#' auc(rocdata)
+#' }
+
+## accessor auc
+setMethod("auc", "ROCData", function(object) object@AUC)
+
+setReplaceMethod("auc", "ROCData",
+    function(x, value)
+    {
+        x@auc <- value
+        x
+    }
+)
+
+## accessor tpr
+setMethod("tpr", "ROCData", function(object) object@TPR)
+
+setReplaceMethod("tpr", "ROCData",
+    function(x, value)
+    {
+        x@tpr <- value
+        x
+    }
+)
+
+## accessor fpr
+setMethod("fpr", "ROCData", function(object) object@FPR)
+
+setReplaceMethod("fpr", "ROCData",
+    function(x, value)
+    {
+        x@fpr <- value
+        x
+    }
+)
 
 
 ###################################################

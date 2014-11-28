@@ -170,12 +170,14 @@
   'nestedCross' is larger than 0. Default=1}
 
   \item{perfParameters}{a character vector with one or
-  several values from the set "ACC" , "BACC", "MCC" and
-  "ALL". "ACC" stands for accuracy, "BACC" for balanced
-  accuracy, "MCC" for Matthews Correlation Coefficient and
-  "ALL" for all three. This parameter defines which
-  performance parameters are collected in cross validation,
-  grid search and model selection for display purpose.
+  several values from the set "ACC" , "BACC", "MCC", "AUC"
+  and "ALL". "ACC" stands for accuracy, "BACC" for balanced
+  accuracy, "MCC" for Matthews Correlation Coefficient,
+  "AUC" for area under the ROC curve and "ALL" for all
+  four. This parameter defines which performance parameters
+  are collected in cross validation, grid search and model
+  selection for display purpose. The value "AUC" is
+  currently not supported for multiclass classification.
   Default=NULL}
 
   \item{perfObjective}{a singe character string from the

@@ -18,7 +18,7 @@ export(DNAVector, RNAVector, AAVector, genRandBioSeqs, annotationMetadata,
        gappyPairKernel, linearKernel, symmetricPairKernel, getKernelMatrix,
        getExRep, getExRepQuadratic,  getFeatureWeights, linWeight, expWeight,
        gaussWeight, swdWeight, getSVMSlotValue, seqKernelAsChar,
-       evaluatePrediction, showAnnotatedSeq, kebabsDemo)
+       computeROCandAUC, evaluatePrediction, showAnnotatedSeq, kebabsDemo)
 
 exportClasses("DNAVector", "RNAVector", "AAVector")
 
@@ -28,6 +28,7 @@ exportMethods(kbsvm, predict, show, kernelParameters, as.KernelMatrix,
               cvResult, "cvResult<-", modelSelResult, "modelSelResult<-",
               svmModel, "svmModel<-", probabilityModel, "probabilityModel<-",
               gridRows, gridColumns, gridErrors, performance, length, width,
-              names, "names<-", width, performCrossValidation,
-              trainSVM, predictSVM, getFeatureSpaceDimension)
+              names, "names<-", width, performCrossValidation, auc, "auc<-",
+              tpr, "tpr<-", fpr, "fpr<-", trainSVM, predictSVM,
+              getFeatureSpaceDimension)
 

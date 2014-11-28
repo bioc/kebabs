@@ -10,6 +10,9 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 {
     addArgs <- list(...)
 
+    if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
+        perfParameters <- c("ACC", "BACC", "MCC", "AUC")
+
     ## check parameters and allocate model
     model <- checkKBSVMParams(x=x, y=y, kernel=kernel, svm=svm, pkg=pkg,
                     explicit=explicit, explicitType=explicitType,
@@ -418,11 +421,12 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 #' grid search for each grid point. Default=NULL
 #
 #' @param perfParameters a character vector with one or several values from
-#' the set "ACC" , "BACC", "MCC" and "ALL". "ACC" stands for accuracy, "BACC"
-#' for balanced accuracy, "MCC" for Matthews Correlation Coefficient and "ALL"
-#' for all three. This parameter defines which performance parameters are
-#' collected in cross validation, grid search and model selection for display
-#' purpose. Default=NULL
+#' the set "ACC" , "BACC", "MCC", "AUC" and "ALL". "ACC" stands for accuracy,
+#' "BACC" for balanced accuracy, "MCC" for Matthews Correlation Coefficient,
+#' "AUC" for area under the ROC curve and "ALL" for all four. This parameter
+#' defines which performance parameters are collected in cross validation,
+#' grid search and model selection for display purpose. The value "AUC" is
+#' currently not supported for multiclass classification. Default=NULL
 #'
 #' @param perfObjective a singe character string from the set "ACC", "BACC"
 #' and "MCC" (see previous parameter). The parameter is only relevant in
@@ -845,7 +849,7 @@ kbsvm.ExplicitRep <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
     addArgs <- list(...)
 
     if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
-        perfParameters <- c("ACC", "BACC", "MCC")
+        perfParameters <- c("ACC", "BACC", "MCC", "AUC")
 
     ## for explicit representation subsetting on user level only
     ## allows more efficient handling on user level
@@ -1046,6 +1050,9 @@ kbsvm.KernelMatrix <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
             runtimeWarning=TRUE, verbose = getOption("verbose"), ...)
 {
     addArgs <- list(...)
+
+    if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
+        perfParameters <- c("ACC", "BACC", "MCC", "AUC")
 
     ## for kernel matrix subsetting on user level only
     ## allows more efficient handling on user level

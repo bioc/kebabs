@@ -39,11 +39,15 @@ validation.
 
 \item{\code{MCC}}{cross validation Matthews correlation coefficient}
 
+\item{\code{AUC}}{cross validation area under the ROC curve}
+
 \item{\code{foldACC}}{fold accuracy}
 
 \item{\code{foldBACC}}{fold balanced accuracy}
 
 \item{\code{foldMCC}}{fold Matthews correlation coefficient}
+
+\item{\code{foldAUC}}{fold area under the ROC curve}
 
 \item{\code{sumAlphas}}{sum of alphas}
 }}

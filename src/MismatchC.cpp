@@ -85,7 +85,7 @@ void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
                   int level, int noMism, double *sum, struct prefTree *pTree,
                   int maxNoOfNodes, int *freeNode, bool unmapped, bool presence,
                   bool *printWarning, struct indexBlock *nullBlock,
-                  struct alphaInfo *alphaInf, struct allIndMaps *allIndexMaps)
+                  struct alphaInfo *alphaInf)
 {
     int i, misMatchNew, indexNew, currNew;
 
@@ -148,16 +148,12 @@ void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
         }
 
         pos++;
-
-        if (unmapped)
-            indexNew = allIndexMaps->reverseUnmapped[(int) x[pos]];
-        else
-            indexNew = alphaInf->indexMap[(int) x[pos]];
+        indexNew = alphaInf->seqIndexMap[(int) x[pos]];
 
         if (indexNew > -1)
         {
             buildSubtree(x, pos, indexNew, curr, k, m, level+1, noMism, sum, pTree, maxNoOfNodes,
-                         freeNode, unmapped, presence, printWarning, nullBlock, alphaInf, allIndexMaps);
+                         freeNode, unmapped, presence, printWarning, nullBlock, alphaInf);
         }
 
         return;
@@ -221,10 +217,7 @@ void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
                 }
             }
 
-            if (unmapped)
-                indexNew = allIndexMaps->reverseUnmapped[(int) x[pos+1]];
-            else
-                indexNew = alphaInf->indexMap[(int) x[pos+1]];
+            indexNew = alphaInf->seqIndexMap[(int) x[pos + 1]];
 
             if (indexNew > -1)
             {
@@ -234,7 +227,7 @@ void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
                     misMatchNew++;
 
                 buildSubtree(x, pos+1, indexNew, currNew, k, m, level+1, misMatchNew, sum, pTree, maxNoOfNodes,
-                             freeNode, unmapped, presence, printWarning, nullBlock, alphaInf, allIndexMaps);
+                             freeNode, unmapped, presence, printWarning, nullBlock, alphaInf);
             }
         }
     }
@@ -245,7 +238,7 @@ void buildSubtree(const char * x, int pos, int index, int curr, int k, int m,
 double createMismatchTree(const char *s, int slen, int k, int m, struct prefTree *pTree,
                           int maxNoOfNodes, int *freeNode, bool unmapped, bool presence,
                           bool *printWarning, struct indexBlock *nullBlock,
-                          struct alphaInfo *alphaInf, struct allIndMaps *allIndexMaps)
+                          struct alphaInfo *alphaInf)
 {
     double kernelValue = 0;
     int curr, index;
@@ -260,15 +253,12 @@ double createMismatchTree(const char *s, int slen, int k, int m, struct prefTree
     {
         curr = 0;
 
-        if (alphaInf->unmapped)
-            index = allIndexMaps->reverseUnmapped[(int) s[i]];
-        else
-            index = alphaInf->indexMap[(int) s[i]];
+        index = alphaInf->seqIndexMap[(int) s[i]];
 
         if (index > -1)
         {
             buildSubtree(s, i, index, curr, k, m, 0, 0, &kernelValue, pTree, maxNoOfNodes, freeNode,
-                         unmapped, presence, printWarning, nullBlock, alphaInf, allIndexMaps);
+                         unmapped, presence, printWarning, nullBlock, alphaInf);
         }
     }
 
@@ -278,7 +268,7 @@ double createMismatchTree(const char *s, int slen, int k, int m, struct prefTree
 void traverseSubtree(const char * x, int length, int index, int pos, int curr, int k, int m,
                      int level, int noMism, double *kernelValue, struct prefTree *pTree,
                      int maxNoOfNodes, int *freeNode, bool unmapped, bool presence,
-                     bool *printWarning, struct alphaInfo *alphaInf, struct allIndMaps *allIndexMaps)
+                     bool *printWarning, struct alphaInfo *alphaInf)
 {
     int i, misMatchNew, indexNew, currNew;
 
@@ -307,10 +297,7 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
                 }
                 else
                 {
-                    if (unmapped)
-                        index = allIndexMaps->reverseUnmapped[(int) x[++pos]];
-                    else
-                        index = alphaInf->indexMap[(int) x[++pos]];
+                    index = alphaInf->seqIndexMap[(int) x[++pos]];
 
                     if (index < 0)
                         return;
@@ -347,10 +334,7 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
 
                 if (pos < (length - 1))
                 {
-                    if (unmapped)
-                        indexNew = allIndexMaps->reverseUnmapped[(int) x[pos+1]];
-                    else
-                        indexNew = alphaInf->indexMap[(int) x[pos+1]];
+                    indexNew = alphaInf->seqIndexMap[(int) x[pos + 1]];
 
                     if (indexNew > -1)
                     {
@@ -361,7 +345,7 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
 
                         traverseSubtree(x, length, indexNew, pos+1, currNew, k, m, level+1, misMatchNew,
                                         kernelValue, pTree, maxNoOfNodes, freeNode, unmapped, presence,
-                                        printWarning, alphaInf, allIndexMaps);
+                                        printWarning, alphaInf);
                     }
                 }
             }
@@ -375,7 +359,7 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
                                         int sizeY, IntegerVector selX, IntegerVector selY, bool symmetric,
                                         int bioCharset, bool lowercase, bool unmapped, int k, int m,
                                         bool normalized, bool presence, int maxSeqLength,
-                                        struct alphaInfo *alphaInf, struct allIndMaps *allIndexMaps)
+                                        struct alphaInfo *alphaInf)
 {
     int size1, size2, i, j, p, iX, iY, freeNode, index, maxNoOfNodes;
     uint64_t nodeLimit, maxNodesPerSequence;
@@ -419,8 +403,7 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
             freeNode = 1;
 
             km(i,i) = createMismatchTree((const char *) x.ptr[iX], x.nchar[iX], k, m, pTree, maxNoOfNodes,
-                                         &freeNode, unmapped, presence, &printWarning, &nullBlock, alphaInf,
-                                         allIndexMaps);
+                                         &freeNode, unmapped, presence, &printWarning, &nullBlock, alphaInf);
 
             if (km(i,i) == NA_REAL)
                 return(createNAMatrix(sizeX, sizeY));
@@ -439,16 +422,13 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
                 // search second sequence
                 for (p=0; p<=x.nchar[iY] - k; p++)
                 {
-                    if (unmapped)
-                        index = allIndexMaps->reverseUnmapped[(int) x.ptr[iY][p]];
-                    else
-                        index = alphaInf->indexMap[(int) x.ptr[iY][p]];
+                    index = alphaInf->seqIndexMap[(int) x.ptr[iY][p]];
 
                     if (index > -1)
                     {
                         traverseSubtree((const char *)&(x.ptr[iY])[p], x.nchar[iY] - p, index, 0, 0,
                                         k, m, 0, 0, &kernelVal, pTree, maxNoOfNodes, &freeNode,
-                                        unmapped, presence, &printWarning, alphaInf, allIndexMaps);
+                                        unmapped, presence, &printWarning, alphaInf);
                     }
                 }
 
@@ -503,7 +483,7 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
 
                 kv[i] = createMismatchTree((char *) seqs2->ptr[iX], seqs2->nchar[iX], k, m, pTree,
                                            maxNoOfNodes, &freeNode, unmapped, presence, &printWarning,
-                                           &nullBlock, alphaInf, allIndexMaps);
+                                           &nullBlock, alphaInf);
 
                 if (kv[i] != NA_REAL)
                     kv[i] = sqrt(kv[i]);
@@ -522,7 +502,7 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
             //create new tree for shorter dimension element
             currVal = createMismatchTree((char *) seqs1->ptr[iX], seqs1->nchar[iX], k, m, pTree,
                                          maxNoOfNodes, &freeNode, unmapped, presence, &printWarning,
-                                         &nullBlock, alphaInf, allIndexMaps);
+                                         &nullBlock, alphaInf);
 
             if (currVal == NA_REAL)
             {
@@ -550,16 +530,13 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
                 // search second sequence
                 for (int p=0; p<=seqs2->nchar[iY]-k; p++)
                 {
-                    if (unmapped)
-                        index = allIndexMaps->reverseUnmapped[(int) seqs2->ptr[iY][p]];
-                    else
-                        index = alphaInf->indexMap[(int) seqs2->ptr[iY][p]];
+                    index = alphaInf->seqIndexMap[(int) seqs2->ptr[iY][p]];
 
                     if (index > -1)
                     {
                         traverseSubtree(((const char *)&(seqs2->ptr[iY])[p]), seqs2->nchar[iY], index, 0, 0,
                                         k, m, 0, 0, &kernelVal, pTree, maxNoOfNodes, &freeNode, unmapped,
-                                        presence, &printWarning, alphaInf, allIndexMaps);
+                                        presence, &printWarning, alphaInf);
                     }
                 }
 
@@ -981,7 +958,7 @@ bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, bool unmappe
                  int k, int m, bool normalized, bool presence, struct alphaInfo *alphaInf,
                  ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures, bool useHash,
                  void **indexMap, int *numUsedFeatures, bool countNonzeroFeatures, int *numNonzeroFeatures,
-                 double **normValues, struct allIndMaps *allIndexMaps)
+                 double **normValues)
 {
     int i, j, iold, iX, index, patLength, result;
     uint32_t *featIndexMap, *featureCounts, *indexSet, featureTreated, maxValidIndex;
@@ -1165,10 +1142,7 @@ bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, bool unmappe
 
         for (j = 0; j < x.nchar[iX]; j++)
         {
-            if (alphaInf->unmapped)
-                index = allIndexMaps->reverseUnmapped[(int) x.ptr[iX][j]];
-            else
-                index = alphaInf->indexMap[(int) x.ptr[iX][j]];
+            index = alphaInf->seqIndexMap[(int) x.ptr[iX][j]];
 
             if (index > -1)
             {
@@ -1415,8 +1389,7 @@ bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, bool unmappe
 void getERDMismatch(ByteStringVector x, int sizeX, IntegerVector selX, bool unmapped, int bioCharset,
                     int k, int m, bool normalized, bool presence, struct alphaInfo *alphaInf,
                     ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures, bool useHash,
-                    void *indexMap, int numUsedFeatures, NumericMatrix erd, double *normValues,
-                    struct allIndMaps *allIndexMaps)
+                    void *indexMap, int numUsedFeatures, NumericMatrix erd, double *normValues)
 {
     int i, j, iold, iX, index, patLength;
     uint32_t *featIndexMap;
@@ -1480,10 +1453,7 @@ void getERDMismatch(ByteStringVector x, int sizeX, IntegerVector selX, bool unma
 
         for (j = 0; j < x.nchar[iX]; j++)
         {
-            if (alphaInf->unmapped)
-                index = allIndexMaps->reverseUnmapped[(int) x.ptr[iX][j]];
-            else
-                index = alphaInf->indexMap[(int) x.ptr[iX][j]];
+            index = alphaInf->seqIndexMap[(int) x.ptr[iX][j]];
 
             if (index > -1)
             {
@@ -1697,7 +1667,7 @@ bool getERSMismatch(ByteStringVector x, int sizeX, IntegerVector selX, int maxSe
                     int bioCharset, int k, int m, bool normalized, bool presence, struct alphaInfo *alphaInf,
                     ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures, bool mapIndex,
                     bool useHash, void *indexMap, int numUsedFeatures, SEXP slot_p, SEXP slot_j, SEXP slot_x,
-                    double *normValues, struct allIndMaps *allIndexMaps)
+                    double *normValues)
 {
     int i, iX, freeNode, maxNoOfNodes, jIndex;
     uint64_t nodeLimit, maxNodesPerSequence;
@@ -1737,8 +1707,7 @@ bool getERSMismatch(ByteStringVector x, int sizeX, IntegerVector selX, int maxSe
         iX = selX[i];
 
         kernelValue = createMismatchTree((const char *) x.ptr[iX], x.nchar[iX], k, m, pTree, maxNoOfNodes,
-                                         &freeNode, unmapped, presence, &printWarning, &nullBlock, alphaInf,
-                                         allIndexMaps);
+                                         &freeNode, unmapped, presence, &printWarning, &nullBlock, alphaInf);
 
         if (kernelValue == NA_REAL)
         {
@@ -1763,7 +1732,7 @@ bool getERSMismatch(ByteStringVector x, int sizeX, IntegerVector selX, int maxSe
 }
 
 void assignFeatureNames(SEXP colnames, void *indexMap, int k, struct alphaInfo *alphaInf, uint64_t dimFeatureSpace,
-                        bool mapIndex, bool useHash, struct allIndMaps *allIndexMaps)
+                        bool mapIndex, bool useHash)
 {
     int i, j, l;
     uint32_t *featIndexMap;
@@ -1790,7 +1759,7 @@ void assignFeatureNames(SEXP colnames, void *indexMap, int k, struct alphaInfo *
                     for (j = 0; j < k; j++)
                     {
                         kmer[k - j - 1] =
-                            allIndexMaps->reverse[(int)((kh_key(hmap, iter) % powAlpha[j + 1]) / powAlpha[j])];
+                        alphaInf->reverseIndexMap[(int)((kh_key(hmap, iter) % powAlpha[j + 1]) / powAlpha[j])];
                     }
 
                     SET_STRING_ELT(colnames, kh_value(hmap, iter), Rf_mkChar(kmer));
@@ -1809,7 +1778,7 @@ void assignFeatureNames(SEXP colnames, void *indexMap, int k, struct alphaInfo *
                     for (j = 0; j < k; j++)
                     {
                         kmer[k - j - 1] =
-                            allIndexMaps->reverse[(int)((i % (int) powAlpha[j + 1]) / (int) powAlpha[j])];
+                            alphaInf->reverseIndexMap[(int)((i % (int) powAlpha[j + 1]) / (int) powAlpha[j])];
                     }
 
                     SET_STRING_ELT(colnames, l++, Rf_mkChar(kmer));
@@ -1825,7 +1794,8 @@ void assignFeatureNames(SEXP colnames, void *indexMap, int k, struct alphaInfo *
                 R_CheckUserInterrupt();
 
             for (j = 0; j < k; j++)
-                kmer[k - j - 1] = allIndexMaps->reverse[(int)((i % (int) powAlpha[j + 1]) / (int) powAlpha[j])];
+                kmer[k - j - 1] =
+                    alphaInf->reverseIndexMap[(int)((i % (int) powAlpha[j + 1]) / (int) powAlpha[j])];
 
             SET_STRING_ELT(colnames, i, Rf_mkChar(kmer));
         }
@@ -1894,9 +1864,9 @@ RcppExport SEXP genExplRepMismatch(ByteStringVector x, int sizeX, IntegerVector 
 
         if (!zeroFeatures || features.length > 0)
         {
-            if (!getIndexMap(x, sizeX, selX, unmapped, bioCharset, k, m, normalized, presence, &alphaInf, features,
-                             dimFeatureSpace, zeroFeatures, useHash, &indexMap, &numUsedFeatures, FALSE, NULL,
-                             &normValues, &allIndexMaps))
+            if (!getIndexMap(x, sizeX, selX, unmapped, bioCharset, k, m, normalized, presence, &alphaInf,
+                             features, dimFeatureSpace, zeroFeatures, useHash, &indexMap, &numUsedFeatures,
+                             FALSE, NULL, &normValues))
             {
                 vmaxset(vmax);
                 return(generateEmptyExplicitRep(sizeX, sparse));
@@ -1938,14 +1908,14 @@ RcppExport SEXP genExplRepMismatch(ByteStringVector x, int sizeX, IntegerVector 
         if (useColNames)
         {
             assignFeatureNames(colnames, indexMap, k, &alphaInf, dimFeatureSpace, mapIndex,
-                               useHash, &allIndexMaps);
+                               useHash);
         }
 
         vmax = vmaxget();
 
         getERDMismatch(x, sizeX, selX, unmapped, bioCharset, k, m, normalized, presence,
                        &alphaInf, features, dimFeatureSpace, zeroFeatures, useHash, indexMap,
-                       numUsedFeatures, erd, normValues, &allIndexMaps);
+                       numUsedFeatures, erd, normValues);
 
         vmaxset(vmax);
 
@@ -1962,7 +1932,7 @@ RcppExport SEXP genExplRepMismatch(ByteStringVector x, int sizeX, IntegerVector 
 
         if (!getIndexMap(x, sizeX, selX, unmapped, bioCharset, k, m, normalized, presence,
                          &alphaInf, features, dimFeatureSpace, zeroFeatures, useHash, &indexMap,
-                         &numUsedFeatures, TRUE, &numNonzeroFeatures, &normValues, &allIndexMaps))
+                         &numUsedFeatures, TRUE, &numNonzeroFeatures, &normValues))
         {
             vmaxset(vmax);
             return(generateEmptyExplicitRep(sizeX, sparse));
@@ -2045,11 +2015,11 @@ RcppExport SEXP genExplRepMismatch(ByteStringVector x, int sizeX, IntegerVector 
         vmax = vmaxget();
 
         if (useColNames)
-            assignFeatureNames(colnames, indexMap, k, &alphaInf, dimFeatureSpace, mapIndex, useHash, &allIndexMaps);
+            assignFeatureNames(colnames, indexMap, k, &alphaInf, dimFeatureSpace, mapIndex, useHash);
 
         getERSMismatch(x, sizeX, selX, maxSeqLength, unmapped, bioCharset, k, m, normalized, presence,
                        &alphaInf, features, dimFeatureSpace, zeroFeatures, mapIndex, useHash, indexMap,
-                       numUsedFeatures, slot_p, slot_j, slot_x, normValues, &allIndexMaps);
+                       numUsedFeatures, slot_p, slot_j, slot_x, normValues);
 
         vmaxset(vmax);
 
@@ -2115,7 +2085,7 @@ RcppExport SEXP mismatchKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
     dimFeatureSpace = pow(alphaInf.numAlphabetChars, k);
 
     getMismatchKernelMatrix(km, x, y, sizeX, sizeY, selX, selY, symmetric, bioCharset, lowercase,
-                            unmapped, k, m, normalized, presence, maxSeqLength, &alphaInf, &allIndexMaps);
+                            unmapped, k, m, normalized, presence, maxSeqLength, &alphaInf);
     vmaxset(vmax);
 
     return(km);
@@ -2383,10 +2353,7 @@ void genPredProfileMismatch(NumericMatrix pprof, ByteStringVector x, IntegerVect
 
         for (j = 0; j < x.nchar[iX]; j++) //
         {
-            if (alphaInf.unmapped)
-                index = allIndexMaps.reverseUnmapped[(int) x.ptr[iX][j]];
-            else
-                index = alphaInf.indexMap[(int) x.ptr[iX][j]];
+            index = alphaInf.seqIndexMap[(int) x.ptr[iX][j]];
 
             if (index > -1)
             {

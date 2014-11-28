@@ -339,6 +339,138 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
     }
 }
 
+#' @rdname computeROCandAUC
+#' @title Compute Receiver Operating Characteristic And Area Under The Curve
+#'
+#' @description Compute the receiver operating characteristic (ROC) and
+#' area under the ROC curve (AUC) as performance measure for binary
+#' classification
+#'
+#' @param prediction prediction results in the form of decision values as
+#' returned by \code{\link{predict}} for predictionType="decision".
+#'
+#' @param labels label vector of same length as parameter 'prediction'.
+#'
+#' @param allLabels vector containing all occuring labels once. This parameter
+#' is required only if the labels parameter is not a factor. Default=NULL
+#'
+#' @details
+#' For binary classfication this function computes the receiver operating
+#' curve (ROC) and the area under the ROC curve (AUC).
+#'
+#' @return
+#' On successful completion the function returns an object of class
+#' \code{\linkS4class{ROCData}} containing the AUC, a numeric vector of
+#' TPR values and a numeric vector containing the FPR values. If the ROC and
+#' AUC cannot be computed because of missing positive or negative samples the
+#' function returns 3 NA values.
+#'
+#' @seealso \code{\link{predict}}, \code{\linkS4class{ROCData}}
+#' @examples
+#'
+#' ## load transcription factor binding site data
+#' data(TFBS)
+#' enhancerFB
+#' ## select 70% of the samples for training and the rest for test
+#' train <- sample(1:length(enhancerFB), length(enhancerFB) * 0.7)
+#' test <- c(1:length(enhancerFB))[-train]
+#' ## create the kernel object for gappy pair kernel with normalization
+#' gappy <- gappyPairKernel(k=1, m=3)
+#' ## show details of kernel object
+#' gappy
+#'
+#' ## run training with explicit representation
+#' model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=gappy,
+#'                pkg="LiblineaR", svm="C-svc", cost=80, explicit="yes",
+#'                featureWeights="no")
+#'
+#' ## predict the test sequences
+#' pred <- predict(model, enhancerFB[test])
+#' ## print prediction performance
+#' evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
+#'
+#' ## compute ROC and AUC
+#' preddec <- predict(model, enhancerFB[test], predictionType="decision")
+#' rocdata <- computeROCandAUC(preddec, yFB[test], allLabels=unique(yFB))
+#'
+#' ## show AUC value
+#' rocdata
+#'
+#' \dontrun{
+#' ## plot ROC
+#' plot(rocdata)
+#' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' @keywords prediction performance
+#' @keywords methods
+#' @export
+
+computeROCandAUC <- function(prediction, labels, allLabels=NULL)
+{
+    if (length(prediction) != length(labels))
+        stop("length of prediction does not match length of label\n")
+
+    if (is.factor(labels))
+        allLabels <- levels(labels)
+    else
+    {
+        if (!is.null(allLabels))
+            allLabels <- unique(allLabels)
+        else
+            stop("please specify all labels via parameter 'allLabels'\n")
+    }
+
+    if (length(allLabels) > 2)
+        stop("AUC is only supported for binary classification\n")
+
+    allLabels <- sort(allLabels, decreasing=TRUE)
+    numSamples <- length(prediction)
+    posSamples <- sum(labels == allLabels[1])
+    negSamples <- sum(labels == allLabels[2])
+
+    if ((posSamples + negSamples) != numSamples)
+        stop("AUC is only supported for binary classification\n")
+
+    result <- new("ROCData")
+    
+    if (posSamples == 0 || negSamples == 0)
+    {
+        result@AUC <- NA
+        result@TPR <- NA
+        result@FPR <- NA
+        return(result)
+    }
+
+    ## contribution per sample
+    TPC <- 1 / posSamples
+    FPC <- 1 / negSamples
+    ind <- order(prediction, decreasing=TRUE)
+    TPR <- rep(0, length(prediction) + 1)
+    FPR <- rep(0, length(prediction) + 1)
+    result@AUC <- 0
+    
+    for (i in 1:numSamples)
+    {
+        if (labels[ind[i]] == allLabels[1])
+        {
+            FPR[i+1] <- FPR[i]
+            TPR[i+1] <- TPR[i] + TPC
+        }
+        else
+        {
+            TPR[i+1] <- TPR[i]
+            FPR[i+1] <- FPR[i] + FPC
+        }
+        
+        result@AUC <- result@AUC + TPR[i+1] * (FPR[i+1] - FPR[i])
+    }
+    
+    result@TPR <- TPR
+    result@FPR <- FPR
+    return(result)
+}
 
 #' @rdname evaluatePrediction
 #' @title Evaluate Prediction
@@ -351,15 +483,21 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
 #'
 #' @param label label vector of same length as parameter 'prediction'.
 #'
-#' @param allLabels vector containing the labels. This parameter is required
-#' only if the label vector is numeric. Default=NULL
+#' @param allLabels vector containing all occuring labels once. This parameter
+#' is required only if the label vector is numeric. Default=NULL
+#'
+#' @param decValues numeric vector containing decision values for the
+#' predictions as returned by the \code{\link{predict}} method with
+#' \code{predictionType} set to \code{decision}. This parameter is needed for
+#' the determination of the AUC value which is currently only supported for
+#' binary classification. Default=NULL
 #'
 #' @param print This parameter indicates whether performance values should be
 #' printed or returned as data frame without printing (for details see below).
 #' Default=TRUE
 #'
-#' @param confmatrix When set to TRUE a confusion matrix is printed.
-#' Default=TRUE
+#' @param confmatrix When set to TRUE a confusion matrix is printed. The rows
+#' correspond to predictions, the columns to the true labels. Default=TRUE
 #'
 #' @param numPrecision minimum number of digits to the right of the decimal
 #' point. Values between 0 and 20 are allowed. Default=3
@@ -371,11 +509,12 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
 #' @details
 #' For binary classfication this function computes the performance measures
 #' accuracy, balanced accuracy, sensitivity, specificity, precision and the
-#' Matthews Correlation Coefficient(MCC). When the number of positive and
-#' negative training samples is passed to the function it also shows the
-#' balancedness of the training set. The performance results are either
-#' printed by the routine directly or returned in a data frame. The columns
-#' of the data frame are:
+#' Matthews Correlation Coefficient(MCC). If decision values are passed in the
+#' parameter \code{decValues} the function additionally determines the AUC.
+#' When the number of positive and negative training samples is passed to
+#' the function it also shows the balancedness of the training set. The
+#' performance results are either printed by the routine directly or returned
+#' in a data frame. The columns of the data frame are:
 #'
 #' \tabular{ll}{
 #'   column name \tab performance measure\cr
@@ -390,6 +529,7 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
 #'   SPEC        \tab specificity\cr
 #'   PREC        \tab precision\cr
 #'   MAT_CC      \tab Matthews correlation coefficient\cr
+#'   AUC         \tab area under ROC curve\cr
 #'   PBAL        \tab prediction balancedness (fraction of positive samples)\cr
 #'   TBAL        \tab training balancedness (fraction of positive samples)\cr
 #' }
@@ -427,6 +567,12 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
 #' evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 #'
 #' \dontrun{
+#' ## print prediction performance including AUC
+#' ## additionally determine decision values
+#' preddec <- predict(model, enhancerFB[test], predictionType="decision")
+#' evaluatePrediction(pred, yFB[test], allLabels=unique(yFB),
+#'                    decValues=preddec)
+#'
 #' ## print prediction performance including training set balance
 #' trainPosNeg <- c(length(which(yFB[train] == 1)),
 #'                  length(which(yFB[train] == -1)))
@@ -447,15 +593,17 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
 #' @keywords methods
 #' @export
 
-evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
-                               confmatrix=TRUE, numPrecision=3,
-                               numPosNegTrainSamples=numeric(0))
+evaluatePrediction <- function(prediction, label, allLabels=NULL,
+                            decValues=NULL, print=TRUE, confmatrix=TRUE,
+                            numPrecision=3, numPosNegTrainSamples=numeric(0))
 {
     ## for binary classification only - first label must be the positive class
     ## optional input pos and neg training samples for training balance
 
     if (length(prediction) != length(label))
         stop("length of 'prediction' and 'label' do not match\n")
+    
+    computeAUC <- FALSE
 
     if (is.factor(label))
         allLabels <- levels(label)
@@ -470,8 +618,18 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
     if (length(allLabels) > 2)
         allLabels <- sort(allLabels)
     else
+    {
         allLabels <- sort(allLabels, decreasing=TRUE)
-
+        
+        ## AUC currently only for binary classification
+        if (!is.null(decValues) && !(is.na(decValues)))
+        {
+            if (length(decValues) != length(label))
+                stop("length of 'decValues' and 'label' do not match\n")
+            
+            computeAUC <- TRUE
+        }
+    }
     x <- matrix(0, nrow=length(allLabels), ncol=length(allLabels))
     rownames(x) <- allLabels
     colnames(x) <- allLabels
@@ -488,6 +646,8 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
         print(x)
         cat("\n")
     }
+
+    auc <- NA
 
     if (length(allLabels) == 2)
     {
@@ -519,7 +679,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
         }
 
         precision <- ifelse(tp + fp > 0, 100 * tp / (tp + fp), NA)
-        denominator <- sqrt((tp + fn) * (tp + fn) * (tn + fn) * (tn + fp))
+        denominator <- sqrt((tp + fp) * (tp + fn) * (tn + fn) * (tn + fp))
         mcc <- ifelse(denominator == 0, 0, (tp * tn - fp * fn) / denominator)
 
         if (length(numPosNegTrainSamples) > 0)
@@ -529,6 +689,9 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
         }
         else
             trainBalance <- NA
+            
+        if ((computeAUC == TRUE) && sum(x[,1]) > 0 && sum(x[,2]) > 0)
+            auc <- auc(computeROCandAUC(decValues, label, allLabels))
     }
     else
     {
@@ -541,40 +704,18 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
         balAccuracy <- 0
 
         for (i in 1:length(allLabels))
-        {
             balAccuracy <- balAccuracy + corrClassified[i] / sum(x[,i])
-        }
 
         balAccuracy <- 100 * balAccuracy / length(allLabels)
 
         ## Multiclass MCC according to Gorodkin J.,
         ## Comparing two K-category assignments by K-category correlation
         ## coefficient, Comput. Biol. Chem., 2004 Dec, 28(5-6) 367-74.
+        ## according to fomula 8 in paper
         ##
-        ## MCC = \frac{\sum_{i,j,k=1}^N (C_{ii} C_{kj} - C_{ji} C_{ik})}
-        ##   {\sqrt{(\sum_{i=1}^N ((\sum_{j=1}^N C_{ji}) 
-        ##    (\sum_{f,g=1 f \neq i}^N C_{gf})))}
-        ##   \sqrt{(\sum_{i=1}^N ((\sum_{j=1}^N C_{ij}) 
-        ##    (\sum_{f,g=1 f \neq i}^N C_{fg})))}}
+        mcc <- (l * sum(diag(x)) - sum(x %*% x)) / sqrt(
+                   (l^2 - sum(tcrossprod(x))) * (l^2 - sum(crossprod(x))))
 
-        mccNumerator <- 0
-
-        for (i in (1:length(allLabels)))
-        {
-            for (j in (1:length(allLabels)))
-            {
-                for (k in (1:length(allLabels)))
-                {
-                    mccNumerator <- mccNumerator + x[i,i] * x[k,j] 
-                                    - x[j,i]*x[i,k]
-                }
-            }
-        }
-        mccDenominator <- sqrt(sum(apply(x,2,sum) * 
-                                   apply(x,2,function(col) l-sum(col)))) *
-                          sqrt(sum(apply(x,1,sum) * 
-                                   apply(x,1,function(row) l-sum(row))))
-        mcc <- mccNumerator / mccDenominator;
         sensitivity <- NA
         specificity <- NA
         precision <- NA
@@ -640,7 +781,17 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
                 tn, " of ", tn + fp, ")\n", sep="")
             cat("Matthews CC:         ",
                 format(mcc, width=8, digits=3, nsmall=numPrecision, trim=FALSE),
-                "\n\n", sep="")
+                "\n", sep="")
+                
+            if (!is.na(auc))
+            {
+                cat("AUC:                 ",
+                    format(auc, width=8, digits=3, nsmall=numPrecision,
+                    trim=FALSE),
+                    "\n", sep="")
+            }
+            cat("\n")
+
             cat("Sensitivity:         ",
                 format(sensitivity, width=8, digits=3, nsmall=numPrecision,
                        trim=FALSE), "% (", tp, " of ", tp + fn, ")\n", sep="")
@@ -660,7 +811,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
             return(data.frame(NUM=l, PBAL=bal, TP=tp, FP=fp, FN=fn, TN=tn,
                               ACC=accuracy, BAL_ACC=balAccuracy,
                               SENS=sensitivity, SPEC=specificity,
-                              PREC=precision, MAT_CC=mcc,
+                              PREC=precision, MAT_CC=mcc, AUC=auc,
                               TBAL=trainBalance,
                               PT=numPosNegTrainSamples[1],
                               NT=numPosNegTrainSamples[2]))
@@ -670,7 +821,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
             return(data.frame(NUM=l, PBAL=bal, TP=tp, FP=fp, FN=fn, TN=tn,
                               ACC=accuracy, BAL_ACC=balAccuracy,
                               SENS=sensitivity, SPEC=specificity,
-                              PREC=precision, MAT_CC=mcc))
+                              PREC=precision, MAT_CC=mcc, AUC=auc))
         }
     }
 }

@@ -272,11 +272,12 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 #' @aliases
 #' plot
 #' plot,PredictionProfile-method
-#' @title Plot Prediction Profiles, Cross Validation Result and Grid Search
-#' Performance Parameters
+#' @title Plot Prediction Profiles, Cross Validation Result, Grid Search
+#' Performance Parameters and Receiver Operating Characteristics
 #'
-#' @description Functions for Visualizing Prediction Profiles and
-#' Cross Validation Result
+#' @description Functions for visualizing prediction profiles,
+#' cross validation result, grid search performance parameters and
+#' receiver operating characteristics
 #'
 #' @param x for the first method above a prediction profile object of class
 #' \code{\link{PredictionProfile}} containing the profiles to be plotted,
@@ -348,6 +349,20 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 #' lower sequence it is marked by \code{"v"} above the sequence. If no offset
 #' element metadata is assigned to the sequences the marks are suppressed.
 #' Default=TRUE
+#'
+#' @param aucDigits number of decimal places of AUC to be printed into
+#' the ROC plot. If this parameter is set to 0 the AUC will not be added to
+#' the plot. Default=3
+#'
+#' @param lwd see \code{\link[graphics:par]{par}}
+#'
+#' @param cex see \code{\link[graphics:mtext]{mtext}}
+#'
+#' @param side see \code{\link[graphics:mtext]{mtext}}
+#'
+#' @param line see \code{\link[graphics:mtext]{mtext}}
+#'
+#' @param adj see \code{\link[graphics:mtext]{mtext}}
 #'
 #' @param ... all other arguments are passed to the standard
 #' \code{\link[graphics:plot]{plot}} command that is called internally to
@@ -429,6 +444,11 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 #' model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=gappy,
 #'                pkg="LiblineaR", svm="C-svc", cost=80, explicit="yes",
 #'                featureWeights="yes")
+#'
+#' ## compute and plot ROC for test sequences
+#' preddec <- predict(model, enhancerFB[test], predictionType="decision")
+#' rocdata <- computeROCandAUC(preddec, yFB[test], allLabels=unique(yFB))
+#' plot(rocdata)
 #'
 #' ## generate prediction profile for the first three test sequences
 #' predProf <- getPredictionProfile(enhancerFB, gappy, featureWeights(model),
@@ -550,3 +570,31 @@ plot.performance <- function(x, sel=c("ACC", "BACC", "MCC"))
 
 setMethod("plot", signature(x="ModelSelectionResult", y="missing"),
           plot.performance)
+
+plot.roc <- function(x, lwd=2, aucDigits=3, cex=0.8, side=1,
+                     line=-3, adj=0.9, ...)
+{
+    if (length(tpr(x)) < 3 || length(fpr(x)) < 3)
+        stop("missing tpr/fpr data\n")
+
+    plot(fpr(x), tpr(x), type="l", lwd=lwd,
+         xlab="False Positive Rate", ylab="True Positive Rate", ...)
+
+    if (aucDigits != 0 && !is.na(auc(x)))
+    {
+        mtext(paste("AUC:", round(auc(x), aucDigits)), side=side,
+              line=line, adj=adj, cex=cex)
+    }
+}
+
+#' @rdname plot-methods
+#' @aliases
+#' plot,ROCData-method
+#' @details
+#' Plotting of Receiver Operating Characteristics (ROC)\cr\cr
+#' The fourth variant of \code{plot} method shown in the usage section
+#' plots the receiver operating characteristics for the given ROC data.
+#' @export
+
+setMethod("plot", signature(x="ROCData", y="missing"),
+          plot.roc)

@@ -389,6 +389,7 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
     collectACC <- "ACC" %in% model@modelSelResult@perfParameters
     collectBACC <- "BACC" %in% model@modelSelResult@perfParameters
     collectMCC <- "MCC" %in% model@modelSelResult@perfParameters
+    collectAUC <- "AUC" %in% model@modelSelResult@perfParameters
 
     if (collectACC)
     {
@@ -406,6 +407,12 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
     {
         gridMCC <- matrix(NA, nrow=noRows, ncol=noCols)
         colnames(gridMCC) <- paste("GridCol", 1: ncol(cvErrors), sep="_")
+    }
+
+    if (collectAUC)
+    {
+        gridAUC <- matrix(NA, nrow=noRows, ncol=noCols)
+        colnames(gridAUC) <- paste("GridCol", 1: ncol(cvErrors), sep="_")
     }
 
     if (noKernel)
@@ -439,10 +446,13 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
 
         if (collectMCC)
             rownames(gridMCC) <- paste(rowName, 1: nrow(gridMCC), sep="_")
+
+        if (collectAUC)
+            rownames(gridAUC) <- paste(rowName, 1: nrow(gridAUC), sep="_")
     }
 
     if (perfObjective =="ACC")
-        bestResult <- Inf
+        bestResult <- Inf  ## because error rate is used instead
     else
         bestResult <- - Inf
 
@@ -461,7 +471,7 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
         model@numClasses <- length(unique(y))
 
         if (model@numClasses > 2)
-        model@ctlInfo@multiclassType <- getMulticlassType(model)
+            model@ctlInfo@multiclassType <- getMulticlassType(model)
     }
 
     if (explicit == "auto")
@@ -630,9 +640,9 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
                 startIndex == 2)
             {
                 tempModel@svmInfo@selPackage <-
-                as.character(model@modelSelResult@gridCols[j,1])
+                    as.character(model@modelSelResult@gridCols[j,1])
                 tempModel@svmInfo@selSVM <-
-                as.character(model@modelSelResult@gridCols[j,2])
+                    as.character(model@modelSelResult@gridCols[j,2])
 
                 ## for quadratic kernel CV is always called with linear ex rep
                 ## and internally retrieves the quadratic ex rep if necessary
@@ -726,6 +736,9 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
             if (collectMCC)
                 gridMCC[i,j] <- mean(tempModel@cvResult@MCC)
 
+            if (collectAUC)
+                gridAUC[i,j] <- mean(tempModel@cvResult@AUC)
+
             if (perfObjective == "ACC")
             {
                 if (!is.na(cvErrors[i,j]) && (cvErrors[i, j] < bestResult))
@@ -749,6 +762,15 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
                 if (!is.na(gridMCC[i,j]) && (gridMCC[i, j] > bestResult))
                 {
                     bestResult <- gridMCC[i, j]
+                    bestRow <- i
+                    bestCol <- j
+                }
+            }
+            else if (perfObjective == "AUC")
+            {
+                if (!is.na(gridAUC[i,j]) && (gridAUC[i, j] > bestResult))
+                {
+                    bestResult <- gridAUC[i, j]
                     bestRow <- i
                     bestCol <- j
                 }
@@ -791,6 +813,9 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
 
     if (collectMCC)
         model@modelSelResult@gridMCC <- gridMCC
+
+    if (collectAUC)
+        model@modelSelResult@gridAUC <- gridAUC
 
     if (!is.null(model@svmInfo@reqKernel))
     {

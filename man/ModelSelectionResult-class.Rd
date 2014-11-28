@@ -41,6 +41,8 @@ model selection.
 
 \item{\code{gridMCC}}{grid Matthews correlation coefficient}
 
+\item{\code{gridAUC}}{grid area under the ROC curve}
+
 \item{\code{gridNoSV}}{grid number of support vectors}
 
 \item{\code{gridSumAlphas}}{grid sum of alphas}

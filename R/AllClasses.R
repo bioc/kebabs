@@ -530,6 +530,44 @@ setClass("PredictionProfile",
 
 ###################################################
 ##
+##  ROCData class
+##
+###################################################
+
+#' @rdname ROCData-class
+#' @name ROCData-class
+#' @aliases
+#' class:ROCData
+#' ROCData-class
+#' ROCData
+#' @title ROC Data Class
+#'
+#' @details
+#' This class stores receiver operating characteristics (ROC) data.
+#'
+#' @slot AUC area under ROC curve
+#' @slot TPR true positive rate for varying threshold
+#' @slot FPR false positive rate for varying threshold
+
+
+setClass("ROCData",
+    representation=representation
+    (
+        AUC              = "numeric",
+        TPR              = "numeric",
+        FPR              = "numeric"
+    ),
+    prototype=prototype
+    (
+        AUC              = numeric(0),
+        TPR              = numeric(0),
+        FPR              = numeric(0)
+    )
+)
+
+
+###################################################
+##
 ##  kebabs model classes
 ##
 ###################################################
@@ -673,9 +711,11 @@ setClass("ControlInformation",
 #' @slot ACC cross validation accuracy
 #' @slot BACC cross validation balanced accuracy
 #' @slot MCC cross validation Matthews correlation coefficient
+#' @slot AUC cross validation area under the ROC curve
 #' @slot foldACC fold accuracy
 #' @slot foldBACC fold balanced accuracy
 #' @slot foldMCC fold Matthews correlation coefficient
+#' @slot foldAUC fold area under the ROC curve
 #' @slot sumAlphas sum of alphas
 #'
 
@@ -693,9 +733,11 @@ setClass("CrossValidationResult",
         ACC              = "numeric",
         BACC             = "numeric",
         MCC              = "numeric",
+        AUC              = "numeric",
         foldACC          = "matrix",
         foldBACC         = "matrix",
         foldMCC          = "matrix",
+        foldAUC          = "matrix",
         noSV             = "numeric",
         sumAlphas        = "numeric"
     ),
@@ -712,9 +754,11 @@ setClass("CrossValidationResult",
         ACC              = numeric(0),
         BACC             = numeric(0),
         MCC              = numeric(0),
+        MCC              = numeric(0),
         foldACC          = matrix(0),
         foldBACC         = matrix(0),
         foldMCC          = matrix(0),
+        foldAUC          = matrix(0),
         noSV             = numeric(0),
         sumAlphas        = numeric(0)
     ),
@@ -745,6 +789,7 @@ setClass("CrossValidationResult",
 #' @slot gridACC grid accuracy
 #' @slot gridBACC grid balanced accuracy
 #' @slot gridMCC grid Matthews correlation coefficient
+#' @slot gridAUC grid area under the ROC curve
 #' @slot gridNoSV grid number of support vectors
 #' @slot gridSumAlphas grid sum of alphas
 #' @slot smallestCVError smallest CV error
@@ -769,6 +814,7 @@ setClass("ModelSelectionResult",
         gridACC          = "ANY",
         gridBACC         = "ANY",
         gridMCC          = "ANY",
+        gridAUC          = "ANY",
         gridNoSV         = "ANY",
         gridSumAlphas    = "ANY",
         smallestCVError  = "numeric",
@@ -791,6 +837,7 @@ setClass("ModelSelectionResult",
         gridACC          = NULL,
         gridBACC         = NULL,
         gridMCC          = NULL,
+        gridAUC          = NULL,
         gridNoSV         = NULL,
         gridSumAlphas    = NULL,
         smallestCVError  = Inf,

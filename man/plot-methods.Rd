@@ -8,8 +8,10 @@
 \alias{plot,ModelSelectionResult-method}
 \alias{plot,PredictionProfile,missing-method}
 \alias{plot,PredictionProfile-method}
-\title{Plot Prediction Profiles, Cross Validation Result and Grid Search
-Performance Parameters}
+\alias{plot,ROCData,missing-method}
+\alias{plot,ROCData-method}
+\title{Plot Prediction Profiles, Cross Validation Result, Grid Search
+Performance Parameters and Receiver Operating Characteristics}
 \usage{
 \S4method{plot}{PredictionProfile,missing}(x, sel = NULL, col = c("red",
   "blue"), standardize = TRUE, shades = NULL, legend = "default",
@@ -21,6 +23,9 @@ Performance Parameters}
 
 \S4method{plot}{ModelSelectionResult,missing}(x, sel = c("ACC", "BACC",
   "MCC"))
+
+\S4method{plot}{ROCData,missing}(x, lwd = 2, aucDigits = 3, cex = 0.8,
+  side = 1, line = -3, adj = 0.9, ...)
 }
 \arguments{
   \item{x}{for the first method above a prediction profile
@@ -114,13 +119,28 @@ Performance Parameters}
   \item{...}{all other arguments are passed to the standard
   \code{\link[graphics:plot]{plot}} command that is called
   internally to display the graphics window.}
+
+  \item{lwd}{see \code{\link[graphics:par]{par}}}
+
+  \item{aucDigits}{number of decimal places of AUC to be
+  printed into the ROC plot. If this parameter is set to 0
+  the AUC will not be added to the plot. Default=3}
+
+  \item{cex}{see \code{\link[graphics:mtext]{mtext}}}
+
+  \item{side}{see \code{\link[graphics:mtext]{mtext}}}
+
+  \item{line}{see \code{\link[graphics:mtext]{mtext}}}
+
+  \item{adj}{see \code{\link[graphics:mtext]{mtext}}}
 }
 \value{
 see details above
 }
 \description{
-Functions for Visualizing Prediction Profiles and Cross
-Validation Result
+Functions for visualizing prediction profiles, cross
+validation result, grid search performance parameters and
+receiver operating characteristics
 }
 \details{
 Plotting of Prediction Profiles\cr\cr The first variant of
@@ -190,6 +210,11 @@ Plotting of Grid Performance Values\cr\cr The third variant
 of \code{plot} method shown in the usage section plots grid
 performance data as grid with the color of each rectange
 corresponding to the preformance value of the grid point.
+
+Plotting of Receiver Operating Characteristics (ROC)\cr\cr
+The fourth variant of \code{plot} method shown in the usage
+section plots the receiver operating characteristics for
+the given ROC data.
 }
 \examples{
 ## set seed for random generator, included here only to make results
@@ -210,6 +235,11 @@ gappy
 model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=gappy,
                pkg="LiblineaR", svm="C-svc", cost=80, explicit="yes",
                featureWeights="yes")
+
+## compute and plot ROC for test sequences
+preddec <- predict(model, enhancerFB[test], predictionType="decision")
+rocdata <- computeROCandAUC(preddec, yFB[test], allLabels=unique(yFB))
+plot(rocdata)
 
 ## generate prediction profile for the first three test sequences
 predProf <- getPredictionProfile(enhancerFB, gappy, featureWeights(model),

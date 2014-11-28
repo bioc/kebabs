@@ -1195,6 +1195,33 @@ The method {\tt predict()} is used to predict the class for new sequences from t
 
 Prediction profiles (see Section \ref{sec:PredictionProfiles}) are computed during prediction for the predicted sequences when the parameter {\tt predProfiles} is set to {\tt TRUE} in  {\tt predict}. Prediction profile generation requires the presence of feature weights (see Section \ref{sec:FeatureWeights}) in the \KeBABS\ model.
 
+For classification the {\tt evaluatePrediction()} method can be used to compute the performance parameters accuracy (ACC), balanced accuracy (BACC), Matthews Correlation Coefficient (MCC), area under the ROC curve (AUC), sensitivity (SENS), specificity (SPEC) and precision (PREC) from the predicted values and the true labels. The AUC value is computed when the decision values are passed to the function additionally like in the following example. Currently it is available for binary classification only.
+
+<<>>=
+preddec <- predict(model, exrep[test, ], predictionType="decision")
+evaluatePrediction(pred, yFB[test], allLabels=unique(yFB), decValues=preddec)
+@
+
+The Receiver Operating Characteristics (ROC) curve is supported for binary classification in \KeBABS\ as shown below.
+
+<<eval=FALSE>>=
+rocdata <- computeROCandAUC(preddec, yFB[test], unique(yFB))
+plot(rocdata, main="Receiver Operating Characteristics")
+@
+
+<<fig=FALSE,echo=FALSE,results=hide>>=
+rocdata <- computeROCandAUC(preddec, yFB[test], unique(yFB))
+pdf("008.pdf")
+plot(rocdata, main="Receiver Operating Characteristics")
+dev.off()
+@
+
+\begin{figure}[htp]
+\begin{center}
+\includegraphics[width=0.6\columnwidth]{008.pdf}
+\end{center}
+\end{figure}
+
 
 \section{Selection of Kernel Parameters, Hyperparameters and Models}
 \label{sec:HyperparSel}
@@ -1271,7 +1298,7 @@ modelSelResult(model)
 
 In this example, only 3-fold CV was used to save time for vignette generation. When using 10-fold CV the differences between the kernels become more prominent because the effect of random splits of the data average out better. When the parameter {\tt showProgress} is set to {\tt TRUE} in \kbsvm\ , a progress indication is displayed.
 
-The default performance parameter in grid search is the CV error, as in cross validation. For non-symmetrical datasets other performance parameters set with parameter {\tt perfParameters} might be more expressive. For grid search, the performance objective can be defined explicitly with the parameter {\tt perfObjective} as criterion to select the best setting of the grid parameters.
+The default performance parameter in grid search is the CV error, as in cross validation. For non-symmetrical datasets other performance parameters set with parameter {\tt perfParameters} might be more expressive. For grid search, the performance objective can be defined explicitly with the parameter {\tt perfObjective} as criterion to select the best setting of the grid parameters. The accuracy (ACC), balanced accuracy (BACC), Matthews Correlation Coefficient (MCC) and area under the ROC curve (AUC) can be chosen as performance objective. The AUC is currently only supported for binary classification.
 
 Grid search can also be done over multiple SVMs in the same or in different packages as in the next example. In this case vectors of identical length must be passed for the parameters {\tt pkg}, {\tt svm} and the respective SVM parameters. The corresponding entries in these vectors refer to one SVM with its hyperparameter(s) represent one grid column. With the parameter {\tt showCVTimes} set to {\tt TRUE } in \kbsvm\ the cross validation runtimes are recorded for each individual grid point and are displayed at the end of the grid search.
 
@@ -1537,8 +1564,6 @@ The non-native multiclass implementation in packages {\tt kernlab} and {\tt e107
 \label{sec:FutureExtensions}
 
 The current version of the package is single threaded and does not make use of multiprocessing infrastructures. The performance of this framework can further be improved by parallelization of various functions in the package for multicore machines.
-
-The AUC should be included as additional performance measure for cross validation, grid search and model selection.
 
 To restrict the effort the current implementation only considers SVMs in the packages {\tt kernlab}, {\tt e1071} and {\tt LiblineaR}. In the future additional SVMs should be included in the framework, e.g.
 

@@ -715,6 +715,12 @@ setMethod("show", signature(object="CrossValidationResult"),
                           format(mean(object@MCC), digits=8), "\n"))
             }
 
+            if ("AUC" %in% object@perfParameters)
+            {
+                cat(paste("Area under the curve  :",
+                          format(mean(object@AUC), digits=8), "\n"))
+            }
+
             cat("\n")
             cat(paste("Run CV errors         :\n"))
             cat(paste(format(object@cvError, digits=8), collapse=", "))
@@ -740,6 +746,13 @@ setMethod("show", signature(object="CrossValidationResult"),
                 cat(paste(format(object@MCC, digits=8), collapse=", "))
                 cat("\n\n")
             }
+
+            if ("AUC" %in% object@perfParameters)
+            {
+                cat(paste("Run AUCs              :\n"))
+                cat(paste(format(object@AUC, digits=8), collapse=", "))
+                cat("\n\n")
+            }
         }
         else
         {
@@ -762,6 +775,12 @@ setMethod("show", signature(object="CrossValidationResult"),
             {
                 cat(paste("Matthews CC           :",
                           format(object@MCC, digits=8), collapse=", "), "\n")
+            }
+
+            if ("AUC" %in% object@perfParameters)
+            {
+                cat(paste("Area under the curve  :",
+                          format(mean(object@AUC), digits=8), "\n"))
             }
 
             cat("\n")
@@ -812,7 +831,7 @@ setMethod("show", signature(object="CrossValidationResult"),
                 cat(paste(format(object@foldACC[1:2], digits=8),
                           collapse=", "), "...",
                     paste(format(object@foldACC[(length(object@foldACC)-1):
-                                 length(object@foldACC)],
+                                                 length(object@foldACC)],
                                  digits=8), collapse=", "))
             }
 
@@ -830,7 +849,7 @@ setMethod("show", signature(object="CrossValidationResult"),
                 cat(paste(format(object@foldBACC[1:2], digits=8),
                           collapse=", "), "...",
                     paste(format(object@foldBACC[(length(object@foldBACC)-1):
-                                 length(object@foldBACC)],
+                                                  length(object@foldBACC)],
                                  digits=8), collapse=", "))
             }
 
@@ -848,7 +867,25 @@ setMethod("show", signature(object="CrossValidationResult"),
                 cat(paste(format(object@foldMCC[1:2], digits=8),
                           collapse=", "), "...",
                     paste(format(object@foldMCC[(length(object@foldMCC)-1):
-                                 length(object@foldMCC)],
+                                                 length(object@foldMCC)],
+                                 digits=8), collapse=", "))
+            }
+
+            cat("\n")
+        }
+
+        if ("AUC" %in% object@perfParameters)
+        {
+            cat(paste("\nFold AUCs:\n"))
+
+            if (length(object@foldAUC) < 24)
+                cat(paste(format(object@foldAUC, digits=8), collapse=", "))
+            else
+            {
+                cat(paste(format(object@foldAUC[1:2], digits=8),
+                          collapse=", "), "...",
+                    paste(format(object@foldAUC[(length(object@foldAUC)-1):
+                                                 length(object@foldAUC)],
                                  digits=8), collapse=", "))
             }
 
@@ -899,6 +936,8 @@ setMethod("show", signature(object="ModelSelectionResult"),
 
             cat(paste("cross                 :", object@cross, "\n"))
             cat(paste("noCross               :", object@noCross))
+            ## smallestCVError always contains the best value according to
+            ## the performance objective
             if (object@perfObjective == "MCC")
             {
                 cat(paste("\nBest MCC value        :",
@@ -908,6 +947,11 @@ setMethod("show", signature(object="ModelSelectionResult"),
             {
                 cat(paste("\nBest bal. accuracy    :",
                           format(object@smallestCVError, digits=8)))
+            }
+            else if (object@perfObjective == "AUC")
+            {
+                cat(paste("\nBest AUC              :",
+                format(object@smallestCVError, digits=8)))
             }
             else
             {
@@ -971,6 +1015,12 @@ setMethod("show", signature(object="ModelSelectionResult"),
             {
                 cat("Grid Balanced Accuracies:\n\n")
                 print(object@gridBACC)
+                cat ("\n")
+            }
+            else if (object@perfObjective == "AUC")
+            {
+                cat("Grid AUCs:\n\n")
+                print(object@gridAUC)
                 cat ("\n")
             }
             else
@@ -1196,3 +1246,20 @@ setMethod("show", signature(object="KBModel"),
         cat("\n")
     }
 )
+
+#' @rdname show-methods
+#' @aliases
+#' show,ROCData-method
+#'
+
+setMethod("show", signature(object="ROCData"),
+    function(object)
+    {
+        cat("ROC Data of class ",
+        dQuote(class(object)), "\n\n")
+    
+        cat(paste("AUC:", round(object@AUC, 3)))
+        cat("\n\n")
+    }
+)
+

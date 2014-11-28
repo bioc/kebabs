@@ -149,6 +149,15 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
             model@levels <- levels(y)
         else
             model@levels <- sort(unique(y))
+            
+            ## $$$ TODO AUC for multiclass is currently not supported
+            if (("AUC" %in% perfParameters) && length(model@levels) > 2)
+            {
+                if (length(setdiff(c("ACC","BACC","MCC","AUC"), perfParameters)) == 0)
+                    perfParameters <- setdiff("AUC", perfParameters)
+                else
+                    stop("AUC is currently not supported for multiclass")
+            }
     }
 
     if (!isSingleString(explicitType) ||
@@ -287,9 +296,6 @@ checkModelSelParams <- function(model, x, y, sel, features, kernel, svm, pkg,
 
     if (is.null(model@modelSelResult))
     {
-        if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
-            perfParameters <- c("ACC", "BACC", "MCC")
-
         if (!(perfObjective %in% perfParameters))
             perfParameters <- c(perfParameters, perfObjective)
 
@@ -482,22 +488,6 @@ checkModelSelParams <- function(model, x, y, sel, features, kernel, svm, pkg,
 
     return(model)
 }
-
-## $$$ TODO remove ???
-#checkForSparseER <- function(kernel, pkg)
-#{
-#    sparse <- FALSE
-#
-#   ## kernel specific aspect
-#    if (shouldRunSparse(kernel))
-#        sparse <- TRUE
-#
-#    ## SVM specific aspect
-#    if (pgk == "kernlab")
-#        sparse <- FALSE
-#
-#    return(sparse)
-#}
 
 ## $$$ TODO Remove ???
 getSVMParams <- function(model, ...)

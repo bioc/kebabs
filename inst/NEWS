@@ -4,7 +4,16 @@ Change history of package kebabs:
 Version 1.0.0:
 - first official release as part of Bioconductor 3.0
 
-Version 1.0.1
+Version 1.1.1
 - correction for cross validation with factor label
 - correction for storing prob model in kebabs model for kernlab
 - removal of clang warnings for unused functions
+
+Version 1.1.2
+- minor C code changes for mismatch kernel
+- correction of MCC
+- new class ROCData and new function computeROCandAUC for
+  binary classification added
+- new plot function for ROCData to plot ROC for binary classes
+- AUC as additional performance parameter in cross validation
+  and as performance objective in grid search

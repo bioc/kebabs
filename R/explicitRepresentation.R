@@ -678,7 +678,7 @@ getExRepQuadraticSparse <- function(exRepLin, useRowNames=TRUE,
     if (useColNames && length(colnames(exRepLin)) > 0)
     {
         linNames <- colnames(exRepLin)
-            colnames(erq) <- paste(linNames[v1], linNames[v2], sep="_")
+        colnames(erq) <- paste(linNames[v1], linNames[v2], sep="_")
     }
     else
         colnames(erq) <- NULL

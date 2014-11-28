@@ -12,6 +12,7 @@
 \alias{show,ModelSelectionResult-method}
 \alias{show,MotifKernel-method}
 \alias{show,PredictionProfile-method}
+\alias{show,ROCData-method}
 \alias{show,SVMInformation-method}
 \alias{show,SpectrumKernel-method}
 \alias{show.BioVector}
@@ -40,6 +41,8 @@ show.BioVector(object)
 \S4method{show}{SVMInformation}(object)
 
 \S4method{show}{KBModel}(object)
+
+\S4method{show}{ROCData}(object)
 }
 \arguments{
   \item{object}{object of class BioVector,

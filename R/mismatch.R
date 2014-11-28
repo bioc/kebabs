@@ -217,7 +217,7 @@ mismatchProcessing <- function(x, y, selx, sely, k, m, r, normalized,
     if (length(selx) > 0)
     {
         if (!is.numeric(selx) || length(selx) > length(x))
-        stop("selx must be a numeric vector with indices into 'x'\n")
+            stop("selx must be a numeric vector with indices into 'x'\n")
 
         selx <- as.integer(selx)
     }
@@ -257,7 +257,7 @@ mismatchProcessing <- function(x, y, selx, sely, k, m, r, normalized,
         if (length(sely) > 0)
         {
             if (!is.numeric(sely) || length(sely) > length(y))
-            stop("sely must be a numeric vector with indices into 'y'\n")
+                stop("sely must be a numeric vector with indices into 'y'\n")
 
             sely <- as.integer(sely)
         }

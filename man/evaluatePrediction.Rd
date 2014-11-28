@@ -3,8 +3,9 @@
 \alias{evaluatePrediction}
 \title{Evaluate Prediction}
 \usage{
-evaluatePrediction(prediction, label, allLabels = NULL, print = TRUE,
-  confmatrix = TRUE, numPrecision = 3, numPosNegTrainSamples = numeric(0))
+evaluatePrediction(prediction, label, allLabels = NULL, decValues = NULL,
+  print = TRUE, confmatrix = TRUE, numPrecision = 3,
+  numPosNegTrainSamples = numeric(0))
 }
 \arguments{
   \item{prediction}{prediction results as returned by
@@ -13,16 +14,24 @@ evaluatePrediction(prediction, label, allLabels = NULL, print = TRUE,
   \item{label}{label vector of same length as parameter
   'prediction'.}
 
-  \item{allLabels}{vector containing the labels. This
-  parameter is required only if the label vector is
-  numeric. Default=NULL}
+  \item{allLabels}{vector containing all occuring labels
+  once. This parameter is required only if the label vector
+  is numeric. Default=NULL}
+
+  \item{decValues}{numeric vector containing decision
+  values for the predictions as returned by the
+  \code{\link{predict}} method with \code{predictionType}
+  set to \code{decision}. This parameter is needed for the
+  determination of the AUC value which is currently only
+  supported for binary classification. Default=NULL}
 
   \item{print}{This parameter indicates whether performance
   values should be printed or returned as data frame
   without printing (for details see below). Default=TRUE}
 
   \item{confmatrix}{When set to TRUE a confusion matrix is
-  printed. Default=TRUE}
+  printed. The rows correspond to predictions, the columns
+  to the true labels. Default=TRUE}
 
   \item{numPrecision}{minimum number of digits to the right
   of the decimal point. Values between 0 and 20 are
@@ -47,12 +56,14 @@ based on given labels for binary classification
 For binary classfication this function computes the
 performance measures accuracy, balanced accuracy,
 sensitivity, specificity, precision and the Matthews
-Correlation Coefficient(MCC). When the number of positive
-and negative training samples is passed to the function it
-also shows the balancedness of the training set. The
-performance results are either printed by the routine
-directly or returned in a data frame. The columns of the
-data frame are:
+Correlation Coefficient(MCC). If decision values are passed
+in the parameter \code{decValues} the function additionally
+determines the AUC. When the number of positive and
+negative training samples is passed to the function it also
+shows the balancedness of the training set. The performance
+results are either printed by the routine directly or
+returned in a data frame. The columns of the data frame
+are:
 
 \tabular{ll}{ column name \tab performance measure\cr
 -------------------- \tab -------------- \cr TP \tab true
@@ -60,9 +71,10 @@ positive\cr FP \tab false positive\cr FN \tab false
 negative\cr TN \tab true negative\cr ACC \tab accuracy \cr
 BAL_ACC \tab balanced accuracy\cr SENS \tab sensitivity\cr
 SPEC \tab specificity\cr PREC \tab precision\cr MAT_CC \tab
-Matthews correlation coefficient\cr PBAL \tab prediction
-balancedness (fraction of positive samples)\cr TBAL \tab
-training balancedness (fraction of positive samples)\cr }
+Matthews correlation coefficient\cr AUC \tab area under ROC
+curve\cr PBAL \tab prediction balancedness (fraction of
+positive samples)\cr TBAL \tab training balancedness
+(fraction of positive samples)\cr }
 }
 \examples{
 ## set seed for random generator, included here only to make results
@@ -91,6 +103,12 @@ pred <- predict(model, enhancerFB[test])
 evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 
 \dontrun{
+## print prediction performance including AUC
+## additionally determine decision values
+preddec <- predict(model, enhancerFB[test], predictionType="decision")
+evaluatePrediction(pred, yFB[test], allLabels=unique(yFB),
+                   decValues=preddec)
+
 ## print prediction performance including training set balance
 trainPosNeg <- c(length(which(yFB[train] == 1)),
                  length(which(yFB[train] == -1)))

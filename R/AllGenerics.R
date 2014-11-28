@@ -262,3 +262,45 @@ if (!isGeneric("profiles"))
 
 if (!isGeneric("profiles<-"))
     setGeneric("profiles<-", function(x, value) standardGeneric("profiles<-"))
+
+## accessors for ROCData
+if (!isGeneric("auc"))
+{
+    if (is.function("auc"))
+        fun <- auc
+    else
+        fun <- function(object, ...) standardGeneric("auc")
+    
+    setGeneric("auc", fun)
+}
+
+if (!isGeneric("auc<-"))
+    setGeneric("auc<-", function(x, value) standardGeneric("auc<-"))
+
+if (!isGeneric("tpr"))
+{
+    if (is.function("tpr"))
+        fun <- tpr
+    else
+        fun <- function(object, ...) standardGeneric("tpr")
+    
+    setGeneric("tpr", fun)
+}
+
+if (!isGeneric("tpr<-"))
+    setGeneric("tpr<-", function(x, value) standardGeneric("tpr<-"))
+
+if (!isGeneric("fpr"))
+{
+    if (is.function("fpr"))
+        fun <- fpr
+    else
+        fun <- function(object, ...) standardGeneric("fpr")
+    
+    setGeneric("fpr", fun)
+}
+
+if (!isGeneric("fpr<-"))
+    setGeneric("fpr<-", function(x, value) standardGeneric("fpr<-"))
+
+
