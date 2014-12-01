@@ -17,3 +17,6 @@ Version 1.1.2
 - new plot function for ROCData to plot ROC for binary classes
 - AUC as additional performance parameter in cross validation
   and as performance objective in grid search
+
+Version 1.1.3:
+- fix to adapt for changed Biostrings/S4Vectors API

@@ -42,7 +42,7 @@ ByteStringVector XStringSet2ByteStringVec(SEXP xssR)
         {
             Chars_holder s = get_elt_from_XStringSet_holder(&holder, i);
             result.nchar[i] = s.length;
-            result.ptr[i] = (char *)s.seq;
+            result.ptr[i] = (char *)s.ptr;
         }
     }
     else
