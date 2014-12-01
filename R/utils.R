@@ -519,7 +519,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
         }
 
         precision <- ifelse(tp + fp > 0, 100 * tp / (tp + fp), NA)
-        denominator <- sqrt((tp + fn) * (tp + fn) * (tn + fn) * (tn + fp))
+        denominator <- sqrt((tp + fp) * (tp + fn) * (tn + fn) * (tn + fp))
         mcc <- ifelse(denominator == 0, 0, (tp * tn - fp * fn) / denominator)
 
         if (length(numPosNegTrainSamples) > 0)
@@ -550,31 +550,11 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL, print=TRUE,
         ## Multiclass MCC according to Gorodkin J.,
         ## Comparing two K-category assignments by K-category correlation
         ## coefficient, Comput. Biol. Chem., 2004 Dec, 28(5-6) 367-74.
+        ## according to fomula 8 in paper
         ##
-        ## MCC = \frac{\sum_{i,j,k=1}^N (C_{ii} C_{kj} - C_{ji} C_{ik})}
-        ##   {\sqrt{(\sum_{i=1}^N ((\sum_{j=1}^N C_{ji}) 
-        ##    (\sum_{f,g=1 f \neq i}^N C_{gf})))}
-        ##   \sqrt{(\sum_{i=1}^N ((\sum_{j=1}^N C_{ij}) 
-        ##    (\sum_{f,g=1 f \neq i}^N C_{fg})))}}
-
-        mccNumerator <- 0
-
-        for (i in (1:length(allLabels)))
-        {
-            for (j in (1:length(allLabels)))
-            {
-                for (k in (1:length(allLabels)))
-                {
-                    mccNumerator <- mccNumerator + x[i,i] * x[k,j] 
-                                    - x[j,i]*x[i,k]
-                }
-            }
-        }
-        mccDenominator <- sqrt(sum(apply(x,2,sum) * 
-                                   apply(x,2,function(col) l-sum(col)))) *
-                          sqrt(sum(apply(x,1,sum) * 
-                                   apply(x,1,function(row) l-sum(row))))
-        mcc <- mccNumerator / mccDenominator;
+        mcc <- (l * sum(diag(x)) - sum(x %*% x)) / sqrt(
+            (l^2 - sum(tcrossprod(x))) * (l^2 - sum(crossprod(x))))
+        
         sensitivity <- NA
         specificity <- NA
         precision <- NA

@@ -904,7 +904,7 @@ Through user-definable annotation the sequence kernels provide great flexibility
 In this section the different variants are recapitulated in an exemplary manner for the spectrum kernel. Here only the normalized version is listed. All kernels can be used unnormalized as well.
 
 <<>>=
-## position-independent spectrum kernel
+## position-independent spectrum kernel normalized
 specK2 <- spectrumKernel(k=3)
 #
 ## annotation specific spectrum normalized
@@ -1553,7 +1553,22 @@ Currently only {\tt kernlab} supports training via the kernel matrix. For all ot
 
 \section{Change Log}
 
-{\bf Version 1.0.0:} first official release, released September 25, 2014
+\begin{description}
+\item[Version 1.0.2:] \hfill
+\begin{itemize}
+\item a few C code changes for mismatch kernel
+\item correction of MCC
+\item correction of computation of feature weights for
+  LiblineaR with more than 3 classes
+\end{itemize}
+\item[Version 1.0.1:] \hfill
+\begin{itemize}
+\item correction for cross validation with factor label
+\item correction for storing prob model in kebabs model for kernlab
+\item removal of clang warnings for unused functions
+\end{itemize}
+\item[Version 1.0.0:] first official release as part of Bioconductor 3.0, released September 25, 2014
+\end{description}
 
 \section{How to cite this package}
 

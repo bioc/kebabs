@@ -469,7 +469,12 @@ getFeatureWeights <- function(model, exrep=NULL, features=NULL,
     {
         featureWeights <- list()
 
-        for (i in 1:choose(model@numClasses, 2))
+        if (model@ctlInfo@multiclassType == "pairwise")
+            numSVMs <- choose(model@numClasses, 2)
+        else
+            numSVMs <- model@numClasses
+
+        for (i in 1:numSVMs)
         {
             if (model@svmInfo@selPackage != "LiblineaR")
                 svmNames <- colnames(getSVMSlotValue("coef", model))

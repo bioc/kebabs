@@ -8,3 +8,9 @@ Version 1.0.1
 - correction for cross validation with factor label
 - correction for storing prob model in kebabs model for kernlab
 - removal of clang warnings for unused functions
+
+Version 1.0.2
+- a few C code changes for mismatch kernel
+- correction of MCC
+- correction of computation of feature weights for
+  LiblineaR with more than 3 classes
