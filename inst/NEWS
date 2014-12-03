@@ -20,3 +20,6 @@ Version 1.1.2
 
 Version 1.1.3:
 - fix to adapt for changed Biostrings/S4Vectors API
+
+Version 1.1.4:
+- added two man pages
