@@ -2,6 +2,10 @@
 \docType{methods}
 \name{KBModelAccessors}
 \alias{KBModelAccessors}
+\alias{SVindex}
+\alias{SVindex,KBModel-method}
+\alias{SVindex<-}
+\alias{SVindex<-,KBModel-method}
 \alias{cvResult}
 \alias{cvResult,KBModel-method}
 \alias{cvResult<-}
@@ -56,8 +60,10 @@ KBModel Accessors
 \section{Accessor-like methods}{
   \describe{ \item{}{\code{modelOffset}: returns the model
   offset.  } \item{}{\code{featureWeights}: returns the
-  feature weights.  } \item{}{\code{cvResult}: returns
-  result of cross validation as object of class
+  feature weights.  } \item{}{\code{SVindex}: returns the
+  support vector indices for the training samples.  }
+  \item{}{\code{cvResult}: returns result of cross
+  validation as object of class
   \code{\linkS4class{CrossValidationResult}}.  }
   \item{}{\code{modelSelResult}: returns result of model
   selection as object of class

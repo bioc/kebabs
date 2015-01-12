@@ -58,15 +58,16 @@
 #' to a transfomation of similarities by taking each element of the similarity
 #' matrix to the power of r. For the annotation specific variant of this
 #' kernel see \link{annotationMetadata}, for the distance weighted
-#' variants see \link{positionMetadata}. If \code{normalize=TRUE},
-#' the similarity values are scaled to the unit sphere in the following way
-#' (for two samples \code{x} and \code{y}:
+#' variants see \link{positionMetadata}. If \code{normalized=TRUE}, the
+#' feature vectors are scaled to the unit sphere before computing the
+#' similarity value for the kernel matrix. For two samples with the feature
+#' vectors \code{x} and \code{y} the similarity is computed as:
 #' \deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T y)/(|x| |y|)}
-#' Normalization is applied to a kernel matrix or to an explicit representation
-#' generated for this kernel. For parameter \code{exact=TRUE} the sequence
-#' characters are interpreted according to an exact character set. If the flag
-#' is not set ambigous characters according from the IUPAC characterset are
-#' also evaluated.
+#' For an explicit representation generated with the feature map of a
+#' normalized kernel the rows are normalized by dividing them through their
+#' Euclidean norm. For parameter \code{exact=TRUE} the sequence characters
+#' are interpreted according to an exact character set. If the flag is not
+#' set ambigous characters from the IUPAC characterset are also evaluated.
 #'
 #' The annotation specific variant (for details see
 #' \link{annotationMetadata}) and the position dependent variants (for
@@ -191,6 +192,10 @@ motifKernel <- function(motifs, r=1, annSpec=FALSE, distWeight=numeric(0),
     }
 
     motifs <- toupper(motifs)
+
+    if (length(motifs) != length(unique(motifs)))
+        stop("motifs are not unique\n")
+
     motifLengths <- nchar(motifs)
     result <- .Call("validateMotifsC", motifs, motifLengths)
 

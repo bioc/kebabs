@@ -37,7 +37,8 @@ asKernelMatrix <- function(x, center=FALSE)
 #' @rdname KernelMatrixAccessors
 #' @aliases
 #' as.KernelMatrix
-#' @param center then set to \code{TRUE} the matrix is centered. Default=FALSE
+#' @param x kernel matrix of class \code{\link{KernelMatrix}}
+#' @param center when set to \code{TRUE} the matrix is centered. Default=FALSE
 #' @section Coercion methods:
 #' In the code snippets below, \code{x} is a kernel matrix.
 #'

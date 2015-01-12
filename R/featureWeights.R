@@ -163,9 +163,9 @@ getFeatureWeightsPosDep <- function(model, svmIndex=1, features=NULL,
 
         ## rough limit for no of nodes in motif tree from no of
         ## chars and no of substitution groups, add one for root
-        nodeLimit <- (sum(motifLengths) + 1 +
-            sum(sapply(gregexpr("[", motifs, fixed=TRUE),
-                       function(x) length(unlist(x)))))
+        nodeLimit <- sum(motifLengths) + 1 +
+                         sum(sapply(gregexpr("[", motifs, fixed=TRUE),
+                                    function(x) length(unlist(x))))
     }
 
     if (is(model@svmInfo@selKernel, "MismatchKernel") ||
@@ -469,7 +469,12 @@ getFeatureWeights <- function(model, exrep=NULL, features=NULL,
     {
         featureWeights <- list()
 
-        for (i in 1:choose(model@numClasses, 2))
+        if (model@ctlInfo@multiclassType == "pairwise")
+            numSVMs <- choose(model@numClasses, 2)
+        else
+            numSVMs <- model@numClasses
+
+        for (i in 1:numSVMs)
         {
             if (model@svmInfo@selPackage != "LiblineaR")
                 svmNames <- colnames(getSVMSlotValue("coef", model))

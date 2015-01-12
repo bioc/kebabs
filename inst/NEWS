@@ -1,13 +1,27 @@
 Change history of package kebabs:
 ====================================
 
-Version 1.0.0:
-- first official release as part of Bioconductor 3.0
+Version 1.1.5
+- new method heatmap to display heatmap of prediction profiles
+- extension of function linearKernel to optionally return
+  a sparse kernel matrix
+- correction of computation of feature weights for
+  LiblineaR with more than 3 classes
+- new accessor SVindex for class KBModel
+- correction in subsetting of sparse explicit representation for
+  head / tail
+- error correction in subsetting of prediction profile
+- error correction in mismatch kernel
+- check uniqueness of motifs in motif kernel
+- minor changes in help pages
+- change name of vignette Rnw to lowercase
+- minor changes in vignette
 
-Version 1.1.1
-- correction for cross validation with factor label
-- correction for storing prob model in kebabs model for kernlab
-- removal of clang warnings for unused functions
+Version 1.1.4:
+- added two help pages
+
+Version 1.1.3
+- fix to adapt for changed Biostrings/S4Vectors API
 
 Version 1.1.2
 - minor C code changes for mismatch kernel
@@ -18,8 +32,16 @@ Version 1.1.2
 - AUC as additional performance parameter in cross validation
   and as performance objective in grid search
 
-Version 1.1.3:
-- fix to adapt for changed Biostrings/S4Vectors API
+Version 1.1.1
+- correction for cross validation with factor label
+- correction for storing prob model in kebabs model for kernlab
+- removal of clang warnings for unused functions
 
-Version 1.1.4:
-- added two man pages
+Version 1.1.0:
+- first devel version created from first official release
+  with version 1.0.0
+
+
+
+
+

@@ -280,7 +280,7 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
             {
                 currNew = pTree->node[curr].ib.idx[index];
 
-                if (level == k - 1)
+                if (i == k - 1)
                 {
                     if (pTree->node[currNew].leaf == TRUE)
                         *kernelValue += pTree->node[currNew].value;
@@ -305,6 +305,8 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
                     curr = currNew;
                 }
             }
+            else
+                return;
         }
         return;
     }
@@ -315,7 +317,7 @@ void traverseSubtree(const char * x, int length, int index, int pos, int curr, i
             if (pTree->node[curr].ib.idx[i] > 0)
             {
                 currNew = pTree->node[curr].ib.idx[i];
-
+                
                 if (level == k - 1)
                 {
                     if (pTree->node[currNew].leaf == TRUE)
@@ -362,7 +364,7 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
                                         struct alphaInfo *alphaInf)
 {
     int size1, size2, i, j, p, iX, iY, freeNode, index, maxNoOfNodes;
-    uint64_t nodeLimit, maxNodesPerSequence;
+    uint64_t nodeLimit;
     double kernelVal, currVal, currValSqrt;
     bool printWarning = TRUE;
     bool reversed = FALSE;
@@ -378,18 +380,12 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
 
     // alloc mem for prefix tree
     // consider mismatch subtree
-    nodeLimit = ((pow(alphaInf->numAlphabetChars, k + 1) - 1) / (alphaInf->numAlphabetChars - 1)) *
-                pow(alphaInf->numAlphabetChars, k) + 1;
-
-    maxNodesPerSequence = pow(alphaInf->numAlphabetChars, m) * k * (maxSeqLength - k + 1) + 1;
-
-    if (maxNodesPerSequence < (uint64_t) nodeLimit)
-        nodeLimit = (int) maxNodesPerSequence;
-
-    maxNoOfNodes = MAX_BLOCK;
+    nodeLimit = (pow(alphaInf->numAlphabetChars, k + 1) - 1) / (alphaInf->numAlphabetChars - 1);
 
     if (nodeLimit < (uint64_t) MAX_BLOCK)
         maxNoOfNodes = (int) nodeLimit;
+    else
+        maxNoOfNodes = MAX_BLOCK;
 
     pTree = (struct prefTree *) R_alloc(maxNoOfNodes, sizeof(struct treeNode));
 
@@ -423,7 +419,7 @@ RcppExport SEXP getMismatchKernelMatrix(NumericMatrix km, ByteStringVector x, By
                 for (p=0; p<=x.nchar[iY] - k; p++)
                 {
                     index = alphaInf->seqIndexMap[(int) x.ptr[iY][p]];
-
+                    
                     if (index > -1)
                     {
                         traverseSubtree((const char *)&(x.ptr[iY])[p], x.nchar[iY] - p, index, 0, 0,
@@ -2038,7 +2034,6 @@ RcppExport SEXP mismatchKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
     int sizeX = as<int>(sizeXR);
     int sizeY = as<int>(sizeYR);
     int maxSeqLength = as<int>(maxSeqLengthR);
-    uint64_t dimFeatureSpace;
     bool symmetric = as<bool>(symmetricR);
     bool isXStringSet = as<bool>(isXStringSetR);
     struct alphaInfo alphaInf;
@@ -2082,7 +2077,6 @@ RcppExport SEXP mismatchKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
     getAlphabetInfo(bioCharset, lowercase, unmapped, &alphaInf, &allIndexMaps);
 
     // no support for position or annotation specific kernel
-    dimFeatureSpace = pow(alphaInf.numAlphabetChars, k);
 
     getMismatchKernelMatrix(km, x, y, sizeX, sizeY, selX, selY, symmetric, bioCharset, lowercase,
                             unmapped, k, m, normalized, presence, maxSeqLength, &alphaInf);

@@ -19,8 +19,8 @@ getSlidingWindowAverage <- function(x, windowSize)
 plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
                     standardize=TRUE, shades=NULL, legend="default",
                     legendPos="topright", ylim=NULL, xlab="", ylab="weight",
-                    heptads=FALSE, annotate=FALSE, markOffset=TRUE,
-                    windowSize=1, ...)
+                    lwd.profile=1, lwd.axis=1, las=1, heptads=FALSE,
+                    annotate=FALSE, markOffset=TRUE, windowSize=1, ...)
 {
     if (length(x@sequences) < 1)
         stop("no sequence in prediction profiles\n")
@@ -218,7 +218,16 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
                })
     }
 
-    axis(side=2)
+    if (doubleProf)
+    {
+        lines(c(1:(length2 + 1)) + shift2, c(prfl2[1:length2], prfl2[length2]),
+              type="s", col=col[2], lwd=lwd.profile, ...)
+    }
+
+    lines(c(1:(length1 + 1)) + shift1, c(prfl1[1:length1], prfl1[length1]),
+          type="s", col=col[1], lwd=lwd.profile, ...)
+
+    axis(side=2, lwd=lwd.axis, las=las, ...)
 
     if (markOffset)
     {
@@ -236,34 +245,25 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
     }
 
     mtext(side=1, at=(1:(n + abs(shift)) + 0.5), line=0, text=seq2,
-          col=ifelse(matchS, "black", col[2]))
+          col=ifelse(matchS, "black", col[2]), ...)
     mtext(side=3, at=(1:(n + abs(shift)) + 0.5), line=0, text=seq1,
-          col=ifelse(matchS, "black", col[1]))
+          col=ifelse(matchS, "black", col[1]), ...)
 
 
     if (length(annot) > 0 && annotate == TRUE)
         text(1:n + 0.5 + shift1, 0, strsplit(annot[1], "")[[1]], adj=c(0.5,0))
-
-    lines(c(1:(length1 + 1)) + shift1, c(prfl1[1:length1], prfl1[length1]),
-          type="s", col=col[1])
-
-    if (doubleProf)
-    {
-        lines(c(1:(length2 + 1)) + shift2, c(prfl2[1:length2], prfl2[length2]),
-              type="s", col=col[2])
-    }
 
     if (!is.null(legend))
     {
         if (length(legendPos) > 1)
         {
             legend(x=legendPos[1], y=legendPos[2], col=col,
-                   legend=legend, lwd=1, bg="white")
+                   legend=legend, lwd=lwd.profile, bg="white")
         }
         else
         {
             legend(x=legendPos[1], col=col,
-                   legend=legend, lwd=1, bg="white")
+                   legend=legend, lwd=lwd.profile, bg="white")
         }
     }
 }
@@ -353,6 +353,14 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 #' @param aucDigits number of decimal places of AUC to be printed into
 #' the ROC plot. If this parameter is set to 0 the AUC will not be added to
 #' the plot. Default=3
+#'
+#' @param lwd.profile profile line width as described for parameter \code{lwd}
+#' in \code{\link[graphics:par]{par}}
+#'
+#' @param lwd.axis axis line width as described for parameter \code{lwd}
+#' in \code{\link[graphics:par]{par}}
+#'
+#' @param las see \code{\link[graphics:par]{par}}
 #'
 #' @param lwd see \code{\link[graphics:par]{par}}
 #'
@@ -523,7 +531,7 @@ plot.cvResult <- function(x, col="springgreen")
 setMethod("plot", signature(x="CrossValidationResult", y="missing"),
           plot.cvResult)
 
-plot.performance <- function(x, sel=c("ACC", "BACC", "MCC"))
+plot.performance <- function(x, sel=c("ACC", "BACC", "MCC", "AUC"))
 {
     if (!is(x, "ModelSelectionResult"))
         stop("'x' is not of class 'ModelSelectionResult'")
@@ -539,6 +547,14 @@ plot.performance <- function(x, sel=c("ACC", "BACC", "MCC"))
     {
         title <- "Grid Balanced Accuracy"
         perfData <- x@gridBACC
+    }
+    else if (sel == "AUC")
+    {
+        if (length(x@gridAUC) == 0)
+            stop("AUC was not stored in model selection result\n")
+        
+        title <- "Grid Area Under ROC Curve"
+        perfData <- x@gridAUC
     }
     else
     {

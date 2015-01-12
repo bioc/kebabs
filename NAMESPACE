@@ -4,8 +4,9 @@ import(methods)
 import(Matrix)
 import(e1071)
 import(LiblineaR)
+importFrom(stats, heatmap)
 importFrom(kernlab, ksvm, predict, kernelMatrix, as.kernelMatrix, kpar, 
-           vanilladot, polydot, plot)
+           vanilladot, polydot, plot, SVindex)
 import(Rcpp)
 importFrom(XVector, subseq, width)
 importFrom(S4Vectors, DataFrame, metadata, "metadata<-", elementMetadata,
@@ -29,6 +30,6 @@ exportMethods(kbsvm, predict, show, kernelParameters, as.KernelMatrix,
               svmModel, "svmModel<-", probabilityModel, "probabilityModel<-",
               gridRows, gridColumns, gridErrors, performance, length, width,
               names, "names<-", width, performCrossValidation, auc, "auc<-",
-              tpr, "tpr<-", fpr, "fpr<-", trainSVM, predictSVM,
-              getFeatureSpaceDimension)
+              tpr, "tpr<-", fpr, "fpr<-", trainSVM, predictSVM, 
+              SVindex, heatmap, getFeatureSpaceDimension)
 

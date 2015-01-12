@@ -18,7 +18,9 @@ getExRepQuadratic(exRepLin, useRowNames = TRUE, useColNames = TRUE,
   \code{\linkS4class{AAStringSet}} (or as
   \code{\linkS4class{BioVector}})}
 
-  \item{kernel}{a sequence kernel object}
+  \item{kernel}{a sequence kernel object. The feature map
+  of this kernel object is used to generate the explicit
+  representation.}
 
   \item{sparse}{boolean that indicates whether a sparse or
   dense explicit representation should be generated.
@@ -66,22 +68,23 @@ Create an explicit representation
 \details{
 Creation of an explicit representation\cr\cr The function
 'getExRep' creates an explicit representation of the given
-sequence set using the specified kernel. It contains the
-feature counts in a matrix format. The rows of the matrix
-represent the samples, the columns the features. For a
-dense explicit representation of class
+sequence set using the feature map of the specified kernel.
+It contains the feature counts in a matrix format. The rows
+of the matrix represent the samples, the columns the
+features. For a dense explicit representation of class
 \code{\linkS4class{ExplicitRepresentationDense}} the count
 data is stored in a dense matrix. To allow efficient
 storage all features that do not occur in the sequence set
 are removed from the explicit representation by default.
-When the parameter \code{zeroFeatures} is set to TRUE these
-features are also included giving an explicit
-representation which contains the full feature space. For
-feature spaces larger than one million features the
-inclusion of zero features is not possible. \cr\cr In case
-of large feature spaces a sparse explicit representation of
-class \code{\linkS4class{ExplicitRepresentationSparse}} is
-much more efficient by storing the count data as
+When the parameter \code{zeroFeatures} is set to
+\code{TRUE} these features are also included resulting an
+explicit representation which contains the full feature
+space. For feature spaces larger than one million features
+the inclusion of zero features is not possible. \cr\cr In
+case of large feature spaces a sparse explicit
+representation of class
+\code{\linkS4class{ExplicitRepresentationSparse}} is much
+more efficient by storing the count data as
 \code{dgRMatrix} from package \bold{Matrix}). The class
 \code{\linkS4class{ExplicitRepresentationSparse}} is
 derived from \code{dgRMatrix}. As zero features are not
@@ -96,31 +99,30 @@ for position independent and annotation specific kernel
 variants (for details see \link{annotationMetadata}). In
 annotation specific kernels the annotation characters are
 included as postfix in the features. For kernels with
-normalization also the explicit representation is
-normalized resulting in row vectors normalized to the unit
-sphere. For feature subsets used with normalized kernels
-all features of the feature space are used in the
-normalization.\cr\cr Usage of explicit
-representations\cr\cr Learning with linear SVMs (e.g.
-\code{\link[kernlab]{ksvm}}in package \bold{kernlab} or
-\code{\link[e1071]{svm}} in package \bold{e1071}) can be
-performed either through passing a kernel matrix of
-similarity values or an explicit representation and a
-linear kernel to the SVM. The SVMs in package
-\bold{kernlab} support dense explicit representation or
-kernel matrix as data representations. The SVMs in packages
-\bold{e1071}) and \bold{LiblineaR} only support dense or
-sparse explicit representation. In many cases there can be
-considerable performance differences between the two
-variants of passing data to the SVM. And especially for
-larger feature spaces the sparse explicit representation
-not only brings higher memory efficiency but also leads to
-drastically improved runtimes during training and
-prediction.\cr\cr In general all of the complexity of
-converting the sequences with a specific kernel to an
-explicit representation or a kernel matrix and adapting the
-formats and parameters to the specific SVM is hidden within
-the KeBABS training and predict methods (see
+normalization the explicit representation is normalized
+resulting in row vectors normalized to the unit sphere. For
+feature subsets used with normalized kernels all features
+of the feature space are used in the normalization.\cr\cr
+Usage of explicit representations\cr\cr Learning with
+linear SVMs (e.g. \code{\link[kernlab]{ksvm}}in package
+\bold{kernlab} or \code{\link[e1071]{svm}} in package
+\bold{e1071}) can be performed either through passing a
+kernel matrix of similarity values or an explicit
+representation and a linear kernel to the SVM. The SVMs in
+package \bold{kernlab} support dense explicit
+representation or kernel matrix as data representations.
+The SVMs in packages \bold{e1071}) and \bold{LiblineaR}
+only support dense or sparse explicit representation. In
+many cases there can be considerable performance
+differences between the two variants of passing data to the
+SVM. And especially for larger feature spaces the sparse
+explicit representation not only brings higher memory
+efficiency but also leads to drastically improved runtimes
+during training and prediction.\cr\cr In general all of the
+complexity of converting the sequences with a specific
+kernel to an explicit representation or a kernel matrix and
+adapting the formats and parameters to the specific SVM is
+hidden within the KeBABS training and predict methods (see
 \code{\link{kbsvm}}, \code{\link{predict}}) and the user
 can concentrate on the actual data analysis task. During
 training via \code{\link{kbsvm}} the parameter

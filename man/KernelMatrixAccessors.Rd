@@ -7,35 +7,24 @@
 \alias{[,KernelMatrix,missing,index,ANY-method}
 \alias{as.KernelMatrix}
 \alias{as.KernelMatrix,matrix-method}
-\alias{linearKernel}
 \title{KernelMatrix Accessors}
 \usage{
 \S4method{[}{KernelMatrix,index,missing,ANY}(x, i)
 
 \S4method{as.KernelMatrix}{matrix}(x, center = FALSE)
-
-linearKernel(x, y = NULL, selx = NULL, sely = NULL)
 }
 \arguments{
-  \item{x}{a dense or sparse explicit representation}
+  \item{x}{kernel matrix of class
+  \code{\link{KernelMatrix}}}
 
   \item{i}{numeric vector with indicies or character with
   element names}
 
-  \item{center}{then set to \code{TRUE} the matrix is
+  \item{center}{when set to \code{TRUE} the matrix is
   centered. Default=FALSE}
-
-  \item{y}{a dense or sparse explicit representation}
-
-  \item{selx}{a numeric or character vector for defining a
-  subset of 'x'}
-
-  \item{sely}{a numeric or character vector for defining a
-  subset of 'y'}
 }
 \value{
-of linearKernel: kernel matrix as class
-\code{\linkS4class{KernelMatrix}}.
+see above
 }
 \description{
 KernelMatrix Accessors

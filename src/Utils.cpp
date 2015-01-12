@@ -8,9 +8,16 @@
  *
  */
 
-#include <Rcpp.h>
+//#include <Rcpp.h>
+#include "Kebabs.h"
+#include "KernelUtils.h"
 
 using namespace Rcpp;
+
+static int *ptrP;
+static int *ptrI;
+static double *ptrX;
+
 
 RcppExport SEXP createNAMatrix(int sizeX, int sizeY)
 {
@@ -104,44 +111,253 @@ RcppExport SEXP dgRMatrixNumericVectorProductC(SEXP pR, SEXP jR, SEXP xR,
         for (k = p[i]; k < p[i+1]; k++)
             res(i) += x[k] * y[j[k]];
     }
+    
+    vmaxset(vmax);
+    
+    return(res);
+}
+
+// generate sparse kernel matrix with similarities larger than lower limit
+RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, SEXP xXR, SEXP selxR,
+                                               SEXP sizeYR, SEXP pYR, SEXP jYR, SEXP xYR, SEXP selyR,
+                                               SEXP rowNamesR, SEXP colNamesR, SEXP symmetricR,
+                                               SEXP diagR, SEXP lowerLimitR)
+{
+    int i, j, i1, j1, ind1, ind2, nextFree, numProtect, sizeX, sizeY, offset;
+    int *iptr, *pptr;
+    double * xptr, growBy;
+    SEXP spm, dims, dimnames, slot_i, slot_p, slot_x;
+    double kv;
+    uint64_t vectorSize;
+    const void *vmax;
+
+    vmax = vmaxget();
+
+    IntegerVector pX(pXR);
+    IntegerVector jX(jXR);
+    NumericVector xX(xXR);
+    IntegerVector selX(selxR);
+    IntegerVector selY(selyR);
+    CharacterVector rowNames(rowNamesR);
+    CharacterVector colNames(colNamesR);
+    bool symmetric = as<bool>(symmetricR);
+    bool withDiagonal = as<bool>(diagR);
+    double lowerLimit = as<double>(lowerLimitR);
+    
+    sizeX = selX.size();
+    
+    if (symmetric)
+        sizeY = sizeX;
+    else
+        sizeY = selY.size();
+    
+    if (withDiagonal)
+        offset = 0;
+    else
+        offset = 1;
+    
+    // set initial size and growth factor for i and x arrays
+    vectorSize = sizeX + sizeY;
+    growBy = 1.6;
+    
+    pptr = (int *) Calloc(sizeY + 1, int);
+    iptr = (int *) Calloc(vectorSize, int);
+    xptr = (double *) Calloc(vectorSize, double);
+    ptrP = pptr;
+    ptrI = iptr;
+    ptrX = xptr;
+    
+    // do processing
+    nextFree = 0;
+
+    if (symmetric)
+    {
+        for (j=0; j < sizeY; j++)
+        {
+            R_CheckUserInterrupt();
+
+            j1 = selX[j];
+            pptr[j] = nextFree;
+
+            for (i=j+offset; i < sizeX; i++)
+            {
+                i1 = selX[i];
+                ind1 = pX[i1];
+                ind2 = pX[j1];
+                kv = 0;
+                
+                while (ind1 < pX[i1+1]  && ind2 < pX[j1+1])
+                {
+                    if (jX[ind1] < jX[ind2])
+                        ind1++;
+                    else if (jX[ind1] > jX[ind2])
+                        ind2++;
+                    else
+                    {
+                        kv += xX[ind1] * xX[ind2];
+                        ind1++;
+                        ind2++;
+                    }
+                }
+                
+                if (kv > lowerLimit)
+                {
+                    // new element - check if enough space
+                    if (nextFree + 1 > vectorSize)
+                    {
+                        // realloc arrays i and x
+                        vectorSize *= growBy;
+                        iptr = (int *) Realloc(iptr, vectorSize, int);
+                        xptr = (double *) Realloc(xptr, vectorSize, double);
+                        ptrI = iptr;
+                        ptrX = xptr;
+                    }
+                    
+                    iptr[nextFree] = i;
+                    xptr[nextFree++] = kv;
+                }
+            }
+        }
+
+        pptr[sizeY] = nextFree;
+    }
+    else
+    {
+        IntegerVector pY(pYR);
+        IntegerVector jY(jYR);
+        NumericVector xY(xYR);
+
+        for (j=0; j < sizeY; j++)
+        {
+            R_CheckUserInterrupt();
+
+            j1 = selY[j];
+            pptr[j] = nextFree;
+
+            for (i=0; i < sizeX; i++)
+            {
+                i1 = selX[i];
+                ind1 = pX[i1];
+                ind2 = pY[j1];
+                kv = 0;
+                
+                while (ind1 < pX[i1+1]  && ind2 < pY[j1+1])
+                {
+                    if (jX[ind1] < jY[ind2])
+                        ind1++;
+                    else if (jX[ind1] > jY[ind2])
+                        ind2++;
+                    else
+                    {
+                        kv += xX[ind1] * xY[ind2];
+                        ind1++;
+                        ind2++;
+                    }
+                }
+                
+                if (kv > lowerLimit)
+                {
+                    // new element - check if enough space
+                    if (nextFree + 1 > vectorSize)
+                    {
+                        // realloc arrays i and x
+                        vectorSize = (uint64_t) (vectorSize * growBy);
+                        iptr = (int *) Realloc(iptr, vectorSize, int);
+                        xptr = (double *) Realloc(xptr, vectorSize, double);
+                        ptrI = iptr;
+                        ptrX = xptr;
+                    }
+                    
+                    iptr[nextFree] = i;
+                    xptr[nextFree++] = kv;
+                }
+            }
+        }
+
+        pptr[sizeY] = nextFree;
+    }
 
     vmaxset(vmax);
 
-    return(res);
+    // shrink to actual size
+    iptr = (int *) Realloc(iptr, nextFree, int);
+    xptr = (double *) Realloc(xptr, nextFree, double);
+    
+    // allocate sparse km as dgCMatrix
+    numProtect = 0;
+    spm = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix")));
+    dims = PROTECT(Rf_allocVector(INTSXP, 2));
+    SET_SLOT(spm, Rf_mkChar("Dim"), dims);
+    INTEGER(dims)[0] = sizeX;
+    INTEGER(dims)[1] = sizeY;
+    numProtect = 2;
+    
+    dimnames = PROTECT(Rf_allocVector(VECSXP, 2));
+    SET_SLOT(spm, Rf_mkChar("Dimnames"), dimnames);
+    numProtect++;
+
+    if (rowNames.size() > 0)
+        SET_VECTOR_ELT(dimnames, 0, rowNames);
+    else
+        SET_VECTOR_ELT(dimnames, 0, R_NilValue);
+    
+    if (colNames.size() > 0)
+        SET_VECTOR_ELT(dimnames, 1, colNames);
+    else
+        SET_VECTOR_ELT(dimnames, 1, R_NilValue);
+    
+    slot_p = PROTECT(Rf_allocVector(INTSXP, sizeY+1));
+    SET_SLOT(spm, Rf_mkChar("p"), slot_p);
+    
+    for (i=0; i < sizeY + 1; i++)
+        INTEGER(slot_p)[i] = pptr[i];
+    
+    free(pptr);
+    ptrP = NULL;
+    
+    slot_i = PROTECT(Rf_allocVector(INTSXP, nextFree));
+    SET_SLOT(spm, Rf_mkChar("i"), slot_i);
+    
+    for (i=0; i < nextFree; i++)
+        INTEGER(slot_i)[i] = iptr[i];
+    
+    free(iptr);
+    ptrI = NULL;
+    
+    slot_x = PROTECT(Rf_allocVector(REALSXP, nextFree));
+    SET_SLOT(spm, Rf_mkChar("x"), slot_x);
+    
+    for (i=0; i < nextFree; i++)
+        REAL(slot_x)[i] = xptr[i];
+    
+    free(xptr);
+    ptrX = NULL;
+    
+    numProtect += 3;
+    
+    UNPROTECT(numProtect);
+    
+    return(spm);
 }
 
 RcppExport SEXP linearKerneldgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, SEXP xXR, SEXP selxR,
                                        SEXP sizeYR, SEXP pYR, SEXP jYR, SEXP xYR, SEXP selyR, SEXP symmetricR)
 {
-    int i1, i2, ind1, ind2, ix, iy;
+    int i1, i2, ind1, ind2, ix, iy, sizeX, sizeY;
     double kv;
-    bool subsetX = FALSE, subsetY =FALSE;
     IntegerVector pX(pXR);
     IntegerVector jX(jXR);
     NumericVector xX(xXR);
-    IntegerVector *selX = NULL;
-    IntegerVector *selY = NULL;
-
-    int sizeX = as<int>(sizeXR);
-    int sizeY = as<int>(sizeYR);
+    IntegerVector selX(selxR);
+    IntegerVector selY(selyR);
     bool symmetric = as<bool>(symmetricR);
 
-
-    if (!Rf_isNull(selxR))
-    {
-        IntegerVector selX1(selxR);
-        sizeX = selX1.size();
-        selX = &selX1;
-        subsetX = TRUE;
-    }
-
-    if (!Rf_isNull(selyR))
-    {
-        IntegerVector selY1(selyR);
-        sizeY = selY1.size();
-        selY = &selY1;
-        subsetY = TRUE;
-    }
+    sizeX = selX.size();
+    
+    if (symmetric)
+        sizeY = sizeX;
+    else
+        sizeY = selY.size();
 
     NumericMatrix km(sizeX, sizeY);
 
@@ -151,17 +367,11 @@ RcppExport SEXP linearKerneldgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, SEXP xXR
         {
             R_CheckUserInterrupt();
 
-            if (subsetX)
-                i1 = (*selX)[ind1];
-            else
-                i1 = ind1;
+            i1 = selX[ind1];
 
             for (ind2 = ind1; ind2 < sizeX; ind2++)
             {
-                if (subsetX)
-                    i2 = (*selX)[ind2];
-                else
-                    i2 = ind2;
+                i2 = selX[ind2];
 
                 kv = 0;
                 ix = pX[i1];
@@ -197,17 +407,11 @@ RcppExport SEXP linearKerneldgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, SEXP xXR
         {
             R_CheckUserInterrupt();
 
-            if (subsetX)
-                i1 = (*selX)[ind1];
-            else
-                i1 = ind1;
+            i1 = selX[ind1];
 
             for (ind2 = 0; ind2 < sizeY; ind2++)
             {
-                if (subsetY)
-                    i2 = (*selY)[ind2];
-                else
-                    i2 = ind2;
+                i2 = selY[ind2];
 
                 kv = 0;
                 ix = pX[i1];
@@ -229,11 +433,34 @@ RcppExport SEXP linearKerneldgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, SEXP xXR
                 }
 
                 km(ind1, ind2) = kv;
-                km(ind2, ind1) = kv;
             }
         }
     }
 
-
     return(km);
+}
+
+extern "C" {
+
+void freeHeapLinearKernelC()
+{
+    if (ptrP != NULL)
+    {
+        Free(ptrP);
+        ptrP = NULL;
+    }
+
+    if (ptrI != NULL)
+    {
+        Free(ptrI);
+        ptrI = NULL;
+    }
+
+    if (ptrX != NULL)
+    {
+        Free(ptrX);
+        ptrX = NULL;
+    }
+}
+
 }

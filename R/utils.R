@@ -29,73 +29,238 @@ supportsExplicitRep <- function(kernel)
         return(FALSE)
 }
 
-#' @rdname KernelMatrixAccessors
+#' @rdname LinearKernel
+#' @title Linear Kernel
 #' @aliases
 #' linearKernel
 #'
-#' @param x a dense or sparse explicit representation
-#' @param y a dense or sparse explicit representation
-#' @param selx a numeric or character vector for defining a subset of 'x'
-#' @param sely a numeric or character vector for defining a subset of 'y'
-#' @return of linearKernel:
-#' kernel matrix as class \code{\linkS4class{KernelMatrix}}.
+#' @description Create a dense or sparse kernel matrix from an explicit
+#' representation
+#'
+#' @param x a dense or sparse explicit representation. \code{x} must be a
+#' sparse explicit representation when a sparse kernel matrix should be
+#' returned by the function (see parameter \code{sparse}).
+#' @param y a dense or sparse explicit representation. If \code{x} is dense,
+#' \code{y} must be dense. If \code{x} is sparse, \code{y} must be sparse.
+#' @param selx a numeric or character vector for defining a subset of
+#' \code{x}. Default=integer(0)
+#' @param sely a numeric or character vector for defining a subset of
+#' \code{y}. Default=integer(0)
+#' @param sparse boolean indicating whether returned kernel matrix
+#' should be sparse or dense. For value \code{FALSE} a dense kernel matrix
+#' of class \code{\link{KernelMatrix}} is returned. If set to \code{TRUE}
+#' the kernel matrix is returned as sparse matrix of class
+#' \code{\linkS4class{dgCMatrix}}. In case of a symmetric matrix either the
+#' lower triangular part or the full matrix can be returned. Please note that
+#' a sparse kernel matrix currently can not be used for SVM based learning
+#' in \code{kebabs}. Default=FALSE
+#' @param triangular boolean indicating whether just the lower triangular or
+#' the full sparse matrix should be returned. This parameter is only relevant
+#' for a sparse symmetric kernel matrix. Default=TRUE
+#' @param diag boolean indicating whether the diagonal should be included
+#' in a sparse triangular matrix. This parameter is only relevant when
+#' parameter \code{sparse} and \code{triangular} are set to \code{TRUE}.
+#' Default=TRUE
+#' @param lowerLimit a numeric value for a similarity threshold. The
+#' parameter is relevant for sparse kernel matrices only. If set to a value
+#' larger than 0 only similarity values larger than this threshold will
+#' be included in the sparse kernel matrix. Default=0
+#' @return
+#' linearKernel:
+#' kernel matrix as class \code{\linkS4class{KernelMatrix}} or sparse
+#' kernel matrix of class \code{\linkS4class{dgCMatrix}}
+#' dependent on parameter \code{sparse}
+#' @examples
+#'
+#' ## load sequence data and change sample names
+#' data(TFBS)
+#' names(enhancerFB) <- paste("S", 1:length(enhancerFB), sep="_")
+#'
+#' ## create the kernel object for dimers with normalization
+#' speck <- spectrumKernel(k=5)
+#'
+#' ## generate sparse explicit representation
+#' ers <- getExRep(enhancerFB, speck)
+#'
+#' ## compute dense kernel matrix (as currently used in SVM based learning)
+#' km <- linearKernel(ers)
+#' km[1:5, 1:5]
+#'
+#' ## compute sparse kernel matrix
+#' ## because it is symmetric just the lower diagonal
+#' ## is computed to save storage
+#' km <- linearKernel(ers, sparse=TRUE)
+#' km[1:5, 1:5]
+#'
+#' ## compute full sparse kernel matrix
+#' km <- linearKernel(ers, sparse=TRUE, triangular=FALSE)
+#' km[1:5, 1:5]
+#'
+#' ## compute triangular sparse kernel matrix without diagonal
+#' km <- linearKernel(ers, sparse=TRUE, triangular=TRUE, diag=FALSE)
+#' km[1:5, 1:5]
+#'
+#' ## plot histogram of similarity values
+#' hist(km@@x, breaks=30)
+#'
+#' ## compute sparse kernel matrix with similarities above 0.5 only
+#' km <- linearKernel(ers, sparse=TRUE, lowerLimit=0.5)
+#' km[1:5, 1:5]
+#' @keywords kernel, linearKernel
 #' @export
 
-linearKernel <- function(x, y=NULL, selx=NULL, sely=NULL)
-{
-    if (is(x, "ExplicitRepresentationSparse"))
-    {
-        if (is.null(y))
-        {
-            km <- .Call("linearKerneldgRMatrixC", as.integer(nrow(x)), x@p, x@j,
-                        x@x, selx, as.integer(nrow(x)), NULL, NULL, NULL, NULL,
-                        TRUE);
 
-            if (length(rownames(x)) > 0)
-            {
-                rownames(km) <- rownames(x)
-                colnames(km) <- rownames(x)
-            }
+linearKernel <- function(x, y=NULL, selx=integer(0), sely=integer(0),
+                         sparse=FALSE, triangular=TRUE, diag=TRUE,
+                         lowerLimit=0)
+{
+    if (length(selx) > 0)
+    {
+        if (is.character(selx))
+        {
+            if (length(rownames(x)) == 0)
+                stop("missing rownames in 'x' for subsetting\n")
+
+            selx <- which(rownames(x) %in% selx)
         }
         else
         {
-            km <- .Call("linearKerneldgRMatrixC", as.integer(nrow(x)), x@p, x@j,
-                        x@x, selx, as.integer(nrow(y)), y@p, y@j, y@x, sely,
-                        FALSE);
-
-            if (length(rownames(x)) > 0)
-                rownames(km) <- rownames(x)
-
-            if (length(rownames(y)) > 0)
-                colnames(km) <- rownames(y)
+            if (!is.numeric(selx) || any(selx < 1) || any(selx > nrow(x)))
+                stop("'selx' is not valid\n")
         }
-
-        return(as.KernelMatrix(km))
-    }
-
-    if (!is.null(selx))
-    {
-        if (!is.numeric(selx) || any(selx < 1) || any(selx > length(x)))
-            stop("'selx' is not valid\n")
     }
     else
         selx <- 1L:nrow(x)
 
-    if (!is.null(y) && !is.null(sely))
+    if (!is.null(y))
     {
-        if (!is.numeric(sely) || any(sely < 1) || any(sely > length(y)))
-            stop("'sely' is not valid\n")
+        if (length(sely) > 0)
+        {
+            if (is.character(sely))
+            {
+                if (length(rownames(y)) == 0)
+                    stop("missing rownames in 'y' for subsetting\n")
 
-        return(as.KernelMatrix(tcrossprod(x=x[selx], y=y[sely])))
+                sely <- which(rownames(y) %in% sely)
+            }
+            else
+            {
+                if (!is.numeric(sely) || any(sely < 1) || any(sely > nrow(y)))
+                    stop("'sely' is not valid\n")
+            }
+        }
+        else
+            sely <- 1L:nrow(y)
     }
     else
-        return(as.KernelMatrix(tcrossprod(x=x[selx], y=y)))
+    {
+        if (length(sely) > 0)
+            stop("'sely' only allowed together with 'y'")
+
+        if (sparse == TRUE && triangular == FALSE)
+        {
+            y <- x
+
+            if (length(selx) > 0)
+                sely <- selx
+        }
+    }
+
+    if (!is(x, "ExplicitRepresentation"))
+        stop("'x' must be a dense or sparse explicit representation\n")
+
+    if (!is.null(y) && !is(y, "ExplicitRepresentation"))
+        stop("'y' must be a dense or sparse explicit representation\n")
+
+    if (is(x,"ExplicitRepresentationDense"))
+    {
+        if (!is.null(y) && !is(y, "ExplicitRepresentationDense"))
+            stop("'y' must be a dense explicit representation\n")
+
+        if (sparse)
+        {
+            stop("for sparse kernel matrix the function linearKernel must be\n",
+                 "        called with a sparse explicit representation\n")
+        }
+
+        if (!is.null(y) && (length(sely) > 0))
+            return(as.KernelMatrix(tcrossprod(x=x[selx], y=y[sely])))
+        else
+            return(as.KernelMatrix(tcrossprod(x=x[selx], y=y)))
+    }
+    else
+    {
+        if (!is.null(y) && !is(y, "ExplicitRepresentationSparse"))
+            stop("'y' must be a sparse explicit representation\n")
+
+        if (sparse)
+        {
+            ## set exit hook for C heap cleanup
+            on.exit(.Call("freeHeapLinearKernelC"))
+
+            if (length(rownames(x) > 0))
+                rowNames <- rownames(x)[selx]
+            else
+                rowNames <- character(0)
+
+            if (is.null(y))
+            {
+                colNames <- rowNames
+
+                return(.Call("linearKernelSparseKMdgRMatrixC",
+                             as.integer(nrow(x)), x@p, x@j, x@x, selx-1,
+                             as.integer(nrow(x)), integer(0), integer(0),
+                             double(0), integer(0), rowNames, colNames,
+                             TRUE, as.logical(diag), as.double(lowerLimit)))
+            }
+            else
+            {
+                if (length(rownames(y) > 0))
+                    colNames <- rownames(y)[sely]
+                else
+                    colNames <- character(0)
+
+                return(.Call("linearKernelSparseKMdgRMatrixC",
+                             as.integer(nrow(x)), x@p, x@j, x@x, selx-1,
+                             as.integer(nrow(y)), y@p, y@j, y@x, sely-1,
+                             rowNames, colNames, FALSE, as.logical(diag),
+                             as.double(lowerLimit)))
+            }
+        }
+
+        if (is.null(y))
+        {
+            km <- .Call("linearKerneldgRMatrixC", as.integer(nrow(x)), x@p,
+                        x@j, x@x, selx-1, as.integer(nrow(x)), integer(0),
+                        integer(0), double(0), integer(0), TRUE)
+
+            if (length(rownames(x)) > 0)
+            {
+                rownames(km) <- rownames(x)[selx]
+                colnames(km) <- rownames(x)[selx]
+            }
+        }
+        else
+        {
+            km <- .Call("linearKerneldgRMatrixC", as.integer(nrow(x)), x@p,
+                        x@j, x@x, selx-1, as.integer(nrow(y)), y@p, y@j, y@x,
+                        sely-1, FALSE)
+
+            if (length(rownames(x)) > 0)
+                rownames(km) <- rownames(x)[selx]
+
+            if (length(rownames(y)) > 0)
+                colnames(km) <- rownames(y)[sely]
+        }
+
+        return(as.KernelMatrix(km))
+    }
 }
 
 ## subsetting for Biovector, XStringSet, KernelMatrix and ExplicitRep
 subsetSeqRep <- function(x, sel)
 {
-    if (is.null(sel))
+    if (is.null(sel) || length(sel) == 0)
         stop("'sel' is null in subset operation\n")
 
     if (is(x, "KernelMatrix") || is(x, "kernelMatrix"))

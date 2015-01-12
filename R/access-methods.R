@@ -662,6 +662,10 @@ setReplaceMethod("fpr", "ROCData",
 #' featureWeights,KBModel-method
 #' featureWeights<-
 #' featureWeights<-,KBModel-method
+#' SVindex
+#' SVindex,KBModel-method
+#' SVindex<-
+#' SVindex<-,KBModel-method
 #' cvResult
 #' cvResult,KBModel-method
 #' cvResult<-
@@ -687,6 +691,9 @@ setReplaceMethod("fpr", "ROCData",
 #'   }
 #'   \item{}{\code{featureWeights}:
 #'   returns the feature weights.
+#'   }
+#'   \item{}{\code{SVindex}:
+#'   returns the support vector indices for the training samples.
 #'   }
 #'   \item{}{\code{cvResult}:
 #'   returns result of cross validation as object of class
@@ -741,6 +748,16 @@ setReplaceMethod("featureWeights", "KBModel",
     function(x, value)
     {
         x@featureWeights <- value
+        x
+    }
+)
+
+setMethod("SVindex", "KBModel", function(object) object@svIndex)
+
+setReplaceMethod("SVindex", "KBModel",
+    function(x, value)
+    {
+        x@svIndex <- value
         x
     }
 )
@@ -843,6 +860,7 @@ setReplaceMethod("probabilityModel", "KBModel",
 #'   against the names of \code{x}.
 #'   }
 #' }
+#' @return see above
 #' @examples
 #' ## create kernel object for normalized spectrum kernel
 #' specK5 <- spectrumKernel(k=5)
@@ -1006,10 +1024,13 @@ setMethod("[", signature(x="KernelMatrix", i="index", j="index"),
 #' [,ExplicitRepresentationDense,index,missing,ANY-method
 #' [,ExplicitRepresentationDense,missing,index,ANY-method
 #' [,ExplicitRepresentationSparse,index,index,ANY-method
+#' [,ExplicitRepresentationSparse,index,index,logical-method
 #' [,ExplicitRepresentationSparse,index,index,missing-method
 #' [,ExplicitRepresentationSparse,index,missing,ANY-method
+#' [,ExplicitRepresentationSparse,index,missing,logical-method
 #' [,ExplicitRepresentationSparse,index,missing,missing-method
 #' [,ExplicitRepresentationSparse,missing,index,ANY-method
+#' [,ExplicitRepresentationSparse,missing,index,logical-method
 #' [,ExplicitRepresentationSparse,missing,index,missing-method
 #'
 #' @usage ## S4 methods for signature 'ExplicitRepresentation'
@@ -1192,7 +1213,7 @@ setMethod("[", signature(x="ExplicitRepresentationDense", i="index",
     }
 )
 
-subsetERSSample <- function(x,i)
+subsetERSSample <- function(x, i, drop=FALSE)
 {
     if (is.character(i))
     {
@@ -1260,9 +1281,11 @@ subsetERSSample <- function(x,i)
 setMethod("[", signature(x="ExplicitRepresentationSparse", i="index",
                          j="missing", drop="missing"), subsetERSSample)
 setMethod("[", signature(x="ExplicitRepresentationSparse", i="index",
+                         j="missing", drop="logical"), subsetERSSample)
+setMethod("[", signature(x="ExplicitRepresentationSparse", i="index",
                          j="missing", drop="ANY"), subsetERSSample)
 
-subsetERSFeature <- function(x,j)
+subsetERSFeature <- function(x, j, drop=FALSE)
 {
     if (is.character(j))
     {
@@ -1368,9 +1391,11 @@ subsetERSFeature <- function(x,j)
 setMethod("[", signature(x="ExplicitRepresentationSparse", i="missing",
                          j="index", drop="missing"), subsetERSFeature)
 setMethod("[", signature(x="ExplicitRepresentationSparse", i="missing",
+                         j="index", drop="logical"), subsetERSFeature)
+setMethod("[", signature(x="ExplicitRepresentationSparse", i="missing",
                          j="index", drop="ANY"), subsetERSFeature)
 
-subsetERSSampleFeature <- function(x,i,j)
+subsetERSSampleFeature <- function(x, i, j, drop=FALSE)
 {
     if ((is.character(i) || is.numeric(i)) &&
         (is.character(j) || is.numeric(j)))
@@ -1518,6 +1543,8 @@ subsetERSSampleFeature <- function(x,i,j)
 setMethod("[", signature(x="ExplicitRepresentationSparse", i="index",
                          j="index", drop="missing"), subsetERSSampleFeature)
 setMethod("[", signature(x="ExplicitRepresentationSparse", i="index",
+                         j="index", drop="logical"), subsetERSSampleFeature)
+setMethod("[", signature(x="ExplicitRepresentationSparse", i="index",
                          j="index", drop="ANY"), subsetERSSampleFeature)
 
 
@@ -1620,13 +1647,10 @@ setMethod("[", signature(x="PredictionProfile", i="index"),
                      " of sequences\n")
         }
 
-        maxcol <- max(width(x@sequences[i])) - kernelParameters(x@kernel)$k + 1
+        maxcol <- max(width(x@sequences[i]))
 
-        ## adjust baseline to new no of samples
-        ## including subsetting with negative indices
         initialize(x, sequences=x@sequences[i], kernel=x@kernel,
-                   baselines=x@baselines*length(x@sequences)/
-                            length(names(x@sequences)[i]),
+                   baselines=x@baselines[i],
                    profiles=x@profiles[i, 1:maxcol, drop=FALSE])
     }
 )

@@ -27,8 +27,9 @@ mismatchKernel(k = 3, m = 1, r = 1, normalized = TRUE, exact = TRUE,
   \item{r}{exponent which must be > 0 (see details section
   in \link{spectrumKernel}). Default=1}
 
-  \item{normalized}{generated data from this kernel will be
-  normalized (details see below). Default=TRUE}
+  \item{normalized}{a kernel matrix or explicit
+  representation generated with this kernel will be
+  normalized(details see below). Default=TRUE}
 
   \item{exact}{use exact character set for the evaluation
   (details see below). Default=TRUE}
@@ -69,18 +70,20 @@ an explicit representation for this kernel. For values
 different from 1 (=default value) parameter \code{r} leads
 to a transfomation of similarities by taking each element
 of the similarity matrix to the power of r. If
-\code{normalize=TRUE}, the similarity values are scaled to
-the unit sphere in the following way (for two samples
-\code{x} and \code{y}:
+\code{normalized=TRUE}, the feature vectors are scaled to
+the unit sphere before computing the similarity value for
+the kernel matrix. For two samples with the feature vectors
+\code{x} and \code{y} the similarity is computed as:
 \deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T
-y)/(|x| |y|)} Normalization is applied to a kernel matrix
-or to an explicit representation generated for this kernel.
+y)/(|x| |y|)} For an explicit representation generated with
+the feature map of a normalized kernel the rows are
+normalized by dividing them through their Euclidean norm.
 For parameter \code{exact=TRUE} the sequence characters are
 interpreted according to an exact character set. If the
-flag is not set ambigous characters according from the
-IUPAC characterset are also evaluated. The annotation
-specific variant (for details see \link{positionMetadata})
-and the position dependent variant (for details see
+flag is not set ambigous characters from the IUPAC
+characterset are also evaluated. The annotation specific
+variant (for details see \link{positionMetadata}) and the
+position dependent variant (for details see
 \link{annotationMetadata}) are not available for this
 kernel.\cr\cr Creation of kernel matrix\cr\cr The kernel
 matrix is created with the function

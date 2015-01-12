@@ -154,7 +154,7 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
             if (("AUC" %in% perfParameters) && length(model@levels) > 2)
             {
                 if (length(setdiff(c("ACC","BACC","MCC","AUC"), perfParameters)) == 0)
-                    perfParameters <- setdiff("AUC", perfParameters)
+                    perfParameters <- setdiff(perfParameters, "AUC")
                 else
                     stop("AUC is currently not supported for multiclass")
             }

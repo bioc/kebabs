@@ -16,13 +16,13 @@ Performance Parameters and Receiver Operating Characteristics}
 \S4method{plot}{PredictionProfile,missing}(x, sel = NULL, col = c("red",
   "blue"), standardize = TRUE, shades = NULL, legend = "default",
   legendPos = "topright", ylim = NULL, xlab = "", ylab = "weight",
-  heptads = FALSE, annotate = FALSE, markOffset = TRUE, windowSize = 1,
-  ...)
+  lwd.profile = 1, lwd.axis = 1, las = 1, heptads = FALSE,
+  annotate = FALSE, markOffset = TRUE, windowSize = 1, ...)
 
 \S4method{plot}{CrossValidationResult,missing}(x, col = "springgreen")
 
-\S4method{plot}{ModelSelectionResult,missing}(x, sel = c("ACC", "BACC",
-  "MCC"))
+\S4method{plot}{ModelSelectionResult,missing}(x, sel = c("ACC", "BACC", "MCC",
+  "AUC"))
 
 \S4method{plot}{ROCData,missing}(x, lwd = 2, aucDigits = 3, cex = 0.8,
   side = 1, line = -3, adj = 0.9, ...)
@@ -71,6 +71,14 @@ Performance Parameters and Receiver Operating Characteristics}
 
   \item{ylab}{label of vertical axis, defaults to
   "weight".}
+
+  \item{lwd.profile}{profile line width as described for
+  parameter \code{lwd} in \code{\link[graphics:par]{par}}}
+
+  \item{lwd.axis}{axis line width as described for
+  parameter \code{lwd} in \code{\link[graphics:par]{par}}}
+
+  \item{las}{see \code{\link[graphics:par]{par}}}
 
   \item{heptads}{logical indicating whether for proteins
   with heptad annotation (i.e. characters a to g, usually

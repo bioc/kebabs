@@ -18,6 +18,18 @@ RcppExport SEXP linearKerneldgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR,
                                        SEXP pYR, SEXP jYR, SEXP xYR, 
                                        SEXP selyR, SEXP symmetricR);
 
+RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR,
+                                               SEXP xXR, SEXP selxR, SEXP sizeYR,
+                                               SEXP pYR, SEXP jYR, SEXP xYR, SEXP selyR,
+                                               SEXP rowNamesR, SEXP colNamesR,
+                                               SEXP symmetricR, SEXP diagR, SEXP lowerLimit);
+
+extern "C" {
+    
+    void freeHeapLinearKernelC();
+    
+}
+
 #else
 
 #include <Rdefines.h>
