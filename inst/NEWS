@@ -1,6 +1,19 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.1.6
+- error correction for training with position specific kernel and
+  computation of feature weights
+- error correction in coercion of kernel to character for distance
+  weighting
+- error correction in spectrum, gappy pair and motif kernel
+  for kernel matrix - last feature was missing in kernel value
+  in rare situations
+- correction of Windows build problem in linearKernel
+- build warnings on Windows removed
+- minor changes in help pages
+- minor changes in vignette
+
 Version 1.1.5
 - new method heatmap to display heatmap of prediction profiles
 - extension of function linearKernel to optionally return

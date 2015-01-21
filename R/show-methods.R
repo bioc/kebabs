@@ -358,26 +358,8 @@ setMethod("show", signature(object="SpectrumKernel"),
             cat(paste(", annSpec=TRUE"))
         if (length(object@distWeight) > 0)
         {
-            if (is.numeric(object@distWeight))
-            {
-                if (length(object@distWeight) == 1)
-                {
-                    cat(paste(", distWeight=",
-                              object@distWeight, sep=""))
-                }
-                else
-                {
-                    cat(paste(", distWeight=",
-                              paste("c(",paste(object@distWeight,
-                                               collapse=","),")",
-                                    sep=""), sep=""))
-                }
-            }
-            else
-            {
-                cat(", \ndistWeight=")
-                cat(format(object@distWeight))
-            }
+             dwString <- distWeightKernelToString(object@distWeight)
+             cat(", distWeight=", dwString, sep="")
         }
         if (object@normalized == FALSE)
             cat(", normalized=FALSE")

@@ -900,13 +900,14 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
                       int sizeX, int sizeY, IntegerVector selX, IntegerVector selY,
                       ByteStringVector annCharset, ByteStringVector annX, ByteStringVector annY,
                       bool unmapped, int k, int m, bool normalized, bool symmetric, bool presence,
-                      bool reverseComplement, int maxSeqLength, struct alphaInfo *alphaInf)
+                      bool reverseComplement, int maxSeqLength, uint64_t dimFeatureSpace,
+                      struct alphaInfo *alphaInf)
 {
     T featureIndex, annotIndex;
     int i, j, l, iX, iY, elemIndex, noSamples = sizeX;
     int freeNode, nodeLimit, currBlock, currIndex, newBlock, maxBlockIndex;
     int maxNoOfNodes, seqnchar, currStack, stack[8*k];
-    uint64_t maxNodesPerSequence, numAnnPow2K = 0;
+    uint64_t maxNodesPerSequence, maxNumFeatures, numAnnPow2K = 0;
     double kv;
     bool printWarning = TRUE;
     const char *seqptr, *annptr;
@@ -928,14 +929,17 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
         noSamples += sizeY;
 
     // add one for the sentinel
-    maxSeqLength += 1;
-
+    if (dimFeatureSpace < maxSeqLength)
+        maxNumFeatures = dimFeatureSpace + 1;
+    else
+        maxNumFeatures = (maxSeqLength - 2*k - 0.5*m + 1) * (m + 1) + 1;
+    
     // allocate arrays for sparse feature vectors with 32 or 64 bit index
     // store only unnormalized k-mer count to avoid double space usage
     // add one for the sentinel
     featVectorArrays featVectors;
-    featVectors.x   = (int32_t *) R_alloc(noSamples * ((maxSeqLength - 2*k + 0.5*m) * (m + 1) + 1), sizeof(int32_t));
-    featVectors.idx = (T *) R_alloc(noSamples * ((maxSeqLength - 2*k + 0.5*m) * (m + 1) + 1), sizeof(T));
+    featVectors.x   = (int32_t *) R_alloc(noSamples * maxNumFeatures, sizeof(int32_t));
+    featVectors.idx = (T *) R_alloc(noSamples * maxNumFeatures, sizeof(T));
 
     double *normValues   = (double *) R_alloc(noSamples, sizeof(double));
 
@@ -1016,12 +1020,13 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
             currBlock = 0;
             currIndex = 0;
             currStack = -1;
-            elemIndex = i * ((maxSeqLength - 2*k + 0.5*m) * (m + 1) + 1);
+            elemIndex = i * maxNumFeatures;
             featureIndex = 0;
             annotIndex = 0;
 
             // for situation with no features set sentinel
             featVectors.idx[elemIndex] = maxUnSignedIndex;
+            featVectors.x[elemIndex] = MAXINT32;
 
             while (currStack >= 0 || currIndex <= maxBlockIndex)
             {
@@ -1117,10 +1122,11 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
             }
 
             featVectors.idx[elemIndex] = maxUnSignedIndex;
+            featVectors.x[elemIndex] = MAXINT32;
         }
 
         computeKernelMatrix(maxUnSignedIndex, featVectors.idx, featVectors.x, km, normValues,
-                            (maxSeqLength - 2*k + 0.5*m) * (m + 1) + 1, sizeX, sizeY, normalized, symmetric);
+                            maxNumFeatures, sizeX, sizeY, normalized, symmetric);
     }
     else // not symmetric
     {
@@ -1144,10 +1150,6 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
             }
             else
             {
-                // this statement causes problems in the optimization level -O2
-//                iY = selY[i - sizeX];
-//                Rprintf("i: %d  sizeX: %d  i-sizeX: %d\n", i, sizeX, i - sizeX);
-
                 indexY++;
                 iY = selY[indexY];
 
@@ -1162,8 +1164,8 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
 
             //create new tree for sequence
             kv = createTreeGappy((const char *) seqptr, seqnchar, annptr, k, m, &annotationIndexMap,
-                                 presence, reverseComplement, pTree, maxNoOfNodes, &freeNode, &nullBlock, &printWarning,
-                                 alphaInf);
+                                 presence, reverseComplement, pTree, maxNoOfNodes, &freeNode,
+                                 &nullBlock, &printWarning, alphaInf);
 
             if (kv == NA_REAL)
             {
@@ -1185,12 +1187,13 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
             currBlock = 0;
             currIndex = 0;
             currStack = -1;
-            elemIndex = i * ((maxSeqLength - 2*k + 0.5*m) * (m + 1) + 1);
+            elemIndex = i * maxNumFeatures;
             featureIndex = 0;
             annotIndex = 0;
 
             // for situation with no features set sentinel
             featVectors.idx[elemIndex] = maxUnSignedIndex;
+            featVectors.x[elemIndex] = MAXINT32;
 
             while (currStack >= 0 || currIndex <= maxBlockIndex)
             {
@@ -1286,10 +1289,11 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
             }
 
             featVectors.idx[elemIndex] = maxUnSignedIndex;
+            featVectors.x[elemIndex] = MAXINT32;
         }
 
         computeKernelMatrix(maxUnSignedIndex, featVectors.idx, featVectors.x, km, normValues,
-                            (maxSeqLength - 2*k + 0.5*m) * (m + 1) + 1, sizeX, sizeY, normalized, symmetric);
+                            maxNumFeatures, sizeX, sizeY, normalized, symmetric);
     }
 
     return;
@@ -1303,9 +1307,9 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
                        NumericVector distWeight, int maxSeqLength, struct alphaInfo *alphaInf)
 {
     T prevIndex;
-    uint32_t km1, inew, invalidCharPos, elemIndex, tempIndex1, tempIndex2, fIndex;
-    uint64_t featureIndex, fDimArray, numAlphaPowerK, numAlphaPowerK1;
-    int i, j, l, offset, noSamples = sizeX;
+    uint32_t km1, inew, elemIndex, tempIndex1, tempIndex2, fIndex;
+    uint64_t featureIndex, fDimArray, invalidCharPos, numAlphaPowerK, numAlphaPowerK1, *featVectorsStart;
+    int i, j, l, offset, maxNumPatternsPerPos, maxFeaturesPerSample, noSamples = sizeX;
     int patLength, seqnchar, index, iold, iX, iY, upper;
     const char *seqptr;
     double kv, *normValues;
@@ -1321,19 +1325,25 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
         noSamples += sizeY;
 
     km1 = k + m + 1;
-    T *oldIndex = (T *) R_alloc(k, sizeof(uint64_t));
-    T *newIndex = (T *) R_alloc(km1, sizeof(uint64_t));
+    uint64_t *oldIndex = (uint64_t *) R_alloc(k, sizeof(uint64_t));
+    uint64_t *newIndex = (uint64_t *) R_alloc(km1, sizeof(uint64_t));
     numAlphaPowerK1 = ipow64(alphaInf->numAlphabetChars, k - 1);
     numAlphaPowerK = numAlphaPowerK1 * alphaInf->numAlphabetChars;
 
     // allocate arrays for feature vectors with 8, 16, 32 or 64 bit index
-    fDimArray = (maxSeqLength - 2*k + 0.5*m) * (m + 1) + 1;
+    fDimArray = (maxSeqLength - 2*k - 0.5*m + 1) * (m + 1);
     featVectorArrays featVectors;
 
     featVectors.x   = (int32_t *) R_alloc(noSamples * fDimArray, sizeof(int32_t));
     featVectors.idx = (T *) R_alloc(noSamples * fDimArray, sizeof(T));
+    featVectorsStart = (uint64_t *) R_alloc(noSamples + 1, sizeof(uint64_t));
     normValues = (double *) R_alloc(noSamples, sizeof(double));
+    maxNumPatternsPerPos = m + 1;
 
+    featVectorsStart[0] = 0;
+    maxFeaturesPerSample = 0;
+    elemIndex = 0;
+    
     // walk along sequence and create sparse feature vector
     for (i = 0; i < noSamples; i++)
     {
@@ -1362,18 +1372,17 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
 
         patLength = 0;
         featureIndex = 0;
-        elemIndex = i * fDimArray;
         iold = 0;
         inew = 0;
         kv = 0;
-        invalidCharPos = maxUnSignedIndex;
+        invalidCharPos = MAXUINT64;
 
         for (l = 0; l < seqnchar - 2 * k + 1; l++)
         {
-            if (invalidCharPos != maxUnSignedIndex && l <= (int)invalidCharPos)
+            if (invalidCharPos != MAXUINT64 && l <= (int)invalidCharPos)
                 continue;
             else
-                invalidCharPos = maxUnSignedIndex;
+                invalidCharPos = MAXUINT64;
 
             // look ahead and fill newIndex buffer to process
             // each of the m + 1 patterns at a position immediately
@@ -1386,9 +1395,9 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
             {
                 for (j = 0; j < upper; j++)
                 {
-                    if (invalidCharPos != maxUnSignedIndex)
+                    if (invalidCharPos != MAXUINT64)
                     {
-                        newIndex[inew++] = maxUnSignedIndex;
+                        newIndex[inew++] = MAXUINT64;
 
                         if (inew == km1)
                             inew = 0;
@@ -1438,7 +1447,7 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
                     else
                     {
                         //store max index to buffer for not valid pattern
-                        newIndex[inew++] = maxUnSignedIndex;
+                        newIndex[inew++] = MAXUINT64;
 
                         if (inew == km1)
                             inew = 0;
@@ -1452,7 +1461,7 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
                 }
             }
 
-            if (l + 2 * k + m - 1 < seqnchar && invalidCharPos == maxUnSignedIndex)
+            if (l + 2 * k + m - 1 < seqnchar && invalidCharPos == MAXUINT64)
             {
                 //calc next look ahead feature index and store to buffer
                 index = alphaInf->seqIndexMap[(int) seqptr[l + 2 * k + m - 1]];
@@ -1475,7 +1484,7 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
                 else
                 {
                     //store max index to buffer for not valid pattern
-                    newIndex[inew++] = maxUnSignedIndex;
+                    newIndex[inew++] = MAXUINT64;
 
                     if (inew == km1)
                         inew = 0;
@@ -1499,13 +1508,13 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
             else
                 upper = seqnchar - 2 * k - l;
 
-            if (invalidCharPos != maxUnSignedIndex && upper > (int) invalidCharPos - l - 2 * k)
+            if (invalidCharPos != MAXUINT64 && upper > (int) invalidCharPos - l - 2 * k)
                 upper = invalidCharPos - l - 2 * k;
 
             for (j = 0; j <= upper; j++)
             {
-                if (newIndex[inew] == maxUnSignedIndex ||
-                    newIndex[(inew + k + j) % km1] == maxUnSignedIndex)
+                if (newIndex[inew] == MAXUINT64 ||
+                    newIndex[(inew + k + j) % km1] == MAXUINT64)
                     continue;
 
                 if (reverseComplement)
@@ -1537,11 +1546,14 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
                 kv++;
             }
 
-            if (invalidCharPos != maxUnSignedIndex)
+            if (invalidCharPos != MAXUINT64)
                 inew = 0;
         }
 
-        featVectors.idx[elemIndex] = maxUnSignedIndex;
+        featVectorsStart[i + 1] = elemIndex;
+
+        if (maxFeaturesPerSample < (featVectorsStart[i + 1] - featVectorsStart[i]))
+            maxFeaturesPerSample = featVectorsStart[i + 1] - featVectorsStart[i];
 
         // for dist weighting the kernel value is determined in computeKernelMatrixPos
         if (distWeight.length() == 0)
@@ -1553,8 +1565,9 @@ void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x,
         }
     }
 
-    computeKernelMatrixPos(maxUnSignedIndex, featVectors.idx, featVectors.x, km, normValues, fDimArray,
-                           m + 1, sizeX, sizeY, normalized, symmetric, FALSE, distWeight);
+    computeKernelMatrixPos(maxUnSignedIndex, featVectors.idx, featVectors.x, featVectorsStart, km,
+                           normValues, maxFeaturesPerSample, maxNumPatternsPerPos, sizeX, sizeY,
+                           normalized, symmetric, FALSE, distWeight);
 
     return;
 }
@@ -3464,7 +3477,7 @@ RcppExport SEXP gappyPairKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR,
             {
                 getKMStdAnnGappy(maxUIndex8, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
                                  unmapped, k, m, normalized, symmetric, presence, reverseComplement,
-                                 maxSeqLength, &alphaInf);
+                                 maxSeqLength, dimFeatureSpace, &alphaInf);
             }
 
             break;
@@ -3482,7 +3495,7 @@ RcppExport SEXP gappyPairKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR,
             {
                 getKMStdAnnGappy(maxUIndex16, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
                                  unmapped, k, m, normalized, symmetric, presence, reverseComplement,
-                                 maxSeqLength, &alphaInf);
+                                 maxSeqLength, dimFeatureSpace, &alphaInf);
             }
 
             break;
@@ -3501,7 +3514,7 @@ RcppExport SEXP gappyPairKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR,
             {
                 getKMStdAnnGappy(maxUIndex32, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
                                  unmapped, k, m, normalized, symmetric, presence, reverseComplement,
-                                 maxSeqLength, &alphaInf);
+                                 maxSeqLength, dimFeatureSpace, &alphaInf);
             }
 
             break;
@@ -3519,7 +3532,7 @@ RcppExport SEXP gappyPairKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR,
             {
                 getKMStdAnnGappy(maxUIndex64, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
                                  unmapped, k, m, normalized, symmetric, presence, reverseComplement,
-                                 maxSeqLength, &alphaInf);
+                                 maxSeqLength, dimFeatureSpace, &alphaInf);
             }
 
             break;
@@ -3536,7 +3549,7 @@ uint64_t * featureNamesToIndexGappyPair(SEXP featureNames, int numFeatures, Byte
                                         struct alphaInfo *alphaInf)
 {
     int i, j, l, numDots;
-    uint64_t featureIndex, *featIndex, annIndex, numAnnPow2K, tempIndex, fIndex;
+    uint64_t featureIndex, *featIndex, annIndex, tempIndex, fIndex, numAnnPow2K = 0;
     const char *pattern;
 
     featIndex = (uint64_t *) R_alloc(numFeatures, sizeof(uint64_t));
@@ -3600,7 +3613,7 @@ RcppExport void featuresToHashmapGappyPair(NumericMatrix featureWeights, int svm
                                            IntegerVector annotationIndexMap)
 {
     int i, j, numFeatures, result, numDots;
-    uint64_t featureIndex, annotIndex, numAnnPow2K;
+    uint64_t featureIndex, annotIndex, numAnnPow2K = 0;
     const char *pattern;
     SEXP dimNames, colNames;
     khiter_t iter;

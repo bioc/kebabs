@@ -972,6 +972,7 @@ bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, bool unmappe
     featureCounts = NULL;
     featuresInSample = NULL;
     vmax = NULL;
+    fchmap = NULL;
 
     // cyclic buffers for old index
     uint64_t *oldIndex = (uint64_t *) R_alloc(k, sizeof(uint64_t));
@@ -1666,7 +1667,7 @@ bool getERSMismatch(ByteStringVector x, int sizeX, IntegerVector selX, int maxSe
                     double *normValues)
 {
     int i, iX, freeNode, maxNoOfNodes, jIndex;
-    uint64_t nodeLimit, maxNodesPerSequence;
+    uint64_t nodeLimit;
     double kernelValue;
     bool printWarning = TRUE;
     struct prefTree *pTree;
@@ -1674,18 +1675,12 @@ bool getERSMismatch(ByteStringVector x, int sizeX, IntegerVector selX, int maxSe
 
     // alloc mem for prefix tree
     // consider mismatch subtree
-    nodeLimit = ((pow(alphaInf->numAlphabetChars, k + 1) - 1) / (alphaInf->numAlphabetChars - 1)) *
-                pow(alphaInf->numAlphabetChars, k) + 1;
-
-    maxNodesPerSequence = pow(alphaInf->numAlphabetChars, m) * k * (maxSeqLength - k + 1) + 1;
-
-    if (maxNodesPerSequence < (uint64_t) nodeLimit)
-        nodeLimit = (int) maxNodesPerSequence;
-
-    maxNoOfNodes = MAX_BLOCK;
+    nodeLimit = (pow(alphaInf->numAlphabetChars, k + 1) - 1) / (alphaInf->numAlphabetChars - 1);
 
     if (nodeLimit < (uint64_t) MAX_BLOCK)
         maxNoOfNodes = (int) nodeLimit;
+    else
+        maxNoOfNodes = MAX_BLOCK;
 
     pTree = (struct prefTree *) R_alloc(maxNoOfNodes, sizeof(struct treeNode));
 

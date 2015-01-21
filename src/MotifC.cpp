@@ -847,7 +847,7 @@ void setFeatureIndex(struct prefTreeMotif *pTree, int maxMotifLength, int maxPat
                 }
             }
 
-            free(pKeys);
+            Free(pKeys);
             pKeys = NULL;
         }
     }
@@ -1629,8 +1629,6 @@ void findMotifsForPos(struct intfFindMotifs *intf)
 
     descendOnBranchPos(0, intf->seqnchar, 0, &motifBegin, intf);
 
-    intf->pFeatVecIndex[intf->elemIndex] = MAXUINT32;
-
     return;
 }
 
@@ -1728,6 +1726,7 @@ void getNonzeroMotifs(bool annSpec, int32_t *featVectorValue, uint32_t *featVect
         }
 
         featVectorIndex[elemIndex] = MAXUINT32;
+        featVectorValue[elemIndex] = MAXINT32;
     }
     else
     {
@@ -1768,6 +1767,7 @@ void getNonzeroMotifs(bool annSpec, int32_t *featVectorValue, uint32_t *featVect
             }
 
             featVectorIndex[elemIndex] = MAXUINT32;
+            featVectorValue[elemIndex] = MAXINT32;
         }
     }
 
@@ -1869,6 +1869,7 @@ void getNonzeroMotifsERS(bool annSpec, struct prefTreeMotif *pTree, khash_t(fim)
         if (curr > 0)
         {
             featVectorIndex[curr] = MAXUINT32;
+            featVectorValue[curr] = MAXINT32;
             sort2Arrays(MAXUINT32, featVectorIndex, featVectorValue, 1, numUsedFeatures, NULL);
 
             curr = 0;
@@ -2151,13 +2152,12 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
 
     if (pKeys != NULL)
     {
-        free(pKeys);
+        Free(pKeys);
         pKeys = NULL;
     }
 
     // sort feature vectors
-    if (annX.length > 0)
-        sort2Arrays(MAXUINT32, featVectorIndex, featVectorValue, numSamples, fDim, NULL);
+    sort2Arrays(MAXUINT32, featVectorIndex, featVectorValue, numSamples, fDim, NULL);
 
     computeKernelMatrix(MAXUINT32, featVectorIndex, featVectorValue, km, normValues, fDim,
                         sizeX, sizeY, normalized, symmetric);
@@ -2174,7 +2174,8 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
 {
     uint32_t fDim, *featVectorIndex;
     int32_t *featVectorValue;
-    int i, freeNode, maxNoOfNodes, iX, iY, numSamples;
+    uint64_t *featVectorsStart;
+    int i, freeNode, maxNoOfNodes, iX, iY, numSamples, maxFeaturesPerSample;
     bool printWarning = TRUE;
     struct prefTreeMotif *pTree;
     struct indexBlock nullBlock;
@@ -2197,6 +2198,7 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     fDim = 2 * maxSeqLength + 1;
     featVectorValue = (int32_t *) R_alloc(numSamples * fDim, sizeof(int32_t));
     featVectorIndex = (uint32_t *) R_alloc(numSamples * fDim, sizeof(uint32_t));
+    featVectorsStart = (uint64_t *) R_alloc(numSamples + 1, sizeof(uint64_t));
 
     // alloc mem for prefix tree
     maxNoOfNodes = MAX_BLOCK;
@@ -2238,12 +2240,15 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     intf.fDim = fDim;
     intf.allIndexMaps = allIndexMaps;
 
+    featVectorsStart[0] = 0;
+    maxFeaturesPerSample = 0;
+    intf.elemIndex = 0;
+
     // calculate kernel matrix
     for (i = 0; i < numSamples; i++)
     {
         R_CheckUserInterrupt();
         intf.rowIndex = i;
-        intf.elemIndex = intf.rowIndex * intf.fDim;
         intf.offset = 0;
 
         if (i < sizeX)
@@ -2273,14 +2278,20 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
             return;
         }
 
+        featVectorsStart[i + 1] = intf.elemIndex;
+
+        if (maxFeaturesPerSample < (featVectorsStart[i + 1] - featVectorsStart[i]))
+            maxFeaturesPerSample = featVectorsStart[i + 1] - featVectorsStart[i];
+
         if (normalized)
             normValues[i] = sqrt(intf.kernelValue);
         else
             normValues[i] = intf.kernelValue;
     }
 
-    computeKernelMatrixPos(MAXUINT32, featVectorIndex, featVectorValue, km, normValues, fDim, motifs.length,
-                           sizeX, sizeY, normalized, symmetric, FALSE, distWeight);
+    computeKernelMatrixPos(MAXUINT32, featVectorIndex, featVectorValue, featVectorsStart, km,
+                           normValues, maxFeaturesPerSample, motifs.length, sizeX, sizeY, normalized, symmetric,
+                           FALSE, distWeight);
 
     return;
 }

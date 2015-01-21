@@ -59,7 +59,7 @@ kebabsDate <- paste(month.name[kebabsDateMonth], " ",
 
 This document is the user manual for the \R\ package \kebabs. It is meant as an introduction to the \KeBABS\ functionality which should make the user acquainted with the basic functions of the package both on a conceptual level as well as from the usage perspective. This means that the document will neither go into full details for the described functions nor can it be considered a complete description of all package functions. As an additional source of information, the help pages including examples are available. 
 
-Please also consider that this manual is not an introduction to \R\ nor an introduction to machine learning in general or to support sector machine-based learning. The document provides the information in a form that also allows less experienced users to use the package. However, if you do not have any knowledge of these subjects, please read introductory literature first.
+Please also consider that this manual is not an introduction to \R\ nor an introduction to machine learning in general or to support vector machine-based learning. The document provides the information in a form that also allows less experienced users to use the package. However, if you do not have any knowledge of these subjects, please read introductory literature first.
 
 \section*{Authorship and Contributions}
 
@@ -1168,28 +1168,32 @@ As already seen in the Section \ref{sec:GettingStarted}, the \KeBABS\ training m
 
 Please note that in binary classification the value used for the positive label must be selected in a specific way. For numeric labels in binary classification the positive class must have the larger value, for factor or character based labels the positive label must be at the first position when sorting the labels in descendent order according to the C locale.
 
-Instead of sequences, also a precomputed kernel matrix or an explicit representation can be passed as training data to the method \kbsvm. Precomputed kernel matrices can be interesting for large data sets or kernels with higher runtime when multiple training runs should be performed without the overhead of recreating the kernel matrix on each run. A sequence kernel should be passed to \kbsvm\ also in this situation as it might be needed for the computation of feature weights. The following example shows how to train and predict with a precomputed explicit representation.
+Instead of sequences, also a precomputed kernel matrix or an explicit representation can be passed as training data to the method \kbsvm. Precomputed kernel matrices can be interesting for large data sets or kernels with higher runtime when multiple training runs should be performed without the overhead of recreating the kernel matrix on each run. A sequence kernel should be passed to \kbsvm\ also in this situation as it might be needed for the computation of feature weights. The following example shows how to train and predict with a precomputed explicit representation. In this example the C-SVM from package {\tt kernlab} is used and a dense explicit representation is generated because the SVMs in {\tt kernlab} currently only support dense explicit representations. For the packages {\tt e1071} and {\tt LiblineaR} sparse explicit representations can also be used which are more efficient both statically and dynamically and also reduce the training time, especially for larger feature spaces.
 
 <<>>=
 gappyK1M4 <- gappyPairKernel(k=1, m=4)
-exrep <- getExRep(enhancerFB, gappyK1M4, sparse=TRUE)
+exrep <- getExRep(enhancerFB, gappyK1M4, sparse=FALSE)
 numSamples <- length(enhancerFB)
-trainingFraction <- 0.7
+trainingFraction <- 0.8
 train <- sample(1:numSamples, trainingFraction * numSamples)
 test <- c(1:numSamples)[-train]
 model <- kbsvm(x=exrep[train, ], y=yFB[train], kernel=gappyK1M4,
-               pkg="LiblineaR", svm="C-svc", cost=15)
+               pkg="kernlab", svm="C-svc", cost=15)
 pred <- predict(model, exrep[test, ])
 evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 @
 
-When the training is performed with a precomputed kernel matrix also in prediction a kernel matrix must be passed to the {\tt predict()} method. In this case the kernel matrix is rectangular, the rows of the kernel matrix correspond to the test samples and the columns to the support vectors determined in the training as shown below. Please note that the support vector indices read from the model with the accessor {\tt SVindex()} refer to the training set order. Currently training and prediction via kernel matrix is only supported by the SVMs implemented in package {\tt kernlab}.
+When the training is performed with a precomputed kernel matrix also in prediction a kernel matrix must be passed to the {\tt predict()} method. In this case the kernel matrix is rectangular, the rows of the kernel matrix correspond to the test samples and the columns to the support vectors determined in the training as shown below. Please note that the support vector indices read from the model with the accessor {\tt SVindex()} refer to the training set order. Currently training and prediction via kernel matrix is only supported by the SVMs implemented in package {\tt kernlab}. With a precomputed kernel matrix the repeated effort for kernel matrix computation in multiple training runs can be avoided. However, for training with a precomputed kernel matrix the computation of feature weights is not possible.
 
 <<>>=
-km <- getKernelMatrix(gappyK1M4, enhancerFB)
-model1 <- kbsvm(x=km[train, train], y=yFB[train], kernel=gappyK1M4,
+## compute quadratic kernel matrix for training samples
+kmtrain <- getKernelMatrix(gappyK1M4, x=enhancerFB, selx=train)
+model1 <- kbsvm(x=kmtrain, y=yFB[train], kernel=gappyK1M4,
                 pkg="kernlab", svm="C-svc", cost=15)
-pred1 <- predict(model1, km[test, train[SVindex(model1)]])
+## compute rectangular kernel matrix of test samples against support vectors
+kmtest <- getKernelMatrix(gappyK1M4, x=enhancerFB, y=enhancerFB, selx=test, 
+                          sely=train[SVindex(model1)])
+pred1 <- predict(model1, kmtest)
 evaluatePrediction(pred1, yFB[test], allLabels=unique(yFB))
 @
 
@@ -1591,6 +1595,16 @@ Currently only {\tt kernlab} supports training via the kernel matrix. For all ot
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.1.6:] \hfill
+\begin{itemize}
+\item error correction for training with position specific kernel and computation of feature weights
+\item error correction in coercion of kernel to character for distance weighting
+\item error correction in spectrum, gappy pair and motif kernel for kernel matrix - last feature was missing in kernel value in rare situations
+\item correction of Windows build problem in linearKernel
+\item build warnings on Windows removed
+\item minor changes in help pages
+\item minor changes in vignette
+\end{itemize}
 \item[Version 1.1.5:] \hfill
 \begin{itemize}
 \item new method heatmap to display heatmap of prediction profiles

@@ -167,7 +167,6 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     ptrI = iptr;
     ptrX = xptr;
     
-    // do processing
     nextFree = 0;
 
     if (symmetric)
@@ -203,7 +202,7 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
                 if (kv > lowerLimit)
                 {
                     // new element - check if enough space
-                    if (nextFree + 1 > vectorSize)
+                    if (((uint64_t) nextFree + 1) > vectorSize)
                     {
                         // realloc arrays i and x
                         vectorSize *= growBy;
@@ -258,7 +257,7 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
                 if (kv > lowerLimit)
                 {
                     // new element - check if enough space
-                    if (nextFree + 1 > vectorSize)
+                    if (((uint64_t) nextFree + 1) > vectorSize)
                     {
                         // realloc arrays i and x
                         vectorSize = (uint64_t) (vectorSize * growBy);
@@ -306,13 +305,13 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     else
         SET_VECTOR_ELT(dimnames, 1, R_NilValue);
     
-    slot_p = PROTECT(Rf_allocVector(INTSXP, sizeY+1));
+    slot_p = PROTECT(Rf_allocVector(INTSXP, sizeY + 1));
     SET_SLOT(spm, Rf_mkChar("p"), slot_p);
     
     for (i=0; i < sizeY + 1; i++)
         INTEGER(slot_p)[i] = pptr[i];
     
-    free(pptr);
+    Free(pptr);
     ptrP = NULL;
     
     slot_i = PROTECT(Rf_allocVector(INTSXP, nextFree));
@@ -321,7 +320,7 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     for (i=0; i < nextFree; i++)
         INTEGER(slot_i)[i] = iptr[i];
     
-    free(iptr);
+    Free(iptr);
     ptrI = NULL;
     
     slot_x = PROTECT(Rf_allocVector(REALSXP, nextFree));
@@ -330,7 +329,7 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     for (i=0; i < nextFree; i++)
         REAL(slot_x)[i] = xptr[i];
     
-    free(xptr);
+    Free(xptr);
     ptrX = NULL;
     
     numProtect += 3;

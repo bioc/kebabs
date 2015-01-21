@@ -291,30 +291,43 @@ Training of biological sequences with a sequence kernel\cr
 
 Training is performed via the method \code{kbsvm} for
 classification and regression tasks. The user passes
-sequence data in \code{XStringSet} format, the label
-vector, a sequence kernel object and the requested SVM
-along with SVM parameters and receives the training results
-in the form of a KeBABS model object of class
+sequence data, the response vector, a sequence kernel
+object and the requested SVM along with SVM parameters to
+\code{kbsvm} and receives the training results in the form
+of a KeBABS model object of class
 \code{\linkS4class{KBModel}}. The accessor \code{svmModel}
 allows to retrieve the SVM specific model from the KeBABS
-model object. However for regular operation a detailed look
-into the SVM specific model is usually not necessary. (When
-repeat regions are coded as lowercase characters and should
-be excluded from the analysis the sequence data can be
-passed as \code{\linkS4class{BioVector}} which also
-supports lowercase characters instead of
+model object. However, for regular operation a detailed
+look into the SVM specific model is usually not necessary.
+
+The standard data format for sequences in KeBABS are the
+\code{XStringSet}-derived classes
+\code{\linkS4class{DNAStringSet}},
+\code{\linkS4class{RNAStringSet}} and
+\code{\linkS4class{AAStringSet}}. (When repeat regions are
+coded as lowercase characters and should be excluded from
+the analysis the sequence data can be passed as
+\code{\linkS4class{BioVector}} which also supports
+lowercase characters instead of
 \code{\linkS4class{XStringSet}} format. Please note that
 the classes derived from \code{\linkS4class{XStringSet}}
 are much more powerful than the
 \code{\linkS4class{BioVector}} derived classes and should
 be used in all cases where lowercase characters are not
-needed). Apart from SVM training \code{kbsvm} can be also
-used for cross validation (see \link{crossValidation} and
-parameters \code{cross} and \code{noCross}), grid search
-for SVM- and kernel-parameter values (see
-\link{gridSearch}) and model selection (see
-\link{modelSelection} and parameters \code{nestedCross} and
-\code{noNestedCross}).\cr\cr
+needed).
+
+Instead of sequences also a precomputed explicit
+representation or a precomputed kernel matrix can be used
+for training. Examples for training with kernel matrix and
+explicit representation can be found on the help page for
+the prediction method \code{\link{predict}}.
+
+Apart from SVM training \code{kbsvm} can be also used for
+cross validation (see \link{crossValidation} and parameters
+\code{cross} and \code{noCross}), grid search for SVM- and
+kernel-parameter values (see \link{gridSearch}) and model
+selection (see \link{modelSelection} and parameters
+\code{nestedCross} and \code{noNestedCross}).\cr\cr
 
 Package and SVM selection\cr
 
@@ -428,10 +441,10 @@ Pruning of feature weights can be achieved with the
 parameter \code{weightLimit} which defines the cutoff for
 small feature weights not stored in the model.
 
-Hint: For multiclass prediction is currently not performed
-via feature weights but native in the SVM. This means that
-for multiclass a pruned model cannot be used for
-prediction.\cr\cr
+Hint: For training with a precomputed kernel matrix feature
+weights are not available. For multiclass prediction is
+currently not performed via feature weights but native in
+the SVM.\cr\cr
 
 Cross validation, grid search and model selection\cr
 

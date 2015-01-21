@@ -18,6 +18,7 @@
 #define CHAR_UNMAPPED        FALSE
 #define MAXUINT8             0xFF
 #define MAXUINT16            0xFFFF
+#define MAXINT32             0x7FFFFFFF
 #define MAXUINT32            0xFFFFFFFF
 #define MAXUINT64            0xFFFFFFFFFFFFFFFF
 #define MAXINDEX32           MAXUINT32 - 1
