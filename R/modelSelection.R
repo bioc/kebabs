@@ -194,7 +194,7 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
 
     if (explicit == "auto")
     {
-        if    (!is.null(singleKernel))
+        if (!is.null(singleKernel))
         {
             if (supportsExplicitRep(singleKernel))
                 explicit <- "yes"

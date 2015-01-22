@@ -42,9 +42,6 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
     else
         numGroups <- 0
 
-    if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
-        perfParameters <- c("ACC", "BACC", "MCC")
-
     model@cvResult <- new("CrossValidationResult")
     model@cvResult@cross <- cross
     model@cvResult@noCross <- noCross
@@ -295,21 +292,21 @@ performCrossValidation.KernelMatrix <- function(object, x, y, sel, model,
         if (nonNA > 0)
         {
             model@cvResult@cvError[[i]] <- sum(foldError, na.rm=TRUE) /
-            nonNA
+                                           nonNA
             model@cvResult@foldErrors[i,] <- foldError
             model@cvResult@noSV[((i-1)*numFolds+1):
-            ((i)*numFolds)] <- noOfSVs
+                                ((i)*numFolds)] <- noOfSVs
             model@cvResult@sumAlphas[((i-1)*numFolds+1):
-            ((i)*numFolds)] <- sumAlphas
+                                     ((i)*numFolds)] <- sumAlphas
         }
         else
         {
             model@cvResult@cvError[[i]] <- NA
             model@cvResult@foldErrors[i,] <- NA
             model@cvResult@noSV[((i-1)*numFolds+1):
-            ((i)*numFolds)] <- rep(NA, numFolds)
+                                ((i)*numFolds)] <- rep(NA, numFolds)
             model@cvResult@sumAlphas[((i-1)*numFolds+1):
-            ((i)*numFolds)] <- rep(NA, numFolds)
+                                     ((i)*numFolds)] <- rep(NA, numFolds)
         }
 
         if (collectACC)
@@ -637,9 +634,6 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
     else
         numGroups <- 0
 
-    if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
-        perfParameters <- c("ACC", "BACC", "MCC")
-
     model@cvResult <- new("CrossValidationResult")
     model@cvResult@cross <- cross
     model@cvResult@noCross <- noCross
@@ -693,7 +687,6 @@ performCrossValidation.ExplicitRep <- function(object, x, y, sel, model,
         }
 
         numFolds <- length(folds)
-
         model@cvResult@folds[((i-1)*numFolds+1):((i)*numFolds)] <- folds
         noOfSVs <- rep(NA_real_, numFolds)
         sumAlphas <- rep(NA_real_, numFolds)

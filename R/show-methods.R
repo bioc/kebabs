@@ -358,26 +358,8 @@ setMethod("show", signature(object="SpectrumKernel"),
             cat(paste(", annSpec=TRUE"))
         if (length(object@distWeight) > 0)
         {
-            if (is.numeric(object@distWeight))
-            {
-                if (length(object@distWeight) == 1)
-                {
-                    cat(paste(", distWeight=",
-                              object@distWeight, sep=""))
-                }
-                else
-                {
-                    cat(paste(", distWeight=",
-                              paste("c(",paste(object@distWeight,
-                                               collapse=","),")",
-                                    sep=""), sep=""))
-                }
-            }
-            else
-            {
-                cat(", \ndistWeight=")
-                cat(format(object@distWeight))
-            }
+             dwString <- distWeightKernelToString(object@distWeight)
+             cat(", distWeight=", dwString, sep="")
         }
         if (object@normalized == FALSE)
             cat(", normalized=FALSE")
@@ -795,7 +777,7 @@ setMethod("show", signature(object="CrossValidationResult"),
             cat(paste(format(object@foldErrors[1:2], digits=8),
                       collapse=", "), "...",
                 paste(format(object@foldErrors[(length(object@foldErrors)-1):
-                                                length(object@foldErrors)],
+                                               length(object@foldErrors)],
                               digits=8), collapse=", "))
         }
 
@@ -812,7 +794,7 @@ setMethod("show", signature(object="CrossValidationResult"),
                 cat(paste(format(object@foldACC[1:2], digits=8),
                           collapse=", "), "...",
                     paste(format(object@foldACC[(length(object@foldACC)-1):
-                                 length(object@foldACC)],
+                                                length(object@foldACC)],
                                  digits=8), collapse=", "))
             }
 
@@ -830,7 +812,7 @@ setMethod("show", signature(object="CrossValidationResult"),
                 cat(paste(format(object@foldBACC[1:2], digits=8),
                           collapse=", "), "...",
                     paste(format(object@foldBACC[(length(object@foldBACC)-1):
-                                 length(object@foldBACC)],
+                                                 length(object@foldBACC)],
                                  digits=8), collapse=", "))
             }
 
@@ -848,7 +830,7 @@ setMethod("show", signature(object="CrossValidationResult"),
                 cat(paste(format(object@foldMCC[1:2], digits=8),
                           collapse=", "), "...",
                     paste(format(object@foldMCC[(length(object@foldMCC)-1):
-                                 length(object@foldMCC)],
+                                                length(object@foldMCC)],
                                  digits=8), collapse=", "))
             }
 
@@ -899,6 +881,8 @@ setMethod("show", signature(object="ModelSelectionResult"),
 
             cat(paste("cross                 :", object@cross, "\n"))
             cat(paste("noCross               :", object@noCross))
+            ## the field smallestCVError always contains the best value
+            ## as defined in the performance objective
             if (object@perfObjective == "MCC")
             {
                 cat(paste("\nBest MCC value        :",

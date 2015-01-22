@@ -26,8 +26,8 @@
 #' function (details see on help page for \code{\link{gaussWeight}}).
 #' Default=NULL
 #'
-#' @param normalized generated data from this kernel will be normalized
-#' (details see below). Default=TRUE
+#' @param normalized a kernel matrix or explicit representation generated with
+#' this kernel will be normalized(details see below). Default=TRUE
 #'
 #' @param exact use exact character set for the evaluation (details see below).
 #' Default=TRUE
@@ -63,15 +63,18 @@
 #' leads to a transfomation of similarities by taking each element of the
 #' similarity matrix to the power of r. Only integer values larger than 1
 #' should be used for r in context with SVMs requiring positive definite
-#' kernels. If \code{normalize=TRUE}, the similarity values are scaled to the
-#' unit sphere in the following way (for two samples \code{x} and \code{y}:
+#' kernels. If \code{normalized=TRUE}, the feature vectors are scaled to the
+#' unit sphere before computing the similarity value for the kernel matrix.
+#' For two samples with the feature vectors \code{x} and \code{y} the
+#' similarity is computed as:
 #' \deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T y)/(|x| |y|)}
-#' Normalization is applied to a kernel matrix or to an explicit representation
-#' generated for this kernel. For parameter \code{exact=TRUE} the sequence
-#' characters are interpreted according to an exact character set. If the flag
-#' is not set ambigous characters according from the IUPAC characterset are
-#' also evaluated. For sequences shorter than k the self similarity (i.e. the
-#' value on the main diagonal in the square kernel matrix) is 0.
+#' For an explicit representation generated with the feature map of a
+#' normalized kernel the rows are normalized by dividing them through their
+#' Euclidean norm. For parameter \code{exact=TRUE} the sequence characters
+#' are interpreted according to an exact character set. If the flag is not
+#' set ambigous characters from the IUPAC characterset are also evaluated.
+#' For sequences shorter than k the self similarity (i.e. the value on the
+#' main diagonal in the square kernel matrix) is 0.
 #'
 #' The annotation specific variant (for details see
 #' \link{annotationMetadata}) and the position dependent variants (for
@@ -167,9 +170,21 @@ spectrumKernel <- function(k=3, r=1, annSpec=FALSE, distWeight=numeric(0),
     if (!isTRUEorFALSE(annSpec))
         stop("'annSpec' must be TRUE or FALSE\n")
 
-    if (length(distWeight) > 0 &&
-        !(is.numeric(distWeight) || is.function(distWeight)))
-        stop("'distWeight' must be a numeric vector or a function\n")
+    if (length(distWeight) > 0)
+    {
+        if (!(is.numeric(distWeight) || is.function(distWeight)))
+            stop("'distWeight' must be a numeric vector or a function\n")
+        
+        if (is.function(distWeight))
+        {
+            func <- deparse(distWeight)[2]
+            index <- grep("(", strsplit(func, split="")[[1]], fixed=TRUE,
+                          value=FALSE)
+            
+            if (length(index) < 1)
+                stop("Missing parentheses in 'distWeight'\n")
+        }
+    }
 
     if (presence && length(distWeight) > 0)
     {

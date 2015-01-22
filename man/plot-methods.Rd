@@ -119,8 +119,8 @@ Performance Parameters}
 see details above
 }
 \description{
-Functions for Visualizing Prediction Profiles and Cross
-Validation Result
+Functions for visualizing prediction profiles, cross
+validation result and grid search performance parameters
 }
 \details{
 Plotting of Prediction Profiles\cr\cr The first variant of

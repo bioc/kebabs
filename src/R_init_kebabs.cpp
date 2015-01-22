@@ -41,6 +41,8 @@ static const R_CallMethodDef callMethods[] =
                                      generatePredictionProfilesC, 27},
     /* Utils.cpp */
     {".linearKerneldgRMatrixC", (DL_FUNC) & linearKerneldgRMatrixC, 11},
+    {".linearKernelSparseKMdgRMatrixC", (DL_FUNC) & linearKernelSparseKMdgRMatrixC, 15},
+    {".freeHeapLinearKernelC", (DL_FUNC) & freeHeapLinearKernelC, 0},
     {".matrixdgRMatrixProductC", (DL_FUNC) & matrixdgRMatrixProductC, 8},
     {".dgRMatrixNumericVectorProductC", (DL_FUNC) & 
                                         dgRMatrixNumericVectorProductC, 7},

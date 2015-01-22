@@ -237,11 +237,11 @@ void computeKernelMatrix(T maxUnSignedIndex, T *featVectorIndex, int32_t *featVe
 
                 while (ix < endx && iy < endy)
                 {
-                    if (featVectorIndex[ix] == maxUnSignedIndex ||
-                        featVectorIndex[iy] == maxUnSignedIndex)
-                    {
+                    if ((featVectorIndex[ix] == maxUnSignedIndex &&
+                         featVectorValue[ix] == MAXINT32)||
+                        (featVectorIndex[iy] == maxUnSignedIndex &&
+                         featVectorValue[iy] == MAXINT32))
                         break;
-                    }
 
                     if (featVectorIndex[ix] < featVectorIndex[iy])
                         ix++;
@@ -285,8 +285,10 @@ void computeKernelMatrix(T maxUnSignedIndex, T *featVectorIndex, int32_t *featVe
 
                 while (ix < endx && iy < endy)
                 {
-                    if (featVectorIndex[ix] == maxUnSignedIndex ||
-                        featVectorIndex[iy] == maxUnSignedIndex)
+                    if ((featVectorIndex[ix] == maxUnSignedIndex &&
+                         featVectorValue[ix] == MAXINT32)||
+                        (featVectorIndex[iy] == maxUnSignedIndex &&
+                         featVectorValue[iy] == MAXINT32))
                         break;
 
                     if (featVectorIndex[ix] < featVectorIndex[iy])
@@ -317,9 +319,9 @@ void computeKernelMatrix(T maxUnSignedIndex, T *featVectorIndex, int32_t *featVe
 
 template<typename T>
 void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *featVectorValue,
-                            Rcpp::NumericMatrix km, double *normValues, uint32_t fDim, int maxNumPatterns,
-                            int sizeX, int sizeY, bool normalized, bool symmetric, bool computePosition,
-                            Rcpp::NumericVector distWeight)
+                            uint64_t *featVectorStart, Rcpp::NumericMatrix km, double *normValues,
+                            uint32_t fDim, int maxNumPatterns, int sizeX, int sizeY, bool normalized,
+                            bool symmetric, bool computePosition, Rcpp::NumericVector distWeight)
 {
     uint32_t endx, endy, ix, iy, prevIndex;
     int i, j, j1, j2, posX, posY, distWeightLength, startIndex, numSamples, yOffset, numPatterns1, numPatterns2;
@@ -360,10 +362,10 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
 
             for (j = startIndex; j < sizeY; j++)
             {
-                ix = i * fDim;
-                iy = (yOffset + j) * fDim;
-                endx = ix + fDim;
-                endy = iy + fDim;
+                ix = featVectorStart[i];
+                iy = featVectorStart[yOffset + j];
+                endx = featVectorStart[i + 1];
+                endy = featVectorStart[yOffset + j + 1];
                 prevIndex = 0;
                 kv = 0;
 
@@ -378,10 +380,6 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
 
                     while (ix < endx && iy < endy)
                     {
-                        if (featVectorIndex[ix] == maxUnSignedIndex ||
-                            featVectorIndex[iy] == maxUnSignedIndex)
-                            break;
-
                         if (featVectorIndex[ix] == featVectorIndex[iy])
                             kv++;
 
@@ -393,10 +391,6 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
                 {
                     while (ix < endx && iy < endy)
                     {
-                        if (featVectorIndex[ix] == maxUnSignedIndex ||
-                            featVectorIndex[iy] == maxUnSignedIndex)
-                            break;
-
                         if (featVectorValue[ix] < featVectorValue[iy])
                             ix++;
                         else if (featVectorValue[ix] > featVectorValue[iy])
@@ -418,7 +412,7 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
 
                                 for (j1 = 0; j1 < maxNumPatterns; j1++)
                                 {
-                                    if (featVectorIndex[ix + j1] == maxUnSignedIndex)
+                                    if (ix + j1 >= endx)
                                         break;
 
                                     if (featVectorValue[ix + j1] != featVectorValue[ix])
@@ -428,7 +422,7 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
 
                                     for (j2 = 0; j2 < maxNumPatterns; j2++)
                                     {
-                                        if (featVectorIndex[ix + j2] == maxUnSignedIndex)
+                                        if (iy + j2 >= endy)
                                             break;
 
                                         if (featVectorValue[iy + j2] != featVectorValue[ix])
@@ -467,7 +461,7 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
     else // distance weighting
     {
         // sort feature vectors
-        sort2Arrays(maxUnSignedIndex, featVectorIndex, featVectorValue, numSamples, fDim, NULL);
+        sort2Arrays(maxUnSignedIndex, featVectorIndex, featVectorValue, numSamples, fDim, featVectorStart);
 
         distWeightLength = distWeight.size();
 
@@ -476,18 +470,14 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
         {
             R_CheckUserInterrupt();
 
-            ix = i * fDim;
-            iy = i * fDim;
+            ix = featVectorStart[i];
+            iy = featVectorStart[i];
             prevIndex = 0;
-            endx = ix + fDim;
+            endx = featVectorStart[i + 1];
             kv = 0;
 
             while (ix < endx && iy < endx)
             {
-                if (featVectorIndex[ix] == maxUnSignedIndex ||
-                    featVectorIndex[iy] == maxUnSignedIndex)
-                    break;
-
                 if (featVectorIndex[ix] < featVectorIndex[iy])
                     ix++;
                 else if (featVectorIndex[ix] > featVectorIndex[iy])
@@ -496,7 +486,7 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
                 {
                     prevIndex = iy;
 
-                    while (featVectorIndex[ix] == featVectorIndex[iy])
+                    while (iy < endx && featVectorIndex[ix] == featVectorIndex[iy])
                     {
                         distance = abs(featVectorValue[iy++] - featVectorValue[ix]);
 
@@ -538,19 +528,15 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
 
             for (j = startIndex; j < sizeY; j++)
             {
-                ix = i * fDim;
-                endx = ix + fDim;
-                iy = (yOffset + j) * fDim;
-                endy = (yOffset + j + 1) * fDim;
+                ix = featVectorStart[i];
+                endx = featVectorStart[i + 1];
+                iy = featVectorStart[yOffset + j];
+                endy = featVectorStart[yOffset + j + 1];
                 prevIndex = 0;
                 kv = 0;
 
                 while (ix < endx && iy < endy)
                 {
-                    if (featVectorIndex[ix] == maxUnSignedIndex ||
-                        featVectorIndex[iy] == maxUnSignedIndex)
-                        break;
-
                     if (featVectorIndex[ix] < featVectorIndex[iy])
                         ix++;
                     else if (featVectorIndex[ix] > featVectorIndex[iy])
@@ -559,7 +545,7 @@ void computeKernelMatrixPos(T maxUnSignedIndex, T *featVectorIndex, int32_t *fea
                     {
                         prevIndex = iy;
 
-                        while (featVectorIndex[ix] == featVectorIndex[iy])
+                        while (iy < endy && featVectorIndex[ix] == featVectorIndex[iy])
                         {
                             distance = abs(featVectorValue[iy++] - featVectorValue[ix]);
 

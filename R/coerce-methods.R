@@ -37,7 +37,8 @@ asKernelMatrix <- function(x, center=FALSE)
 #' @rdname KernelMatrixAccessors
 #' @aliases
 #' as.KernelMatrix
-#' @param center then set to \code{TRUE} the matrix is centered. Default=FALSE
+#' @param x kernel matrix of class \code{\link{KernelMatrix}}
+#' @param center when set to \code{TRUE} the matrix is centered. Default=FALSE
 #' @section Coercion methods:
 #' In the code snippets below, \code{x} is a kernel matrix.
 #'
@@ -135,6 +136,53 @@ ersTransposedAsdgCMatrix <- function(from)
     return(dgC)
 }
 
+distWeightKernelToString <- function(distWeight)
+{
+    dwLength <- length(distWeight)
+    distWeightChar <- ""
+    
+    if (is.numeric(distWeight))
+    {
+        if (dwLength == 1)
+            distWeightChar <- distWeight
+        else if (dwLength < 7)
+        {
+            distWeightChar <-
+                paste("c(",paste(distWeight,collapse=","),")", sep="")
+        }
+        else
+        {
+            distWeightChar <-
+                paste("c(", paste(distWeight[1:3],collapse=","), " ... ",
+                      paste(distWeight[dwLength - 2:dwLength],collapse=","),
+                      ")", sep="")
+        }
+    }
+    else if (typeof(distWeight) == "closure")
+    {
+        func <- deparse(distWeight)[2]
+        index <- grep("(", strsplit(func, split="")[[1]], fixed=TRUE,
+                      value=FALSE)
+        
+        if (length(index) > 0)
+            distWeightChar <- substr(func, 1, index[1] - 1)
+        {
+            if (distWeightChar %in% c("linWeight", "gaussWeight",
+                                      "expWeight"))
+            {
+                sigma <- get("sigma", envir = environment(distWeight))
+                distWeightChar <- paste(distWeightChar, "(sigma=", sigma, ")",
+                                        sep="")
+            }
+            else if (distWeightChar == "swdWeight")
+                distWeightChar <- paste(distWeightChar, "()", sep="")
+            else
+                distWeightChar <- paste(distWeightChar, "( . . . )", sep="")
+        }
+    }
+    distWeightChar
+}
+
 #' @rdname sequenceKernel
 #' @aliases
 #' seqKernelAsChar
@@ -181,8 +229,8 @@ seqKernelAsChar <- function(from)
 
     if (length(kernelParameters(from)$distWeight) > 0)
     {
-        kChar <- paste(kChar, ", distWeight=",
-                       kernelParameters(from)$distWeight, sep="")
+        dwString <- distWeightKernelToString(kernelParameters(from)$distWeight)
+        kChar <- paste(kChar, ", distWeight=", dwString, sep="")
     }
 
     if (!kernelParameters(from)$normalized)

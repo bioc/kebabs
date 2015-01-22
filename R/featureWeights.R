@@ -3,7 +3,7 @@
 convertSymmetricMatrixToVector <- function(x)
 {
     if (!is(x, "matrix") || !isSymmetric(x))
-    stop("'x' must be a symmetric matrix\n")
+        stop("'x' must be a symmetric matrix\n")
 
     x <- as(x, "matrix")
     numRows <- nrow(x)
@@ -19,7 +19,7 @@ convertSymmetricMatrixToVector <- function(x)
             result[(j+1):(j + numRows - i)] <- sqrt2 * x[i,((i+1):numRows)]
 
         names(result)[j:(j + numRows - i)] <-
-        paste(colnames(x)[i], colnames(x)[i:numRows], sep="_")
+            paste(colnames(x)[i], colnames(x)[i:numRows], sep="_")
         j <- j + numRows - i + 1
     }
 
@@ -164,15 +164,15 @@ getFeatureWeightsPosDep <- function(model, svmIndex=1, features=NULL,
         ## rough limit for no of nodes in motif tree from no of
         ## chars and no of substitution groups, add one for root
         nodeLimit <- sum(motifLengths) + 1 +
-        sum(sapply(gregexpr("[", motifs, fixed=TRUE),
-                   function(x) length(unlist(x))))
+                         sum(sapply(gregexpr("[", motifs, fixed=TRUE),
+                                    function(x) length(unlist(x))))
     }
 
     if (is(model@svmInfo@selKernel, "MismatchKernel") ||
         is(model@svmInfo@selKernel, "GappyPairKernel"))
-    m <- kernelParameters(model@svmInfo@selKernel)$m
+        m <- kernelParameters(model@svmInfo@selKernel)$m
     else
-    m <- 0
+        m <- 0
 
     kernelType <- 1:6
     names(kernelType) <- c("SpectrumKernel",

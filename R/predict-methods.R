@@ -754,6 +754,18 @@ predict.KBModel <- function(object, x, predictionType="response", sel=NULL,
 #' do not support the generation of an explicit representation, e.g. the
 #' position dependent kernel variants.\cr\cr
 #'
+#' Prediction with precomputed kernel matrix
+#'
+#' When training was performed with a precomputed kernel matrix also in
+#' prediction a precomputed kernel matrix must be passed to the \code{predict}
+#' method. In contrast to the quadratic and symmetric kernel matrix used
+#' in training the kernel matrix for prediction is rectangular and contains
+#' the similarities of test samples (rows) against support vectors (columns).
+#' support vector indices can be read from the model with the accessor SVindex.
+#' Please not that these indices refer to the sample subset used in training.
+#' An example for training and prediction via precomputed kernel matrix is
+#' shown below.
+#'
 #' Generation of prediction profiles
 #'
 #' The parameter \code{predProfiles} controls whether prediction profiles
@@ -791,15 +803,14 @@ predict.KBModel <- function(object, x, predictionType="response", sel=NULL,
 #'
 #' ## run training with explicit representation
 #' model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=gappy,
-#'                pkg="LiblineaR", svm="C-svc", cost=10, explicit="yes",
-#'                featureWeights="yes")
+#'                pkg="LiblineaR", svm="C-svc", cost=10)
 #'
 #' ## show feature weights in KeBABS model
 #' featureWeights(model)[1:8]
 #'
 #' ## predict the test sequences
 #' pred <- predict(model, enhancerFB[test])
-#' evaluatePrediction(pred, yFB[test], allLabels=c(-1,1))
+#' evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 #' pred[1:10]
 #'
 #' ## output decision values instead
@@ -807,11 +818,30 @@ predict.KBModel <- function(object, x, predictionType="response", sel=NULL,
 #' pred[1:10]
 #'
 #' \dontrun{
-#' ## computing of probability model via Platt scaling during training
+#' ## example for training and prediction via precomputed kernel matrix
+#'
+#' ## compute quadratic kernel matrix of training samples
+#' kmtrain <- getKernelMatrix(gappy, x=enhancerFB, selx=train)
+#'
+#' ## train model with kernel matrix
+#' model <- kbsvm(x=kmtrain, y=yFB[train], kernel=gappy,
+#'                pkg="kernlab", svm="C-svc", cost=10)
+#'
+#' ## compute rectangular kernel matrix of test samples versus
+#' ## support vectors
+#' kmtest <- getKernelMatrix(gappy, x=enhancerFB, y=enhancerFB,
+#'                           selx=test, sely=train[SVindex(model)])
+#'
+#' ## predict with kernel matrix
+#' pred <- predict(model, kmtest)
+#' evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
+#'
+#' ## example for probability model generation during training
+#'
+#' ## compute probability model via Platt scaling during training
 #' ## and predict class membership probabilities
 #' model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=gappy,
-#'                pkg="e1071", svm="C-svc", cost=10, explicit="yes",
-#'                probModel=TRUE)
+#'                pkg="e1071", svm="C-svc", cost=10, probModel=TRUE)
 #'
 #' ## show parameters of the fitted probability model which are the parameters
 #' ## probA and probB for the fitted sigmoid function in case of classification

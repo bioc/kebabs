@@ -287,9 +287,6 @@ checkModelSelParams <- function(model, x, y, sel, features, kernel, svm, pkg,
 
     if (is.null(model@modelSelResult))
     {
-        if (length(perfParameters) >= 1 && perfParameters[1] == "ALL")
-            perfParameters <- c("ACC", "BACC", "MCC")
-
         if (!(perfObjective %in% perfParameters))
             perfParameters <- c(perfParameters, perfObjective)
 
@@ -482,22 +479,6 @@ checkModelSelParams <- function(model, x, y, sel, features, kernel, svm, pkg,
 
     return(model)
 }
-
-## $$$ TODO remove ???
-#checkForSparseER <- function(kernel, pkg)
-#{
-#    sparse <- FALSE
-#
-#   ## kernel specific aspect
-#    if (shouldRunSparse(kernel))
-#        sparse <- TRUE
-#
-#    ## SVM specific aspect
-#    if (pgk == "kernlab")
-#        sparse <- FALSE
-#
-#    return(sparse)
-#}
 
 ## $$$ TODO Remove ???
 getSVMParams <- function(model, ...)

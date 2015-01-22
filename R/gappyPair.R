@@ -81,15 +81,16 @@
 #' contribute to the model but still influence performance values.\cr\cr
 #' For values different from 1 (=default value) parameter \code{r}
 #' leads to a transfomation of similarities by taking each element of the
-#' similarity matrix to the power of r. If \code{normalize=TRUE}, the
-#' similarity values are scaled to the unit sphere in the following way
-#' (for two samples \code{x} and \code{y}:
+#' similarity matrix to the power of r. If \code{normalized=TRUE}, the feature
+#' vectors are scaled to the unit sphere before computing the similarity value
+#' for the kernel matrix. For two samples with the feature vectors \code{x}
+#' and \code{y} the similarity is computed as:
 #' \deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T y)/(|x| |y|)}
-#' Normalization is applied to a kernel matrix or to an explicit representation
-#' generated for this kernel. For parameter \code{exact=TRUE} the sequence
-#' characters are interpreted according to an exact character set. If the flag
-#' is not set ambigous characters according from the IUPAC characterset are
-#' also evaluated.
+#' For an explicit representation generated with the feature map of a
+#' normalized kernel the rows are normalized by dividing them through their
+#' Euclidean norm. For parameter \code{exact=TRUE} the sequence characters
+#' are interpreted according to an exact character set. If the flag is not
+#' set ambigous characters from the IUPAC characterset are also evaluated.
 #'
 #' The annotation specific variant (for details see
 #' \link{annotationMetadata}) and the position dependent variants (for
@@ -193,9 +194,21 @@ gappyPairKernel <- function(k=1, m=1, r=1, annSpec=FALSE, distWeight=numeric(0),
     if (!isTRUEorFALSE(annSpec))
         stop("'annSpec' must be TRUE or FALSE\n")
 
-    if (length(distWeight) > 0 &&
-        !(is.numeric(distWeight) || is.function(distWeight)))
-        stop("'distWeight' must be a numeric vector or a function\n")
+    if (length(distWeight) > 0)
+    {
+        if (!(is.numeric(distWeight) || is.function(distWeight)))
+            stop("'distWeight' must be a numeric vector or a function\n")
+    
+        if (is.function(distWeight))
+        {
+            func <- deparse(distWeight)[2]
+            index <- grep("(", strsplit(func, split="")[[1]], fixed=TRUE,
+                          value=FALSE)
+        
+            if (length(index) < 1)
+                stop("Missing parentheses in 'distWeight'\n")
+        }
+    }
 
     if (presence && length(distWeight) > 0)
     {

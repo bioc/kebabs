@@ -17,13 +17,16 @@
 #' @param r exponent which must be > 0 (see details section in
 #' \link{spectrumKernel}). Default=1
 #'
-#' @param normalized generated data from this kernel will be normalized
-#' (details see below). Default=TRUE
+#' @param normalized a kernel matrix or explicit representation generated with
+#' this kernel will be normalized(details see below). Default=TRUE
+#'
 #' @param exact use exact character set for the evaluation (details see below).
 #' Default=TRUE
+#'
 #' @param ignoreLower ignore lower case characters in the sequence. If the
 #' parameter is not set lower case characters are treated like uppercase.
 #' Default=TRUE
+#'
 #' @param presence if this parameter is set only the presence of a kmers will
 #' be considered, otherwise the number of occurances of the kmer is used.
 #' Default=FALSE
@@ -34,15 +37,16 @@
 #' AA-sequences to generate a kernel matrix or an explicit representation for
 #' this kernel. For values different from 1 (=default value) parameter
 #' \code{r} leads to a transfomation of similarities by taking each element of
-#' the similarity matrix to the power of r. If \code{normalize=TRUE}, the
-#' similarity values are scaled to the unit sphere in the following way
-#' (for two samples \code{x} and \code{y}:
+#' the similarity matrix to the power of r. If \code{normalized=TRUE}, the
+#' feature vectors are scaled to the unit sphere before computing the
+#' similarity value for the kernel matrix. For two samples with the feature
+#' vectors \code{x} and \code{y} the similarity is computed as:
 #' \deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T y)/(|x| |y|)}
-#' Normalization is applied to a kernel matrix or to an explicit representation
-#' generated for this kernel. For parameter \code{exact=TRUE} the sequence
-#' characters are interpreted according to an exact character set. If the flag
-#' is not set ambigous characters according from the IUPAC characterset are
-#' also evaluated.
+#' For an explicit representation generated with the feature map of a
+#' normalized kernel the rows are normalized by dividing them through their
+#' Euclidean norm. For parameter \code{exact=TRUE} the sequence characters
+#' are interpreted according to an exact character set. If the flag is not
+#' set ambigous characters from the IUPAC characterset are also evaluated.
 #' The annotation specific variant (for details see \link{positionMetadata})
 #' and the position dependent variant (for details see
 #' \link{annotationMetadata}) are not available for this kernel.\cr\cr
@@ -217,7 +221,7 @@ mismatchProcessing <- function(x, y, selx, sely, k, m, r, normalized,
     if (length(selx) > 0)
     {
         if (!is.numeric(selx) || length(selx) > length(x))
-        stop("selx must be a numeric vector with indices into 'x'\n")
+            stop("selx must be a numeric vector with indices into 'x'\n")
 
         selx <- as.integer(selx)
     }
@@ -257,7 +261,7 @@ mismatchProcessing <- function(x, y, selx, sely, k, m, r, normalized,
         if (length(sely) > 0)
         {
             if (!is.numeric(sely) || length(sely) > length(y))
-            stop("sely must be a numeric vector with indices into 'y'\n")
+                stop("sely must be a numeric vector with indices into 'y'\n")
 
             sely <- as.integer(sely)
         }

@@ -325,7 +325,7 @@ setPositionMetadata.seq <- function(x, ... , value)
                 emd <- emd[, -posCol, drop=FALSE]
 
                 if (ncol(emd) == 0)
-                emd <- NULL
+                    emd <- NULL
 
                 mcols(x) <- emd
             }

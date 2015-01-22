@@ -275,8 +275,8 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 #' @title Plot Prediction Profiles, Cross Validation Result and Grid Search
 #' Performance Parameters
 #'
-#' @description Functions for Visualizing Prediction Profiles and
-#' Cross Validation Result
+#' @description Functions for visualizing prediction profiles,
+#' cross validation result and grid search performance parameters
 #'
 #' @param x for the first method above a prediction profile object of class
 #' \code{\link{PredictionProfile}} containing the profiles to be plotted,

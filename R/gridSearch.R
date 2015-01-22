@@ -442,7 +442,7 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
     }
 
     if (perfObjective =="ACC")
-        bestResult <- Inf
+        bestResult <- Inf  ## because error rate is used instead
     else
         bestResult <- - Inf
 
@@ -461,7 +461,7 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
         model@numClasses <- length(unique(y))
 
         if (model@numClasses > 2)
-        model@ctlInfo@multiclassType <- getMulticlassType(model)
+            model@ctlInfo@multiclassType <- getMulticlassType(model)
     }
 
     if (explicit == "auto")
@@ -630,9 +630,9 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
                 startIndex == 2)
             {
                 tempModel@svmInfo@selPackage <-
-                as.character(model@modelSelResult@gridCols[j,1])
+                    as.character(model@modelSelResult@gridCols[j,1])
                 tempModel@svmInfo@selSVM <-
-                as.character(model@modelSelResult@gridCols[j,2])
+                    as.character(model@modelSelResult@gridCols[j,2])
 
                 ## for quadratic kernel CV is always called with linear ex rep
                 ## and internally retrieves the quadratic ex rep if necessary

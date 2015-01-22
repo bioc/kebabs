@@ -13,16 +13,17 @@ evaluatePrediction(prediction, label, allLabels = NULL, print = TRUE,
   \item{label}{label vector of same length as parameter
   'prediction'.}
 
-  \item{allLabels}{vector containing the labels. This
-  parameter is required only if the label vector is
-  numeric. Default=NULL}
+  \item{allLabels}{vector containing all occuring labels
+  once. This parameter is required only if the label vector
+  is numeric. Default=NULL}
 
   \item{print}{This parameter indicates whether performance
   values should be printed or returned as data frame
   without printing (for details see below). Default=TRUE}
 
   \item{confmatrix}{When set to TRUE a confusion matrix is
-  printed. Default=TRUE}
+  printed. The rows correspond to predictions, the columns
+  to the true labels. Default=TRUE}
 
   \item{numPrecision}{minimum number of digits to the right
   of the decimal point. Values between 0 and 20 are

@@ -1,16 +1,40 @@
 Change history of package kebabs:
 ====================================
 
-Version 1.0.0:
-- first official release as part of Bioconductor 3.0
+Version 1.0.3
+- extension of function linearKernel to optionally return
+  a sparse kernel matrix
+- new accessor SVindex for class KBModel
+- error correction in subsetting of sparse explicit representation for
+  head / tail
+- error correction of vector length overflow in sparse explicit
+  representation for very large number of sequences in spectrum,
+  gappy pair and motif kernel
+- error correction for training with position specific kernel and
+  computation of feature weights
+- error correction in coercion of kernel to character for distance
+  weighting
+- error correction in subsetting of prediction profile
+- error correction in spectrum, gappy pair and motif kernel
+  for kernel matrix - last feature was missing in kernel value
+  in rare situations
+- error correction and minor C code changes for
+  mismatch kernel
+- check uniqueness of motifs in motif kernel
+- build warnings on Windows removed
+- minor changes in help pages
+- change name of vignette Rnw to lowercase
+- minor changes in vignette
+
+Version 1.0.2
+- correction of MCC
+- correction of computation of feature weights for
+  LiblineaR with more than 3 classes
 
 Version 1.0.1
 - correction for cross validation with factor label
 - correction for storing prob model in kebabs model for kernlab
 - removal of clang warnings for unused functions
 
-Version 1.0.2
-- a few C code changes for mismatch kernel
-- correction of MCC
-- correction of computation of feature weights for
-  LiblineaR with more than 3 classes
+Version 1.0.0:
+- first official release as part of Bioconductor 3.0

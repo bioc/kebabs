@@ -581,12 +581,13 @@ void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, B
                      int sizeX, int sizeY, IntegerVector selX, IntegerVector selY,
                      ByteStringVector annCharset, ByteStringVector annX, ByteStringVector annY,
                      bool unmapped, int k, bool normalized,  bool symmetric, bool presence,
-                     bool reverseComplement, int maxSeqLength, struct alphaInfo *alphaInf)
+                     bool reverseComplement, int maxSeqLength, uint64_t dimFeatureSpace,
+                     struct alphaInfo *alphaInf)
 {
     T featureIndex, annotIndex;
     int i, j, l, currStack, stack[4*k], iX, iY, twoK, elemIndex, maxNoOfNodes, noSamples = sizeX;
     int freeNode, nodeLimit, currBlock, currIndex, newBlock, lastBlockSize, maxBlockIndex;
-    uint64_t numAnnPowK, maxNodesPerSequence;
+    uint64_t numAnnPowK, maxNodesPerSequence, maxNumFeatures;
     double kv;
     bool printWarning = TRUE;
     const char *annptr;
@@ -608,13 +609,16 @@ void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, B
         noSamples += sizeY;
 
     // add one for the sentinel
-    maxSeqLength += 1;
+    if (dimFeatureSpace < maxSeqLength)
+        maxNumFeatures = dimFeatureSpace + 1;
+    else
+        maxNumFeatures = maxSeqLength + 1;
 
     // allocate arrays for sparse feature vectors with 32 or 64 bit index
     // store only unnormalized k-mer counts to avoid double space usage
     featVectorArrays featVectors;
-    featVectors.x   = (int32_t *) R_alloc(noSamples * maxSeqLength, sizeof(int32_t));
-    featVectors.idx = (T *) R_alloc(noSamples * maxSeqLength, sizeof(T));
+    featVectors.x   = (int32_t *) R_alloc(noSamples * maxNumFeatures, sizeof(int32_t));
+    featVectors.idx = (T *) R_alloc(noSamples * maxNumFeatures, sizeof(T));
 
     double *normValues   = (double *) R_alloc(noSamples, sizeof(double));
 
@@ -701,12 +705,13 @@ void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, B
             currBlock = 0;
             currIndex = 0;
             currStack = -1;
-            elemIndex = i * maxSeqLength;
+            elemIndex = i * maxNumFeatures;
             featureIndex = 0;
             annotIndex = 0;
 
             // for situation with no features set sentinel
             featVectors.idx[elemIndex] = maxUnSignedIndex;
+            featVectors.x[elemIndex] = MAXINT32;
 
             while (currStack >= 0 || currIndex <= maxBlockIndex)
             {
@@ -793,9 +798,10 @@ void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, B
             }
 
             featVectors.idx[elemIndex] = maxUnSignedIndex;
+            featVectors.x[elemIndex] = MAXINT32;
         }
 
-        computeKernelMatrix(maxUnSignedIndex, featVectors.idx, featVectors.x, km, normValues, maxSeqLength,
+        computeKernelMatrix(maxUnSignedIndex, featVectors.idx, featVectors.x, km, normValues, maxNumFeatures,
                             sizeX, sizeY, normalized, symmetric);
     }
     else // not symmetric
@@ -856,12 +862,13 @@ void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, B
             currBlock = 0;
             currIndex = 0;
             currStack = -1;
-            elemIndex = i * maxSeqLength;
+            elemIndex = i * maxNumFeatures;
             featureIndex = 0;
             annotIndex = 0;
 
             // for situation with no features set sentinel
             featVectors.idx[elemIndex] = maxUnSignedIndex;
+            featVectors.x[elemIndex] = MAXINT32;
 
             while (currStack >= 0 || currIndex <= maxBlockIndex)
             {
@@ -947,9 +954,10 @@ void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, B
             }
 
             featVectors.idx[elemIndex] = maxUnSignedIndex;
+            featVectors.x[elemIndex] = MAXINT32;
         }
 
-        computeKernelMatrix(maxUnSignedIndex, featVectors.idx, featVectors.x, km, normValues, maxSeqLength,
+        computeKernelMatrix(maxUnSignedIndex, featVectors.idx, featVectors.x, km, normValues, maxNumFeatures,
                             sizeX, sizeY, normalized, symmetric);
     }
 
@@ -964,11 +972,12 @@ void getKMPosDistSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
                       NumericVector distWeight, int maxSeqLength, struct alphaInfo *alphaInf)
 {
     T prevIndex, featureIndex, tempIndex, fIndex;
-    uint64_t elemIndex, fDimArray;
-    int i, j, l, offset, patLength, seqnchar, index, iold, iX, iY, maxNumPatterns, noSamples = sizeX;
+    uint64_t elemIndex, fDimArray, *featVectorsStart;
+    int i, j, l, offset, patLength, seqnchar, index, iold, iX, iY;
+    int maxNumPatternsPerPos, maxFeaturesPerSample, noSamples = sizeX;
     bool distWeighting;
     const char *seqptr;
-    double kv;
+    double kv, *normValues;
 
     struct featVectorArrays {
         int32_t    *x;        // value array
@@ -984,7 +993,7 @@ void getKMPosDistSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
 
     // allocate arrays for feature vectors with 8, 16, 32 or 64 bit index
     // without dist weighting use implicit position to save storage
-    fDimArray = maxSeqLength - k + 2;
+    fDimArray = maxSeqLength - k + 1;
     featVectorArrays featVectors;
 
     if (distWeighting)
@@ -993,11 +1002,14 @@ void getKMPosDistSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
         // just for the offset of each sample
         featVectors.x   = (int32_t *) R_alloc(noSamples, sizeof(int32_t));
 
-
     featVectors.idx = (T *) R_alloc(noSamples * fDimArray, sizeof(T));
-    maxNumPatterns = 1;
+    featVectorsStart = (uint64_t *) R_alloc(noSamples + 1, sizeof(uint64_t));
+    normValues   = (double *) R_alloc(noSamples, sizeof(double));
+    maxNumPatternsPerPos = 1;
 
-    double *normValues   = (double *) R_alloc(noSamples, sizeof(double));
+    featVectorsStart[0] = 0;
+    maxFeaturesPerSample = 0;
+    elemIndex = 0;
 
     // walk along sequence and create sparse feature vector
     for (i = 0; i < noSamples; i++)
@@ -1029,7 +1041,6 @@ void getKMPosDistSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
 
         patLength = 0;
         featureIndex = 0;
-        elemIndex = (uint64_t) i * fDimArray;
         iold = 0;
         kv = 0;
 
@@ -1118,7 +1129,10 @@ void getKMPosDistSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
             }
         }
 
-        featVectors.idx[elemIndex] = maxUnSignedIndex;
+        featVectorsStart[i + 1] = elemIndex;
+
+        if (maxFeaturesPerSample < (featVectorsStart[i + 1] - featVectorsStart[i]))
+            maxFeaturesPerSample = featVectorsStart[i + 1] - featVectorsStart[i];
 
         // for dist weighting the kernel value is determined in computeKernelMatrixPos
         if (!distWeighting)
@@ -1130,8 +1144,9 @@ void getKMPosDistSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
         }
     }
 
-    computeKernelMatrixPos(maxUnSignedIndex, featVectors.idx, featVectors.x, km, normValues, fDimArray,
-                           maxNumPatterns, sizeX, sizeY, normalized, symmetric, !distWeighting, distWeight);
+    computeKernelMatrixPos(maxUnSignedIndex, featVectors.idx, featVectors.x, featVectorsStart, km,
+                           normValues, maxFeaturesPerSample, maxNumPatternsPerPos, sizeX, sizeY,
+                           normalized, symmetric, !distWeighting, distWeight);
 
     return;
 }
@@ -1140,8 +1155,8 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
                         ByteStringVector annX, IntegerVector annotationIndexMap, IntegerVector reverseAnnotationMap,
                         int k, bool normalized, bool presence, bool reverseComplement, struct alphaInfo *alphaInf,
                         ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures, bool useHash,
-                        void **indexMap, int *numUsedFeatures, bool countNonzeroFeatures, int *numNonzeroFeatures,
-                        double **normValues)
+                        void **indexMap, uint64_t *numUsedFeatures, bool countNonzeroFeatures,
+                        uint64_t *numNonzeroFeatures, double **normValues)
 {
     int i, j, l, iold, iX, patLength, index, indexAnn, result;
     uint32_t *featIndexMap, *featureCounts, featureIndex32, currCount, upperLimit;
@@ -1978,7 +1993,6 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
                     }
                     else
                     {
-                        // $$$  TODO remove Rprintf
                         Rprintf("Internal error with hashing - entry not found\n");
                         return(FALSE);
                     }
@@ -1994,7 +2008,7 @@ void getERDSpectrum(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVec
                     ByteStringVector annCharset, ByteStringVector annX, bool unmapped, int k,
                     bool normalized, bool presence, bool reverseComplement, struct alphaInfo *alphaInf,
                     ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures,
-                    bool useHash, bool mapIndex, void *indexMap, int numOfUsedFeatures,
+                    bool useHash, bool mapIndex, void *indexMap, uint64_t numOfUsedFeatures,
                     double *normValues)
 {
     uint32_t *featIndexMap;
@@ -2393,7 +2407,7 @@ bool getERSSpectrum(ByteStringVector x, int sizeX, IntegerVector selX, ByteStrin
                     ByteStringVector annX, int maxSeqLength, bool unmapped, int k, bool normalized,
                     bool presence,bool reverseComplement, struct alphaInfo *alphaInf,
                     ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures,
-                    bool useHash, bool mapIndex, void *indexMap, int numUsedFeatures, SEXP slot_p,
+                    bool useHash, bool mapIndex, void *indexMap, uint64_t numUsedFeatures, SEXP slot_p,
                     SEXP slot_j, SEXP slot_x, double *normValues)
 {
     uint32_t *featIndexMap;
@@ -2874,8 +2888,8 @@ RcppExport SEXP genExplRepSpectrum(ByteStringVector x, int sizeX, IntegerVector 
                                    bool unmapped, bool lowercase, bool useRowNames, bool useColNames,
                                    bool zeroFeatures, bool sparse)
 {
-    int i, numProtect, numUsedFeatures, numNonzeroFeatures;
-    uint64_t dimFeatureSpace;
+    int i, numProtect;
+    uint64_t dimFeatureSpace, numUsedFeatures, numNonzeroFeatures;
     double *normValues;
     bool mapIndex, useHash;
     const void *vmax;
@@ -3211,7 +3225,7 @@ RcppExport SEXP spectrumKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
             {
                 getKMStdAnnSpec(maxUIndex8, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
                                 unmapped, k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
-                                &alphaInf);
+                                dimFeatureSpace, &alphaInf);
             }
 
             break;
@@ -3229,7 +3243,7 @@ RcppExport SEXP spectrumKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
             {
                 getKMStdAnnSpec(maxUIndex16, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
                                 unmapped, k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
-                                &alphaInf);
+                                dimFeatureSpace, &alphaInf);
             }
 
             break;
@@ -3248,7 +3262,7 @@ RcppExport SEXP spectrumKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
             {
                 getKMStdAnnSpec(maxUIndex32, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
                                 unmapped, k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
-                                &alphaInf);
+                                dimFeatureSpace, &alphaInf);
             }
 
             break;
@@ -3266,7 +3280,7 @@ RcppExport SEXP spectrumKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
             {
                 getKMStdAnnSpec(maxUIndex64, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
                                 unmapped, k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
-                                &alphaInf);
+                                dimFeatureSpace, &alphaInf);
             }
 
             break;
@@ -3333,7 +3347,7 @@ RcppExport void featuresToHashmapSpectrum(NumericMatrix featureWeights, int svmI
                                           IntegerVector annotationIndexMap)
 {
     int i, j, numFeatures, result;
-    uint64_t featureIndex, annotIndex, numAnnPowK;
+    uint64_t featureIndex, annotIndex, numAnnPowK = 0;
     const char *pattern;
     SEXP dimNames, colNames;
     khiter_t iter;

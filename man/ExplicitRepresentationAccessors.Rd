@@ -7,10 +7,13 @@
 \alias{[,ExplicitRepresentationDense,index,missing,ANY-method}
 \alias{[,ExplicitRepresentationDense,missing,index,ANY-method}
 \alias{[,ExplicitRepresentationSparse,index,index,ANY-method}
+\alias{[,ExplicitRepresentationSparse,index,index,logical-method}
 \alias{[,ExplicitRepresentationSparse,index,index,missing-method}
 \alias{[,ExplicitRepresentationSparse,index,missing,ANY-method}
+\alias{[,ExplicitRepresentationSparse,index,missing,logical-method}
 \alias{[,ExplicitRepresentationSparse,index,missing,missing-method}
 \alias{[,ExplicitRepresentationSparse,missing,index,ANY-method}
+\alias{[,ExplicitRepresentationSparse,missing,index,logical-method}
 \alias{[,ExplicitRepresentationSparse,missing,index,missing-method}
 \alias{\%*\%,dgRMatrix,numeric-method}
 \alias{\%*\%,matrix,dgRMatrix-method}

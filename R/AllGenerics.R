@@ -185,6 +185,23 @@ if (!isGeneric("featureWeights<-"))
                                standardGeneric("featureWeights<-"))
 }
 
+if (!isGeneric("SVindex"))
+{
+    if (is.function("SVindex"))
+        fun <- SVindex
+    else
+        fun <- function(object, ...) standardGeneric("SVindex")
+    
+    setGeneric("SVindex", fun)
+}
+
+## no method define in kernlab for SVindex<-
+#if (!isGeneric("SVindex<-"))
+#{
+    setGeneric("SVindex<-", function(x, value)
+                                    standardGeneric("SVindex<-"))
+#}
+
 if (!isGeneric("cvResult"))
 {
     if (is.function("cvResult"))
