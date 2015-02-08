@@ -289,14 +289,14 @@ Training of biological sequences with a sequence kernel\cr
 
 Training is performed via the method \code{kbsvm} for
 classification and regression tasks. The user passes
-sequence data, the label vector, a sequence kernel object
-and the requested SVM along with SVM parameters and
-receives the training results in the form of a KeBABS model
-object of class \code{\linkS4class{KBModel}}. The accessor
-\code{svmModel} allows to retrieve the SVM specific model
-from the KeBABS model object. However, for regular
-operation a detailed look into the SVM specific model is
-usually not necessary.
+sequence data, the response vector, a sequence kernel
+object and the requested SVM along with SVM parameters to
+\code{kbsvm} and receives the training results in the form
+of a KeBABS model object of class
+\code{\linkS4class{KBModel}}. The accessor \code{svmModel}
+allows to retrieve the SVM specific model from the KeBABS
+model object. However, for regular operation a detailed
+look into the SVM specific model is usually not necessary.
 
 The standard data format for sequences in KeBABS are the
 \code{XStringSet}-derived classes

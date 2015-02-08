@@ -503,14 +503,14 @@ Position-dependent kernels take the position into account where a pattern occurs
 \subsubsection{Position-Specific Kernel}
 \label{sec:PosSpecKernel}
 
-For the position-specific kernel, only patterns which occur at the same position in both sequences are relevant. The feature mapping $\varphi$ for a sequence x of length L for this kernel is defined as
+For the position-specific kernel, only patterns which occur at the same position in both sequences are relevant. The feature mapping $\varphi(x)$ for a sequence x of length L for this kernel is defined as
 
 \begin{align}
 \label{eq:FeatureMapPosSpec}
 \varphi(x) = ((\mathbf{1}(m,x,1), .... ,  \mathbf{1}(m,x,L)))_{m \in \mathcal{M}}
 \end{align}
 
-The feature vector is a binary vector containing for the part associated with one position a one for all patterns that occurs at this position position and zero otherwise. For the spectrum kernel and the mismatch kernel a single pattern occurs at each position, for the gappy pair kernel and the motif kernel multiple patters could be relevant at a single position.  The feature space of the position-specific version of a kernel is $|\mathcal{M}_{pos}| = L_m \cdot |\mathcal{M}_{nopos}|$ where $L_m$ is the maximum sequence length in the sequence set and  $|\mathcal{M}_{nopos}|$ is the feature space size of the corresponding position-independent kernel. Because of the high dimensionality of the feature space of position-specific kernels, an explicit representation is not supported for this kernel variant.
+The feature vector is a binary vector containing for the part associated with one position a one for all patterns that occurs at this position position and zero otherwise. For the spectrum kernel and the mismatch kernel a single pattern occurs at each position, for the gappy pair kernel and the motif kernel multiple patterns could be relevant at a single position.  The feature space of the position-specific version of a kernel is $|\mathcal{M}_{pos}| = L_m \cdot |\mathcal{M}_{nopos}|$ where $L_m$ is the maximum sequence length in the sequence set and  $|\mathcal{M}_{nopos}|$ is the feature space size of the corresponding position-independent kernel. Because of the high dimensionality of the feature space of position-specific kernels, an explicit representation is not supported for this kernel variant.
 
 The kernel can be expressed with the kernel specific indicator function $\mathbf{1}(m, x, p)$ as
 
@@ -1568,6 +1568,13 @@ Currently only {\tt kernlab} supports training via the kernel matrix. For all ot
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.0.4:] \hfill
+\begin{itemize}
+\item change in LiblineaR - upgrade to LIBLINEAR 1.94, in function LiblineaR the parameter labels was renamed to target
+\item correction in model selection for performance parameters
+\item minor changes in help pages
+\item minor changes in vignette
+\end{itemize}
 \item[Version 1.0.3:] \hfill
 \begin{itemize}
 \item extension of function linearKernel to optionally return a sparse kernel matrix

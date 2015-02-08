@@ -1,6 +1,13 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.0.4
+- change in LiblineaR - upgrade to LIBLINEAR 1.94
+  in function LiblineaR the parameter labels was renamed to target
+- correction in model selection for performance parameters
+- minor changes in help pages
+- minor changes in vignette
+
 Version 1.0.3
 - extension of function linearKernel to optionally return
   a sparse kernel matrix
