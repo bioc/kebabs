@@ -211,9 +211,20 @@ trainSVM.explicitRep <- function(x, y=NULL, svmInfo, verbose, ...)
             library(SparseM, warn.conflicts=FALSE)
             x <- as(x, "matrix.csr")
         }
-
-        model <- LiblineaR(data=x, labels=y,
-                           type=as.integer(classifierType), ...)
+        
+        ## check version because of interface change with 1.94-1
+        liblinearVersion <- packageVersion("LiblineaR")
+        if (liblinearVersion$major == 1 &&
+            liblinearVersion$minor < 94)
+        {
+            model <- LiblineaR(data=x, labels=y,
+                               type=as.integer(classifierType), ...)
+        }
+        else
+        {
+            model <- LiblineaR(data=x, target=y,
+                               type=as.integer(classifierType), ...)
+        }
 
         ## $$$ Remove name assignment when LiblineaR is supporting dgRMatrix
         ## matrix.csr does not support names =>

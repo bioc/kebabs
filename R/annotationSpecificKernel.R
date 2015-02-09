@@ -23,20 +23,22 @@
 #' representation can be activated per kernel object. \cr\cr
 #' Assignment of annotation information\cr\cr
 #' The annotation characterset consists of a character string listing all
-#' allowed annotation characters in alphabetical order. It is assigned to
-#' the sequence set with the \code{annotationMetadata} function (see below).
-#' The character '-' is used for masking sequence parts which should not be
-#' evaluated. It is included in the annotation characterset automatically and
-#' is not listed in the characterset definition. The annotation characterset
-#' is stored in the metadata list as named element \code{annotationCharset}
-#' and can be stored along with other metadata assigned to the sequence set.
-#' The annotation strings for the individual sequences are represented as a
-#' character vector and can be assigned to the XStringSet together with the
-#' assignment of the annotation characterset as element related metadata.
-#' Element related metadata is stored in a DataFrame and the columns of this
-#' data frame represent the different types of metadata that can be assigned
-#' in parallel. The column name for the sequence related annotation information
-#' is "annotation". (see Example section for an example of annotation metadata
+#' allowed annotation characters in alphabetical order. Any single byte ASCII
+#' character from the decimal range between 32 and 126, except 45, is allowed.
+#' The character '-' (ASCII dec. 45) is used for masking sequence parts which
+#' should not be evaluated. As it has assigned this special masking function
+#' it must not be used in annotation charactersets.\cr\cr
+#' The annotation characterset is assigned to the sequence set with the
+#' \code{annotationMetadata} function (see below). It is stored in the
+#' metadata list as named element \code{annotationCharset} and can be stored
+#' along with other metadata assigned to the sequence set. The annotation
+#' strings for the individual sequences are represented as a character vector
+#' and can be assigned to the XStringSet together with the assignment of the
+#' annotation characterset as element related metadata. Element related
+#' metadata is stored in a DataFrame and the columns of this data frame
+#' represent the different types of metadata that can be assigned in parallel.
+#' The column name for the sequence related annotation information is
+#' "annotation". (see Example section for an example of annotation metadata
 #' assignment) Annotation metadata can be assigned together with position
 #' metadata (see \code{\link{positionMetadata}} to a sequence set. \cr\cr
 #' Annotation Specific Kernel Processing\cr\cr

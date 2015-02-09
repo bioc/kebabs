@@ -1,6 +1,17 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.1.7
+- change in LiblineaR - upgrade to LIBLINEAR 1.94
+  in function LiblineaR the parameter labels was renamed to target
+- correction in model selection for performance parameters
+- error correction of vector length overflow in sparse explicit
+  representation for very large number of sequences in spectrum,
+  gappy pair and motif kernel
+- error correction for AUC in cross validation
+- minor changes in help pages
+- minor changes in vignette
+
 Version 1.1.6
 - error correction for training with position specific kernel and
   computation of feature weights

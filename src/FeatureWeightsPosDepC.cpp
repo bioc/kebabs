@@ -55,7 +55,6 @@ bool getWeightsPerPosition(T maxUnSignedIndex, SEXP *pdFeatWeights, khash_t(pdfw
 
         if (iter == kh_end(pdfwmap))
         {
-            // $$$ TODO remove print
             Rprintf("key %llu not found in hashmap during determination of feature weights\n", keys[i]);
             return(FALSE);
         }
@@ -72,7 +71,6 @@ bool getWeightsPerPosition(T maxUnSignedIndex, SEXP *pdFeatWeights, khash_t(pdfw
 
         if (iter == kh_end(pdfimap))
         {
-            // $$$ TODO remove print
             Rprintf("pattern %llu not found in hashmap during determination of feature weights\n", featIndex);
             return(FALSE);
         }

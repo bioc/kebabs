@@ -51,13 +51,16 @@
   Default=NULL}
 
   \item{perfParameters}{a character vector with one or
-  several values from the set "ACC" , "BACC", "MCC" and
-  "ALL". "ACC" stands for accuracy, "BACC" for balanced
-  accuracy, "MCC" for Matthews Correlation Coefficient and
-  "ALL" for all three. This parameter defines which
-  performance parameters are collected in cross validation,
-  grid search and model selection for display purpose.
-  Default=NULL}
+  several values from the set "ACC" , "BACC", "MCC", "AUC"
+  and "ALL". "ACC" stands for accuracy, "BACC" for balanced
+  accuracy, "MCC" for Matthews Correlation Coefficient,
+  "AUC" for area under the ROC curve and "ALL" for all
+  four. This parameter defines which performance parameters
+  are collected in cross validation for display purpose.
+  The summary values are computed as mean of the fold
+  values. AUC computation from pooled decision values
+  requires a calibrated classifier output and is currently
+  not supported. Default=NULL}
 
   \item{verbose}{boolean value that indicates whether
   KeBABS should print additional messages showing the

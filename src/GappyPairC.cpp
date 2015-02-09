@@ -1576,8 +1576,8 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
                         ByteStringVector annX, IntegerVector annotationIndexMap, IntegerVector reverseAnnotationMap,
                         int k, int m, bool normalized, bool presence, bool reverseComplement,
                         struct alphaInfo *alphaInf, ByteStringVector features, uint64_t dimFeatureSpace,
-                        bool zeroFeatures, bool useHash, void **indexMap, int *numUsedFeatures,
-                        bool countNonzeroFeatures, int *numNonzeroFeatures, double **normValues)
+                        bool zeroFeatures, bool useHash, void **indexMap, uint64_t *numUsedFeatures,
+                        bool countNonzeroFeatures, uint64_t *numNonzeroFeatures, double **normValues)
 {
     int i, j, j1, l, iold, inew, iX, patLength, index, indexAnn, result, km1, upper, patternLength;
     uint32_t *featIndexMap, *featureCounts, featureIndex32, currCount, upperLimit;
@@ -2307,7 +2307,7 @@ void getERDGappy(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
                  ByteStringVector annCharset, ByteStringVector annX, bool unmapped, int k, int m,
                  bool normalized, bool presence, bool reverseComplement, struct alphaInfo *alphaInf,
                  ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures, bool useHash,
-                 bool mapIndex, void *indexMap, int numUsedFeatures, double *normValues)
+                 bool mapIndex, void *indexMap, uint64_t numUsedFeatures, double *normValues)
 {
     uint32_t *featIndexMap;
     uint64_t prevIndex, featureIndex, prevAnnIndex, annotIndex, fIndex, tempIndex1, tempIndex2;
@@ -2667,7 +2667,7 @@ bool getERSGappy(ByteStringVector x, int sizeX, IntegerVector selX, ByteStringVe
                  ByteStringVector annX, int maxSeqLength, bool unmapped, int k, int m, bool normalized,
                  bool presence, bool reverseComplement, struct alphaInfo *alphaInf, ByteStringVector features,
                  uint64_t dimFeatureSpace, bool zeroFeatures, bool useHash, bool mapIndex, void *indexMap,
-                 int numUsedFeatures,SEXP slot_p, SEXP slot_j, SEXP slot_x, double *normValues)
+                 uint64_t numUsedFeatures,SEXP slot_p, SEXP slot_j, SEXP slot_x, double *normValues)
 {
     uint32_t *featIndexMap;
     uint64_t featureIndex, annotIndex, fIndex, jIdx, nodeLimit;
@@ -3135,8 +3135,8 @@ RcppExport SEXP genExplRepGappyPair(ByteStringVector x, int sizeX, IntegerVector
                                     bool useRowNames, bool useColNames, bool zeroFeatures,
                                     bool sparse)
 {
-    int i, numProtect, numUsedFeatures, numNonzeroFeatures;
-    uint64_t dimFeatureSpace;
+    int i, numProtect;
+    uint64_t dimFeatureSpace, numUsedFeatures, numNonzeroFeatures;
     double *normValues;
     bool mapIndex, useHash;
     const void *vmax;

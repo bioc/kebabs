@@ -181,9 +181,21 @@ motifKernel <- function(motifs, r=1, annSpec=FALSE, distWeight=numeric(0),
     if (!isTRUEorFALSE(annSpec))
         stop("annSpec must be TRUE or FALSE\n")
 
-    if (length(distWeight) > 0 &&
-        !(is.numeric(distWeight) || is.function(distWeight)))
-        stop("distWeight must be a numeric vector or a function\n")
+    if (length(distWeight) > 0)
+    {
+        if (!(is.numeric(distWeight) || is.function(distWeight)))
+            stop("'distWeight' must be a numeric vector or a function\n")
+
+        if (is.function(distWeight))
+        {
+            func <- deparse(distWeight)[2]
+            index <- grep("(", strsplit(func, split="")[[1]], fixed=TRUE,
+                          value=FALSE)
+
+            if (length(index) < 1)
+                stop("Missing parentheses in 'distWeight'\n")
+        }
+    }
 
     if (presence && length(distWeight) > 0)
     {

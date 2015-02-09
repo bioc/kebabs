@@ -75,7 +75,7 @@ struct intfFindMotifs {
     int offset;
     int rowIndex;
     int numUsedMotifs;
-    int numNonzeroFeatures;
+    uint64_t numNonzeroFeatures;
     int featuresPerSample;
     int svmIndex;
     char *keyPool;

@@ -59,9 +59,9 @@
 #' please see the runtime hints for \code{\link{performGridSearch}}.\cr
 #'
 #' @return model selection stores the results in the KeBABS model. They can be
-#' retrieved with the accessor \code{\link{modelSelResult}{KBModel}}. The 
-#' retrieve collected performance values form the model selection result 
-#' object use the accessor \code{\link{modelSelResult}{ModelSelectionResult}}.
+#' retrieved with the accessor \code{\link{modelSelResult}{KBModel}}. Results
+#' from the outer cross validation are extracted from the model with the
+#' accessor\code{\link{cvResult}}.
 #'
 #' @seealso \code{\link{kbsvm}}, \code{\link{performGridSearch}},
 #' \code{\link{modelSelResult}},
@@ -278,12 +278,36 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
     model@cvResult@outerCV <- TRUE
     model@cvResult@cross <- model@modelSelResult@nestedCross
     model@cvResult@noCross <- model@modelSelResult@noNestedCross
+    model@cvResult@perfParameters <- perfParameters
     model@cvResult@groupBy <- groupBy
     model@cvResult@folds <- as.list(rep(NA_real_,
                                         model@cvResult@noCross * numFolds))
     model@cvResult@foldErrors <-
                 matrix(Inf, nrow=model@modelSelResult@noNestedCross,
                        ncol=numFolds)
+    model@cvResult@noSV <- numeric(0)
+    model@cvResult@sumAlphas <- numeric(0)
+
+    collectACC <- "ACC" %in% perfParameters
+    collectBACC <- "BACC" %in% perfParameters
+    collectMCC <- "MCC" %in% perfParameters
+    collectAUC <- "AUC" %in% perfParameters
+
+    if (collectACC)
+        model@cvResult@foldACC <- matrix(Inf,
+                   nrow=model@modelSelResult@noNestedCross, ncol=numFolds)
+
+    if (collectBACC)
+        model@cvResult@foldBACC <- matrix(Inf,
+                   nrow=model@modelSelResult@noNestedCross, ncol=numFolds)
+
+    if (collectMCC)
+        model@cvResult@foldMCC <- matrix(Inf,
+                   nrow=model@modelSelResult@noNestedCross, ncol=numFolds)
+
+    if (collectAUC)
+        model@cvResult@foldAUC <- matrix(Inf,
+                   nrow=model@modelSelResult@noNestedCross, ncol=numFolds)
 
     if (model@ctlInfo@classification == TRUE && model@numClasses == 0)
     {
@@ -323,13 +347,24 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
 
         numFolds <- length(folds)
 
-        ## $$$ TODO Remove
         if (numFolds < 2)
             stop("less than two folds generated\n")
 
         model@cvResult@folds[((i-1)*numFolds+1):(i*numFolds)] <- folds
-        noOfSVs <- numeric(0)
-        foldError <- numeric(0)
+        foldError <- rep(NA_real_, numFolds)
+        predDecValues <- NA
+        
+        if (collectACC)
+            foldACC <- rep(NA_real_, numFolds)
+        
+        if (collectBACC)
+            foldBACC <- rep(NA_real_, numFolds)
+        
+        if (collectMCC)
+            foldMCC <- rep(NA_real_, numFolds)
+
+        if (collectAUC)
+            foldAUC <- rep(NA_real_, numFolds)
 
         for (j in 1:length(folds))
         {
@@ -458,26 +493,129 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
                             x=testData, predictionType="response",
                             verbose=verbose)
 
+            if (collectAUC)
+            {
+                predDecValues <-
+                    predict(object=selModel@modelSelResult@fullModel,
+                            x=testData, predictionType="decision",
+                            verbose=verbose)
+            }
+
             if (is.null(pred))
                 stop("Prediction returned NULL\n")
 
             if (selModel@modelSelResult@fullModel@ctlInfo@classification)
             {
-                foldError <- c(foldError, sum(pred !=
-                                  y[folds[[j]]]) / length(folds[[j]]))
+                foldError[j] <- sum(pred != y[folds[[j]]]) /
+                                    length(folds[[j]])
+
+                if (length(perfParameters) > 0)
+                {
+                    foldPerformance <-
+                        evaluatePrediction(pred, y[folds[[j]]],
+                            allLabels=
+                            selModel@modelSelResult@fullModel@classNames,
+                            decValues=predDecValues,
+                            print=FALSE)
+
+                    if (collectACC)
+                        foldACC[j] <- foldPerformance$ACC / 100
+
+                    if (collectBACC)
+                        foldBACC[j] <- foldPerformance$BAL_ACC / 100
+
+                    if (collectMCC)
+                        foldMCC[j] <- foldPerformance$MAT_CC
+
+                    if (collectAUC)
+                        foldAUC[j] <- foldPerformance$AUC
+                }
             }
             else
             {
                 ## calc MSE
-                foldError <- c(foldError, sum((as.numeric(pred) -
-                                    y[folds[[j]]])^2) / length(folds[[j]]))
+                foldError[j] <- sum((as.numeric(pred) -
+                                    y[folds[[j]]])^2) / length(folds[[j]])
             }
         }
 
-        model@cvResult@cvError[[i]] <- sum(foldError)/length(foldError)
-        model@cvResult@foldErrors[i,] <- foldError
-        model@cvResult@noSV[((i-1)*numFolds+1):
-                            ((i)*numFolds)] <- noOfSVs
+        nonNA <- sum((!is.na(foldError)))
+
+        if (nonNA > 0)
+        {
+            model@cvResult@cvError[[i]] <-
+                     sum(foldError, na.rm=TRUE) / nonNA
+            model@cvResult@foldErrors[i,] <- foldError
+        }
+        else
+        {
+            model@cvResult@cvError[[i]] <- NA
+            model@cvResult@foldErrors[i,] <- NA
+        }
+
+        if (collectACC)
+        {
+            nonNA <- sum((!is.na(foldACC)))
+
+            if (nonNA > 0)
+            {
+                model@cvResult@ACC[[i]] <- sum(foldACC, na.rm=TRUE) / nonNA
+                model@cvResult@foldACC[i,] <- foldACC
+            }
+            else
+            {
+                model@cvResult@ACC[[i]] <- NA
+                model@cvResult@foldACC[i,] <- NA
+            }
+        }
+
+        if (collectBACC)
+        {
+            nonNA <- sum((!is.na(foldBACC)))
+    
+            if (nonNA > 0)
+            {
+                model@cvResult@BACC[[i]] <- sum(foldBACC, na.rm=TRUE) / nonNA
+                model@cvResult@foldBACC[i,] <- foldBACC
+            }
+            else
+            {
+                model@cvResult@BACC[[i]] <- NA
+                model@cvResult@foldBACC[i,] <- NA
+            }
+        }
+
+        if (collectMCC)
+        {
+            nonNA <- sum((!is.na(foldMCC)))
+    
+            if (nonNA > 0)
+            {
+                model@cvResult@MCC[[i]] <- sum(foldMCC, na.rm=TRUE) / nonNA
+                model@cvResult@foldMCC[i,] <- foldMCC
+            }
+            else
+            {
+                model@cvResult@MCC[[i]] <- NA
+                model@cvResult@foldMCC[i,] <- NA
+            }
+        }
+
+        if (collectAUC)
+        {
+            nonNA <- sum((!is.na(foldAUC)))
+    
+            if (nonNA > 0)
+            {
+                model@cvResult@AUC[[i]] <- sum(foldAUC, na.rm=TRUE) / nonNA
+                model@cvResult@foldAUC[i,] <- foldAUC
+            }
+            else
+            {
+                model@cvResult@AUC[[i]] <- NA
+                model@cvResult@foldAUC[i,] <- NA
+            }
+        }
     }
 
     return(model)

@@ -1155,8 +1155,8 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
                         ByteStringVector annX, IntegerVector annotationIndexMap, IntegerVector reverseAnnotationMap,
                         int k, bool normalized, bool presence, bool reverseComplement, struct alphaInfo *alphaInf,
                         ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures, bool useHash,
-                        void **indexMap, int *numUsedFeatures, bool countNonzeroFeatures, int *numNonzeroFeatures,
-                        double **normValues)
+                        void **indexMap, uint64_t *numUsedFeatures, bool countNonzeroFeatures,
+                        uint64_t *numNonzeroFeatures, double **normValues)
 {
     int i, j, l, iold, iX, patLength, index, indexAnn, result;
     uint32_t *featIndexMap, *featureCounts, featureIndex32, currCount, upperLimit;
@@ -1993,7 +1993,6 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
                     }
                     else
                     {
-                        // $$$  TODO remove Rprintf
                         Rprintf("Internal error with hashing - entry not found\n");
                         return(FALSE);
                     }
@@ -2009,7 +2008,7 @@ void getERDSpectrum(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVec
                     ByteStringVector annCharset, ByteStringVector annX, bool unmapped, int k,
                     bool normalized, bool presence, bool reverseComplement, struct alphaInfo *alphaInf,
                     ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures,
-                    bool useHash, bool mapIndex, void *indexMap, int numOfUsedFeatures,
+                    bool useHash, bool mapIndex, void *indexMap, uint64_t numOfUsedFeatures,
                     double *normValues)
 {
     uint32_t *featIndexMap;
@@ -2408,7 +2407,7 @@ bool getERSSpectrum(ByteStringVector x, int sizeX, IntegerVector selX, ByteStrin
                     ByteStringVector annX, int maxSeqLength, bool unmapped, int k, bool normalized,
                     bool presence,bool reverseComplement, struct alphaInfo *alphaInf,
                     ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures,
-                    bool useHash, bool mapIndex, void *indexMap, int numUsedFeatures, SEXP slot_p,
+                    bool useHash, bool mapIndex, void *indexMap, uint64_t numUsedFeatures, SEXP slot_p,
                     SEXP slot_j, SEXP slot_x, double *normValues)
 {
     uint32_t *featIndexMap;
@@ -2889,8 +2888,8 @@ RcppExport SEXP genExplRepSpectrum(ByteStringVector x, int sizeX, IntegerVector 
                                    bool unmapped, bool lowercase, bool useRowNames, bool useColNames,
                                    bool zeroFeatures, bool sparse)
 {
-    int i, numProtect, numUsedFeatures, numNonzeroFeatures;
-    uint64_t dimFeatureSpace;
+    int i, numProtect;
+    uint64_t dimFeatureSpace, numUsedFeatures, numNonzeroFeatures;
     double *normValues;
     bool mapIndex, useHash;
     const void *vmax;

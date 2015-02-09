@@ -19,10 +19,9 @@
 \value{
 model selection stores the results in the KeBABS model.
 They can be retrieved with the accessor
-\code{\link{modelSelResult}{KBModel}}. The retrieve
-collected performance values form the model selection
-result object use the accessor
-\code{\link{modelSelResult}{ModelSelectionResult}}.
+\code{\link{modelSelResult}{KBModel}}. Results from the
+outer cross validation are extracted from the model with
+the accessor\code{\link{cvResult}}.
 }
 \description{
 Perform model selection with one or multiple sequence
