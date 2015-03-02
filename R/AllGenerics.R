@@ -132,6 +132,36 @@ if (!isGeneric("performance"))
     setGeneric("performance", fun)
 }
 
+if (!isGeneric("selGridRow"))
+{
+    if (is.function("selGridRow"))
+        fun <- selGridRow
+    else
+        fun <- function(object, ...) standardGeneric("selGridRow")
+    
+    setGeneric("selGridRow", fun)
+}
+
+if (!isGeneric("selGridCol"))
+{
+    if (is.function("selGridCol"))
+        fun <- selGridCol
+    else
+        fun <- function(object, ...) standardGeneric("selGridCol")
+    
+    setGeneric("selGridCol", fun)
+}
+
+if (!isGeneric("fullModel"))
+{
+    if (is.function("fullModel"))
+        fun <- fullModel
+    else
+        fun <- function(object, ...) standardGeneric("fullModel")
+    
+    setGeneric("fullModel", fun)
+}
+
 ## accessors for KBModel
 if (!isGeneric("numseq"))
 {

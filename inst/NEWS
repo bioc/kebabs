@@ -1,6 +1,13 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.1.8
+- new accessors selGridRow, selGridCol and fullModel for class
+  ModelSelectionResult
+- change of naming of feature weights because of change in
+  LiblineaR 1.94-2
+- GCC warnings in Linux removed
+
 Version 1.1.7
 - change in LiblineaR - upgrade to LIBLINEAR 1.94
   in function LiblineaR the parameter labels was renamed to target

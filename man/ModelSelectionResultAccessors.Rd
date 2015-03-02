@@ -2,6 +2,8 @@
 \docType{methods}
 \name{ModelSelectionResultAccessors}
 \alias{ModelSelectionResultAccessors}
+\alias{fullModel}
+\alias{fullModel,ModelSelectionResult-method}
 \alias{gridColumns}
 \alias{gridColumns,ModelSelectionResult-method}
 \alias{gridErrors}
@@ -10,6 +12,10 @@
 \alias{gridRows,ModelSelectionResult-method}
 \alias{performance}
 \alias{performance,ModelSelectionResult-method}
+\alias{selGridCol}
+\alias{selGridCol,ModelSelectionResult-method}
+\alias{selGridRow}
+\alias{selGridRow,ModelSelectionResult-method}
 \title{ModelSelectionResult Accessors}
 \usage{
 \S4method{gridRows}{ModelSelectionResult}(object)
@@ -24,7 +30,11 @@
 \code{gridColumns}: returns a \code{DataFrame} object with
 grid column parameters\cr \code{gridErrors}: returns a
 matrix with grid errors\cr \code{performance}: returns a
-list of matrices with performance values
+list of matrices with performance values \code{selGridRow}:
+returns the selected kernel \code{selGridCol}: returns the
+selected SVM and/or hyperparameter(s) \code{fullModel}:
+returns a kebabs model of class
+\code{\linkS4class{KBModel}}
 }
 \description{
 ModelSelectionResult Accessors
@@ -34,7 +44,11 @@ ModelSelectionResult Accessors
   containing the kernels.  } \item{}{\code{gridColumns}:
   return the grid columns.  } \item{}{\code{gridErrors}:
   return the grid CV errors.  } \item{}{\code{performance}:
-  return the collected performance parameters.  } }
+  return the collected performance parameters.  }
+  \item{}{\code{selGridRow}: return the selected grid row.
+  } \item{}{\code{selGridCol}: return the selected grid
+  column.  } \item{}{\code{fullModel}: return the full
+  model.  } }
 }
 \examples{
 ## create kernel object for normalized spectrum kernel
