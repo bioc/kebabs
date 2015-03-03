@@ -1979,7 +1979,7 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
                 ks_mergesort(spec, noOfEntries, featureIndices, 0);
 
                 // write col index to hash
-                for (int i=0; i < *numUsedFeatures; i++)
+                for (int i=0; i < (int) *numUsedFeatures; i++)
                 {
                     if (i % USER_INTERRUPT_LIMIT == 0)
                         R_CheckUserInterrupt();
@@ -2392,7 +2392,7 @@ void getERDSpectrum(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVec
         {
             R_CheckUserInterrupt();
 
-            for (j = 0; j < numOfUsedFeatures; j++)
+            for (j = 0; j < (int) numOfUsedFeatures; j++)
             {
                 if (erd(i,j) > 0)
                     erd(i,j) = erd(i,j) / normValues[i];

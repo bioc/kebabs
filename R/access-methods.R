@@ -475,6 +475,12 @@ setReplaceMethod("mcols", signature(x="BioVector"),
 #' gridErrors,ModelSelectionResult-method
 #' performance
 #' performance,ModelSelectionResult-method
+#' selGridRow
+#' selGridRow,ModelSelectionResult-method
+#' selGridCol
+#' selGridCol,ModelSelectionResult-method
+#' fullModel
+#' fullModel,ModelSelectionResult-method
 #' @param object a model selection result object (can be extracted from
 #' KeBABS model with accessor \code{\link{modelSelResult}})
 #' @section Accessor-like methods:
@@ -492,12 +498,25 @@ setReplaceMethod("mcols", signature(x="BioVector"),
 #'   \item{}{\code{performance}:
 #'   return the collected performance parameters.
 #'   }
+#'   \item{}{\code{selGridRow}:
+#'   return the selected grid row.
+#'   }
+#'   \item{}{\code{selGridCol}:
+#'   return the selected grid column.
+#'   }
+#'   \item{}{\code{fullModel}:
+#'   return the full model.
+#'   }
 #' }
 #' @return \code{gridRows}: returns a list of kernel objects\cr
 #' \code{gridColumns}: returns a \code{DataFrame} object with grid column
 #' parameters\cr
 #' \code{gridErrors}: returns a matrix with grid errors\cr
 #' \code{performance}: returns a list of matrices with performance values
+#' \code{selGridRow}: returns the selected kernel
+#' \code{selGridCol}: returns the selected SVM and/or hyperparameter(s)
+#' \code{fullModel}: returns a kebabs model of class
+#' \code{\linkS4class{KBModel}}
 #' @examples
 #' ## create kernel object for normalized spectrum kernel
 #' specK5 <- spectrumKernel(k=5)
@@ -546,6 +565,13 @@ performance.ModelSelectionResult <- function(object)
 
 setMethod("performance", "ModelSelectionResult",
           performance.ModelSelectionResult)
+
+setMethod("selGridRow", "ModelSelectionResult",
+          function(object) object@selGridRow)
+setMethod("selGridCol", "ModelSelectionResult",
+          function(object) object@selGridCol)
+setMethod("fullModel", "ModelSelectionResult",
+          function(object) object@fullModel)
 
 
 ###################################################

@@ -2280,7 +2280,7 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
 
         featVectorsStart[i + 1] = intf.elemIndex;
 
-        if (maxFeaturesPerSample < (featVectorsStart[i + 1] - featVectorsStart[i]))
+        if (maxFeaturesPerSample < (int) (featVectorsStart[i + 1] - featVectorsStart[i]))
             maxFeaturesPerSample = featVectorsStart[i + 1] - featVectorsStart[i];
 
         if (normalized)

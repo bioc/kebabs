@@ -1057,7 +1057,7 @@ As mentioned above for normal training and prediction in \KeBABS\, you do not ne
 \subsection{Explicit Representation}
 \label{sec:ExRep}
 
-For all kernels except the mismatch kernel and the position-dependent kernel variants, an explicit representation can be computed from the sequence set for a given kernel. The explicit representation contains the feature counts for all features occurring in the samples. By default, any feature from the feature space which is not present in the sample set is not listed in the explicit representation. Explicit representations can be generated in sparse or dense matrix form.
+The explicit representation contains the feature counts for all features occurring in the samples. By default, any feature from the feature space which is not present in the sample set is not listed in the explicit representation. From the sequence set an explicit representations can be generated in sparse or dense matrix for all position-independent kernels.
 
 
 \subsubsection{Linear Explicit Representation}
@@ -1568,6 +1568,12 @@ Currently only {\tt kernlab} supports training via the kernel matrix. For all ot
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.0.5:] \hfill
+\begin{itemize}
+\item new accessors selGridRow, selGridCol and fullModel for class ModelSelectionResult
+\item change of naming of feature weights because of change in LiblineaR 1.94-2
+\item GCC warnings in Linux removed
+\end{itemize}
 \item[Version 1.0.4:] \hfill
 \begin{itemize}
 \item change in LiblineaR - upgrade to LIBLINEAR 1.94, in function LiblineaR the parameter labels was renamed to target

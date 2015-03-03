@@ -1,8 +1,8 @@
 Package: kebabs
 Type: Package
 Title: Kernel-Based Analysis Of Biological Sequences
-Version: 1.0.4
-Date: 2015-02-08
+Version: 1.0.5
+Date: 2015-02-09
 Author: Johannes Palme
 Maintainer: Ulrich Bodenhofer <bodenhofer@bioinf.jku.at>
 Description: The package provides functionality for kernel-based analysis of
@@ -54,4 +54,4 @@ Imports: methods, Rcpp (>= 0.11.2), Matrix, XVector (>= 0.5.8),
 LinkingTo: IRanges, XVector, Biostrings, Rcpp, S4Vectors
 Suggests: SparseM, apcluster, Biobase, BiocGenerics
 biocViews: SupportVectorMachine, Classification, Clustering, Regression
-Packaged: 2015-02-08 20:45:03 UTC; jo
+Packaged: 2015-02-27 16:45:00 UTC; jo

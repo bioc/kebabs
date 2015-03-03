@@ -27,7 +27,8 @@ exportMethods(kbsvm, predict, show, kernelParameters, as.KernelMatrix,
               featureWeights, "featureWeights<-", modelOffset, "modelOffset<-",
               cvResult, "cvResult<-", modelSelResult, "modelSelResult<-",
               svmModel, "svmModel<-", probabilityModel, "probabilityModel<-",
-              gridRows, gridColumns, gridErrors, performance, length, width,
-              names, "names<-", width, performCrossValidation,
-              trainSVM, predictSVM, SVindex, getFeatureSpaceDimension)
+              gridRows, gridColumns, gridErrors, performance, selGridRow,
+              selGridCol, fullModel, length, width, names, "names<-", width,
+              performCrossValidation, trainSVM, predictSVM, SVindex,
+              getFeatureSpaceDimension)
 

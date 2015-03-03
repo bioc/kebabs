@@ -42,11 +42,9 @@ getFeatureWeightsPosIndep <- function(model, exrep=NULL, svmIndex=1,
         noWeights <- ncol(weights)
 
         if (bias)
-        {
             noWeights <- noWeights - 1
-            weights <- weights[svmIndex, 1:noWeights, drop=FALSE]
-        }
-
+            
+        weights <- weights[svmIndex, 1:noWeights, drop=FALSE]
         classNames <- getSVMSlotValue("classNames", model)
 
         ## assign class names for multiclass with one against the rest
@@ -417,24 +415,27 @@ getFeatureWeights <- function(model, exrep=NULL, features=NULL,
         {
             featureWeights <- list()
 
-            for (i in 1:choose(model@numClasses, 2))
+            if (model@ctlInfo@multiclassType == "pairwise")
+                numSVMs <- choose(model@numClasses, 2)
+            else
+                numSVMs <- model@numClasses
+
+            if (model@svmInfo@selPackage != "LiblineaR")
+                svmNames <- colnames(getSVMSlotValue("coef", model))
+            else
             {
-                if (model@svmInfo@selPackage != "LiblineaR")
-                    svmNames <- colnames(getSVMSlotValue("coef", model))
-                else
-                {
-                    svmNames <- getSVMSlotValue("classNames", model, raw=TRUE)
+                svmNames <- as.character(getSVMSlotValue("classNames",
+                                                         model, raw=TRUE))
+    
+            if (model@ctlInfo@multiclassType == "oneAgainstRest")
+                svmNames <- paste(svmNames, "/R", sep="")
+            }
 
-                    if (model@ctlInfo@multiclassType == "oneAgainstRest")
-                        svmNames <- paste(svmNames, "/R", sep="")
-                }
-
+            for (i in 1:numSVMs)
+            {
                 featureWeights[[svmNames[i]]] <-
                     getFeatureWeightsPosDep(model=model, svmIndex=i,
                                 weightLimit=weightLimit, features=features)
-
-                ## assign name of svm
-                rownames(featureWeights[[svmNames[i]]]) <- svmNames[i]
             }
 
             return(featureWeights)
@@ -474,18 +475,19 @@ getFeatureWeights <- function(model, exrep=NULL, features=NULL,
         else
             numSVMs <- model@numClasses
 
+        if (model@svmInfo@selPackage != "LiblineaR")
+            svmNames <- colnames(getSVMSlotValue("coef", model))
+        else
+        {
+            svmNames <- as.character(getSVMSlotValue("classNames",
+                                                     model, raw=TRUE))
+    
+            if (model@ctlInfo@multiclassType == "oneAgainstRest")
+                svmNames <- paste(svmNames, "/R", sep="")
+        }
+
         for (i in 1:numSVMs)
         {
-            if (model@svmInfo@selPackage != "LiblineaR")
-                svmNames <- colnames(getSVMSlotValue("coef", model))
-            else
-            {
-                svmNames <- getSVMSlotValue("classNames", model, raw=TRUE)
-
-                if (model@ctlInfo@multiclassType == "oneAgainstRest")
-                   svmNames <- paste(svmNames, "/R", sep="")
-            }
-
             featureWeights[[svmNames[i]]] <-
                 getFeatureWeightsPosIndep(model=model, exrep=exrep,
                                           svmIndex=i, features=features,
