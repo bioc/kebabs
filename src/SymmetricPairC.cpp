@@ -1,12 +1,12 @@
-/*
- *   C Routines for Symmetric Pair Kernel
- *
- *   Source: SymmetricPairC.cpp
- *   Author: Johannes Palme
- *
- *   Copyright (C) 2014, Johannes Palme
- *
- */
+//
+// C Routines for Symmetric Pair Kernel
+//
+// Source : SymmetricPairC.cpp
+// Package: kebabs
+// Author : J. P.
+//
+// Copyright (C) 2014-2015   J o h a n n e s  P a l m e
+//
 
 #include "Kebabs.h"
 #include "KernelUtils.h"

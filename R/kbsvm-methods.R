@@ -366,7 +366,9 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 #' representation (see \code{\link{getExRep}}). When the parameter is set to
 #' "no" the kernel matrix is used, for "yes" the model is trained from the
 #' explicit representation. When set to "auto" KeBABS automatically selects a
-#' variant based on runtime heuristics. Default="auto"
+#' variant based on runtime heuristics. For training via kernel matrix the
+#' dense LIBSVM implementation included in package kebabs is the preferred
+#' processing variant. Default="auto"
 #'
 #' @param explicitType this parameter is only relevant when parameter
 #' 'explicit' is different from "no". The values "sparse" and "dense"
@@ -485,7 +487,11 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 #' implementations in other R packages. In the current implementation the SVMs
 #' provided in the packages \code{\link[kernlab:ksvm]{kernlab}},
 #' \code{\link[e1071:svm]{e1071}} and
-#' \code{\link[LiblineaR:LiblineaR]{LiblineaR}} are in focus.\cr\cr
+#' \code{\link[LiblineaR:LiblineaR]{LiblineaR}} are in focus. Starting with
+#' version 1.2.0 KeBABS also contains the dense implementation of LIBSVM which
+#' is functionally equivalent to the sparse implementation of LIBSVM in package
+#' \code{\link[e1071:svm]{e1071}} but additionally supports dense kernel
+#' matrices as preferred implementation for learning via kernel matrices.\cr\cr
 #' This framework can be considered like a "meta-SVM", which provides
 #' a simple and unified user interface to these SVMs for classification (binary
 #' and multiclass) and regression tasks. The user calls the "meta-SVM" in a
@@ -734,9 +740,10 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 #' ## show details of kernel object
 #' specK2
 #'
-#' ## run training with kernel matrix
+#' ## run training with kernel matrix on e1071 (via the
+#' ## dense LIBSVM implementation integrated in kebabs)
 #' model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=specK2,
-#'                pkg="kernlab", svm="C-svc", C=10, explicit="no")
+#'                pkg="e1071", svm="C-svc", C=10, explicit="no")
 #'
 #' ## show KeBABS model
 #' model
@@ -749,8 +756,8 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 #'
 #' \dontrun{
 #' ## examples for package and SVM selection
-#' ## now run the same samples with the same kernel on e1071 which
-#' ## currently only supports an explicit representation
+#' ## now run the same samples with the same kernel on e1071 via
+#' ## explicit representation
 #' model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=specK2,
 #'                pkg="e1071", svm="C-svc", C=10, explicit="yes")
 #'
@@ -793,9 +800,10 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 #' dim(featureWeights(model))
 #'
 #' ## training with precomputed kernel matrix
+#' ## feature weights cannot be computed for precomputed kernel matrix
 #' km <- getKernelMatrix(specK2, x=enhancerFB, selx=train)
 #' model <- kbsvm(x=km, y=yFB[train], kernel=specK2,
-#'                pkg="kernlab", svm="C-svc", C=10, explicit="no")
+#'                pkg="e1071", svm="C-svc", C=10, explicit="no")
 #'
 #' ## training with precomputed explicit representation
 #' exrep <- getExRep(enhancerFB, sel=train, kernel=specK2)
@@ -820,7 +828,11 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kbsvm
 #' @keywords training
 #' @keywords cross validation
@@ -909,136 +921,130 @@ kbsvm.ExplicitRep <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
     ## and remove unneeded parameters
     model@svmInfo <- convertSVMParameters(model)
 
-    if (model@ctlInfo@selMethod == "KernelMatrix")
+    if (model@svmInfo@reqFeatureType == "quadratic" &&
+        model@svmInfo@selPackage == "LiblineaR" && cross == 0)
     {
-        ## LiblineaR does not support kernel matrix => quadratic
-        ## ER not needed in this case
+        ## convert to explicit representation for quadratic kernel
+        ## as quadratic kernel is not available in LiblineaR
+        ## performCrossValidation is called with linear exrep
+        exRepLin <- x
+        x <- getExRepQuadratic(x)
+    }
 
-        km <- linearKernel(x=x, selx=sel)
-        sel <- integer(0)
+    ## store feature names in model, needed for direct prediction
+    ## via ex rep in svm without feature weights
+    model@trainingFeatures <- colnames(x)
 
-        model <- kbsvm(x=km, y=y, kernel=kernel, svm=svm, pkg=pkg,
-                       explicit=explicit, explicitType=explicitType,
-                       featureWeights=featureWeights, cross=cross,
-                       noCross=noCross, groupBy=groupBy, verbose=verbose,
-                       weightLimit=weightLimit, sel=sel, ...)
+    ## convert parameters to target SVM
 
-        return(model)
+    ## remove orig kernel and set up ER kernel
+
+
+    if (cross != 0)
+    {
+        if (showCVTimes)
+        {
+            timeCV <- system.time(
+            cvModel <- performCrossValidation(object=x, x=NULL, y=y,
+                            sel=sel, model=model, cross=cross,
+                            noCross=noCross, groupBy=groupBy,
+                            perfParameters=perfParameters,
+                            verbose=verbose))
+
+            cat("\nCross Validation Time:\n")
+            print(timeCV)
+            cat("\n")
+            return(cvModel)
+        }
+        else
+        {
+            return(performCrossValidation(object=x, x=NULL, y=y,
+                            sel=sel, model=model, cross=cross,
+                            noCross=noCross, groupBy=groupBy,
+                            perfParameters=perfParameters,
+                            verbose=verbose))
+        }
     }
     else
     {
-        if (model@svmInfo@reqFeatureType == "quadratic" &&
-            model@svmInfo@selPackage == "LiblineaR" && cross == 0)
+        ## invoke selected svm
+        allArgs <- model@svmInfo@selSVMPar
+
+        if (model@ctlInfo@selMethod == "KernelMatrix")
         {
-            ## convert to explicit representation for quadratic kernel
-            ## as quadratic kernel is not available in LiblineaR
-            ## performCrossValidation is called with linear exrep
-            exRepLin <- x
-            x <- getExRepQuadratic(x)
+            ## LiblineaR does not support kernel matrix => quadratic
+            ## ER not needed in this case
+        
+            km <- linearKernel(x=x, selx=sel)
+            sel <- integer(0)
+
+            allArgs[["x"]] <- km
+        }
+        else
+            allArgs[["x"]] <- x
+
+        allArgs[["y"]] <- y
+        allArgs[["svmInfo"]] <- model@svmInfo
+        allArgs[["verbose"]] <- verbose
+        model@svmModel <- do.call(trainSVM, allArgs)
+
+        if (is.null(model@svmModel))
+        {
+            stop(paste(model@svmInfo@selPackage, "-",
+                 model@svmInfo@selSVM, "did not return a model\n"))
         }
 
-        ## store feature names in model, needed for direct prediction
-        ## via ex rep in svm without feature weights
-        model@trainingFeatures <- colnames(x)
-
-        ## convert parameters to target SVM
-
-        ## remove orig kernel and set up ER kernel
-
-
-        if (cross != 0)
+        if (model@ctlInfo@classification == TRUE)
         {
-            if (showCVTimes)
-            {
-                timeCV <- system.time(
-                    cvModel <- performCrossValidation(object=x, x=NULL, y=y,
-                                    sel=sel, model=model, cross=cross,
-                                    noCross=noCross, groupBy=groupBy,
-                                    perfParameters=perfParameters,
-                                    verbose=verbose))
+            model@numClasses <- getSVMSlotValue("numClasses", model)
+            model@classNames <- getSVMSlotValue("classNames", model)
 
-                cat("\nCross Validation Time:\n")
-                print(timeCV)
-                cat("\n")
-                return(cvModel)
-            }
-            else
+            if (model@numClasses > 2)
+                model@ctlInfo@multiclassType <- getMulticlassType(model)
+
+            if (model@svmInfo@probModel == TRUE)
             {
-                return(performCrossValidation(object=x, x=NULL, y=y,
-                                    sel=sel, model=model, cross=cross,
-                                    noCross=noCross, groupBy=groupBy,
-                                    perfParameters=perfParameters,
-                                    verbose=verbose))
+                model@probA <- getSVMSlotValue("probA", model)
+                model@probB <- getSVMSlotValue("probB", model)
             }
         }
         else
         {
-            ## invoke selected svm
-            allArgs <- model@svmInfo@selSVMPar
-            allArgs[["x"]] <- x
-            allArgs[["y"]] <- y
-            allArgs[["svmInfo"]] <- model@svmInfo
-            allArgs[["verbose"]] <- verbose
-            model@svmModel <- do.call(trainSVM, allArgs)
-
-            if (is.null(model@svmModel))
-            {
-                stop(paste(model@svmInfo@selPackage, "-",
-                           model@svmInfo@selSVM, "did not return a model\n"))
-            }
-
-            if (model@ctlInfo@classification == TRUE)
-            {
-                model@numClasses <- getSVMSlotValue("numClasses", model)
-                model@classNames <- getSVMSlotValue("classNames", model)
-
-                if (model@numClasses > 2)
-                    model@ctlInfo@multiclassType <- getMulticlassType(model)
-
-                if (model@svmInfo@probModel == TRUE)
-                {
-                    model@probA <- getSVMSlotValue("probA", model)
-                    model@probB <- getSVMSlotValue("probB", model)
-                }
-            }
-            else
-            {
-                ## copy param for regression with probability model
-                if (model@svmInfo@probModel == TRUE)
-                    model@sigma <- getSVMSlotValue("sigma", model)
-            }
-
-            ind <- getSVMSlotValue("svIndex", model)
-            exRepSV <- NULL
-
-            if (length(ind) > 0)
-            {
-                model@SV <- x[ind]
-                model@svIndex <- ind
-                model@alphaIndex <- getSVMSlotValue("alphaIndex", model)
-
-                if (model@svmInfo@reqFeatureType == "quadratic" &&
-                    model@svmInfo@selPackage == "LiblineaR")
-                    exRepSV <- exRepLin[ind,]
-                else
-                    exRepSV <- x[ind,]
-            }
-
-            if (featureWeights != "no")
-            {
-                model@featureWeights <-
-                    getFeatureWeights(model=model,
-                                      exrep=exRepSV,
-                                      weightLimit=model@svmInfo@weightLimit)
-
-                model@b <- getSVMSlotValue("b", model)
-
-                if (length(model@featureWeights) < 1)
-                    stop("no feature weights available\n")
-            }
-
-            return(model)
+            ## copy param for regression with probability model
+            if (model@svmInfo@probModel == TRUE)
+                model@sigma <- getSVMSlotValue("sigma", model)
         }
+
+        ind <- getSVMSlotValue("svIndex", model)
+        exRepSV <- NULL
+
+        if (length(ind) > 0)
+        {
+            model@SV <- x[ind]
+            model@svIndex <- ind
+            model@alphaIndex <- getSVMSlotValue("alphaIndex", model)
+
+            if (model@svmInfo@reqFeatureType == "quadratic" &&
+                model@svmInfo@selPackage == "LiblineaR")
+                exRepSV <- exRepLin[ind,]
+            else
+                exRepSV <- x[ind,]
+        }
+
+        if (featureWeights != "no")
+        {
+            model@featureWeights <-
+                getFeatureWeights(model=model,
+                    exrep=exRepSV,
+                    weightLimit=model@svmInfo@weightLimit)
+
+            model@b <- getSVMSlotValue("b", model)
+
+            if (length(model@featureWeights) < 1)
+                stop("no feature weights available\n")
+        }
+    
+        return(model)
     }
 }
 
@@ -1077,7 +1083,7 @@ kbsvm.KernelMatrix <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
              "        for call with kernel matrix\n")
     }
 
-    if (featureWeights != "no")
+    if (!(featureWeights %in% c("no", "auto")))
     {
         stop("prediction via feature weights is not possible\n",
              "        for call with kernel matrix\n")

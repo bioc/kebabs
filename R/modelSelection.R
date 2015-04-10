@@ -120,7 +120,11 @@
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kbsvm
 #' @keywords grid search
 #' @keywords model selection
@@ -145,8 +149,6 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
                         addArgs=addArgs, verbose=verbose))
     }
 
-    ## grid search is possible but model selection not because of
-    ## missing original data for computing the kernel matrix for prediction
     if (is(object, "KernelMatrix"))
     {
         stop("model selection with kernel matrix only is not\n",
@@ -172,10 +174,11 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
     model@svmInfo@selPackage <- model@svmInfo@reqPackage
     model@svmInfo@selSVM <- model@svmInfo@reqSVM
     model@ctlInfo@classification <-
-        isClassification(model@svmInfo@selPackage,model@svmInfo@selSVM)
+        isClassification(model@svmInfo@selPackage, model@svmInfo@selSVM)
 
     singleKernel <- NULL
     precompTestdata <- NULL
+    explicitType <- model@svmInfo@reqExplicitType
 
     if (length(model@modelSelResult@gridRows) < 2)
     {
@@ -187,35 +190,71 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
             model@svmInfo@selKernel <- model@svmInfo@reqKernel
 
         singleKernel <- model@svmInfo@selKernel
+        
+        if (isUserDefined(singleKernel))
+            explicit <- "no"
     }
-
-    if ((explicit != "no") && is(object, "KernelMatrix"))
-        stop("processing via explicit representation is not possible\n")
 
     if (explicit == "auto")
     {
-        if (!is.null(singleKernel))
+        if (is(object, "KernelMatrix"))
+            explicit <- "no"
+        else if (is(object, "ExplicitRepresentation"))
         {
-            if (supportsExplicitRep(singleKernel))
+            explicit <- "yes"
+
+            if (is(object, "ExplicitRepresentationDense"))
+                explicitType <- "dense"
+            else
+                explicitType <- "sparse"
+        }
+        else ## XStringSet or BioVector
+        {
+            if (all(unlist(lapply(model@modelSelResult@gridRows,
+                                  supportsExplicitRep))))
+            {
                 explicit <- "yes"
+
+                if (explicitType == "auto")
+                {
+                    if (model@ctlInfo@onlyDense == TRUE)
+                        explicitType <- "dense"
+                    else
+                        explicitType <- "sparse"
+                }
+            }
+            else if (length(model@modelSelResult@gridRows) < 2)
+            {
+                ## one kernel which does not support ER
+                explicit <- "no"
+            }
             else
             {
-                if ((length(model@svmInfo@selSVM) == 1) &&
-                    svmSupportsOnlyExplicitRep(model@svmInfo@selPackage,
-                                               model@svmInfo@selSVM))
-                    explicit = "yes"
-                else
-                    explicit <- "no"
+                ## leave value auto for multiple kernels
+                overwriteExplicit <- TRUE
             }
         }
-        else
-        {
-            if ((length(model@svmInfo@selSVM) == 1) &&
-                svmSupportsOnlyExplicitRep(model@svmInfo@selPackage,
-                                           model@svmInfo@selSVM))
-                explicit = "yes"
-        }
     }
+
+    if (explicitType == "auto")
+    {
+        if (is(object, "ExplicitRepresentationDense") ||
+            model@ctlInfo@onlyDense)
+            explicitType <- "dense"
+        else
+            explicitType <- "sparse"
+    }
+
+    if (featureWeights == "auto")
+        featureWeights <- "no"
+
+    ## preload SparseM to avoid loading message to interfere with
+    ## progress messages
+    if (explicitType %in% c("auto","sparse"))
+        library(SparseM, warn.conflicts=FALSE)
+
+    if ((explicit != "no") && is(object, "KernelMatrix"))
+        stop("processing via explicit representation is not possible\n")
 
     if (explicit != "no")
     {
@@ -224,10 +263,10 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
 
         if (!is.null(singleKernel))
         {
-            if ((is(object, "Biovector") || is(object, "XStringSet")))
+            if ((is(object, "BioVector") || is(object, "XStringSet")))
             {
                 precompTestdata <- getExRep(x=object, kernel=singleKernel,
-                                            sparse=model@ctlInfo@sparse,
+                                            sparse=(explicitType=="sparse"),
                                             features=features)
             }
             else if(is(object, "ExplicitRepresentation"))
@@ -249,7 +288,7 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
 
         if (!is.null(singleKernel))
         {
-            if ((is(object, "Biovector") || is(object, "XStringSet")))
+            if ((is(object, "BioVector") || is(object, "XStringSet")))
                 precompTestdata <- singleKernel(x=object)
             else if(is(object, "KernelMatrix"))
                 precompTestdata <- object
@@ -451,24 +490,20 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
             {
                 selKernel <- selModel@modelSelResult@selGridRow
                 testData <- subsetSeqRep(x=object, sel=folds[[j]])
+                sparse <- selModel@modelSelResult@fullModel@ctlInfo@sparse
 
-                if (model@svmInfo@selExplicit)
+                if (selModel@modelSelResult@fullModel@svmInfo@selExplicit)
                 {
                     if (is(object, "BioVector") || is(object, "XStringSet"))
                     {
                         ## call predict with linear ex rep also for quadratic
                         testData <- getExRep(x=testData,
                                              kernel=selKernel,
-                                             sparse=model@ctlInfo@sparse)
+                                             sparse=sparse)
                     }
                 }
                 else
                 {
-                    ## $$$ TODO seems that this needs to be modified
-                    ## for multiclass - which SVs should be selected for
-                    ## generation of the kernel matrix -> looks like
-                    ## model selection with kernel matrix for multiclass
-                    ## should not be supported
                     svInd <- getSVMSlotValue("svIndex",
                                           selModel@modelSelResult@fullModel)
 

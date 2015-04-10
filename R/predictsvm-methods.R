@@ -13,8 +13,6 @@ predictSVM.KernelMatrix <- function(x, model, predictionType, verbose, ...)
 
     if (model@svmInfo@selPackage == "kernlab")
     {
-#        library(kernlab)
-
         if (is(model@svmModel, "ksvm"))
         {
             if (verbose)
@@ -38,7 +36,26 @@ predictSVM.KernelMatrix <- function(x, model, predictionType, verbose, ...)
             stop("SVM model is not ksvm\n")
     }
     else if (model@svmInfo@selPackage == "e1071")
-        stop("kernel matrix via e1071 is currently not supported\n")
+    {
+        if (is(model@svmModel, "svm"))
+        {
+            if (verbose)
+            {
+                verbM(paste("predict - svmd with kernelMatrix:"),
+                classifierType, addArgs)
+            }
+
+            pred <- predict.svmd(object=model@svmModel, newdata=x,
+                        decision.values=(predictionType=="decision"), ...)
+
+            if (predictionType=="decision")
+                pred <- attr(pred, "decision.values")
+            
+            return(pred)
+        }
+        else
+            stop("SVM model is not svm\n")
+    }
     else if (model@svmInfo@selPackage == "LiblineaR")
         stop("kernel matrix via LiblineaR is not supported\n")
     else
@@ -47,9 +64,6 @@ predictSVM.KernelMatrix <- function(x, model, predictionType, verbose, ...)
 
 setMethod("predictSVM", signature(x="KernelMatrix"),
           predictSVM.KernelMatrix)
-
-##setMethod("predictSVM", signature(x="kernelMatrix"),
-##         predictSVM.KernelMatrix)
 
 predictSVM.missing <- function(x, model, predictionType, verbose, ...)
 {
@@ -85,8 +99,17 @@ predictSVM.missing <- function(x, model, predictionType, verbose, ...)
                       classifierType, addArgs)
             }
 
-            pred <- predict(object=model@svmModel,
+            ## if precomputed kernel matrix
+            if (model@svmModel$kernel ==4)
+            {
+                pred <- predict.svmd(object=model@svmModel,
                             decision.values=(predictionType=="decision"), ...)
+            }
+            else
+            {
+                pred <- predict(object=model@svmModel,
+                            decision.values=(predictionType=="decision"), ...)
+            }
 
             if (predictionType=="decision")
                pred <- attr(pred, "decision.values")

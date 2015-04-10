@@ -251,7 +251,7 @@ plot(rocdata)
 
 ## generate prediction profile for the first three test sequences
 predProf <- getPredictionProfile(enhancerFB, gappy, featureWeights(model),
-                                 model@b, sel=test[1:3])
+                                 modelOffset(model), sel=test[1:3])
 
 ## show prediction profiles
 predProf
@@ -286,7 +286,11 @@ openPDF("PredictionProfile2_w50.pdf")
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
+Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
+package for kernel-based analysis of biological sequences.
+\emph{Bioinformatics} (accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{getPredictionProfile}},

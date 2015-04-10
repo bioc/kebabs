@@ -5,7 +5,7 @@
 // Package: kebabs
 // Author : J. P.
 //
-// Copyright (C) 2014   J o h a n n e s  P a l m e
+// Copyright (C) 2014-2015   J o h a n n e s  P a l m e
 //
 
 #include <Rcpp.h>

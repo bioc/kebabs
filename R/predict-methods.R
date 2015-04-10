@@ -93,18 +93,21 @@ predict.PositionDependent <- function(model, x, predictionType, sel,
               classifierType, list(...))
     }
 
-    offsetX <- mcols(x)[["offset"]]
+    offsetX <- mcols(x)[["offset"]][sel]
 
     if (is.null(offsetX))
     {
         minPos <- 1
-        maxPos <- max(width(x))
+        maxPos <- max(width(x)[sel])
         offsetX <- integer(0)
     }
     else
     {
-        minPos <- min(offsetX)
-        maxPos <- max(offsetX + width(x) - 1)
+        startPosX <- -offsetX
+        startPosX[which(startPosX > 0)] <- 0
+        startPosX <- startPosX + 1
+        minPos <- min(startPosX)
+        maxPos <- max(startPosX + width(x)[sel])
     }
 
     if (!is(model@svmInfo@selKernel, "MotifKernel"))
@@ -545,6 +548,14 @@ predict.NonFeatureWeights <- function(model, x, predictionType, sel, raw,
 
             x <- getKernelMatrix(kernel=model@svmInfo@selKernel, x=x,
                                  y=model@SV, selx=sel)
+
+            if (model@svmInfo@selPackage == "e1071")
+            {
+                km <- x@.Data
+                colnames(x@.Data) <- NULL
+                x@.Data <- matrix(0, nrow=nrow(km), ncol=model@numSequences)
+                x@.Data[,getSVMSlotValue("svIndex", model)] <- km
+            }
         }
 
         pred <- predictSVM(x=x, model=model, predictionType=predictionType,
@@ -564,12 +575,6 @@ predict.KBModel <- function(object, x, predictionType="response", sel=NULL,
                             raw=FALSE, native=FALSE, predProfiles=FALSE,
                             verbose = getOption("verbose"), ...)
 {
-
-   ## $$$ TODO
-#    check compatibility of predict parameters with chosen SVM
-#    addArgs <- match.call(expand.dots=FALSE)$...
-#    svmInfo <- getSVMParams(object, ...)
-
     if (!is.null(predProfiles) && !is.logical(predProfiles))
         stop("'predProfiles' must be TRUE or FALSE\n")
 
@@ -578,6 +583,12 @@ predict.KBModel <- function(object, x, predictionType="response", sel=NULL,
 
     if (is.null(object@svmModel))
         stop("missing svm model for prediction\n")
+
+    if (predProfiles == TRUE)
+    {
+        if (anyUserDefinedKernel(object@svmInfo@selKernel))
+            stop("prediction profiles not supported for user-defined kernel\n")
+    }
 
     if (missing(x))
     {
@@ -825,12 +836,12 @@ predict.KBModel <- function(object, x, predictionType="response", sel=NULL,
 #'
 #' ## train model with kernel matrix
 #' model <- kbsvm(x=kmtrain, y=yFB[train], kernel=gappy,
-#'                pkg="kernlab", svm="C-svc", cost=10)
+#'                pkg="e1071", svm="C-svc", cost=10)
 #'
 #' ## compute rectangular kernel matrix of test samples versus
 #' ## support vectors
 #' kmtest <- getKernelMatrix(gappy, x=enhancerFB, y=enhancerFB,
-#'                           selx=test, sely=train[SVindex(model)])
+#'                           selx=test, sely=train)
 #'
 #' ## predict with kernel matrix
 #' pred <- predict(model, kmtest)
@@ -854,7 +865,11 @@ predict.KBModel <- function(object, x, predictionType="response", sel=NULL,
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords predict
 #' @keywords prediction
 #' @keywords feature weights

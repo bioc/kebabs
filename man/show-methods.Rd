@@ -15,6 +15,7 @@
 \alias{show,ROCData-method}
 \alias{show,SVMInformation-method}
 \alias{show,SpectrumKernel-method}
+\alias{show,SymmetricPairKernel-method}
 \alias{show.BioVector}
 \title{Display Various KeBABS Objects}
 \usage{
@@ -29,6 +30,8 @@ show.BioVector(object)
 \S4method{show}{MotifKernel}(object)
 
 \S4method{show}{GappyPairKernel}(object)
+
+\S4method{show}{SymmetricPairKernel}(object)
 
 \S4method{show}{ExplicitRepresentationDense}(object)
 
@@ -86,5 +89,15 @@ er <- getExRep(ccseq, specK1, sel=1:5, sparse=FALSE)
 
 ## show dense explicit representation
 show(er)
+}
+\author{
+Johannes Palme <kebabs@bioinf.jku.at>
+}
+\references{
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
+Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
+package for kernel-based analysis of biological sequences.
+\emph{Bioinformatics} (accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

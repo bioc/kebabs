@@ -208,9 +208,12 @@ getFeatureWeightsPosDep <- function(model, svmIndex=1, features=NULL,
     }
     else
     {
-        minPos <- min(offsetSV)
-        maxPos <- max(offsetSV + width(model@SV) - 1)
-        offsetSV <- offsetSV[model@svIndex]
+        ## element wise start pos for SVs
+        startPosSV <- -offsetSV
+        startPosSV[which(startPosSV > 0)] <- 0
+        startPosSV <- startPosSV + 1
+        minPos <- min(startPosSV)
+        maxPos <- max(startPosSV + width(model@SV))
     }
 
     coefs <- getSVMSlotValue("coef", model)
@@ -387,7 +390,11 @@ getFeatureWeightsPosDep <- function(model, svmIndex=1, features=NULL,
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords feature weights
 #' @keywords methods
 #' @export
@@ -406,6 +413,9 @@ getFeatureWeights <- function(model, exrep=NULL, features=NULL,
 
     if (!is.null(exrep) && (exrep@quadratic != FALSE))
         stop("'exrep' must be a linear explicit representation\n")
+
+    if (anyUserDefinedKernel(model@svmInfo@selKernel))
+        stop("feature weights not supported for user-defined kernel\n")
 
     if (length(kernelParameters(model@svmInfo@selKernel)$distWeight) > 0)
     {

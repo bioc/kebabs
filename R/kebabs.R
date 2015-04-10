@@ -130,14 +130,6 @@ cleanupKebabs <- function(lib)
     ## currently not used
 }
 
-svmSupportsOnlyExplicitRep <- function(pkg, svm)
-{
-    if (pkg %in% c("e1071","LiblineaR"))
-        return(TRUE)
-    else
-        return(FALSE)
-}
-
 mapModelParamName <- function(package, param)
 {
     if (exists("kebabsInfo"))

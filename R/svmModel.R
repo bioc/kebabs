@@ -383,3 +383,11 @@ isClassification <- function(package, svm)
         return(FALSE)
 }
 
+svmSupportsOnlyExplicitRep <- function(pkg, svm)
+{
+    if (pkg %in% c("LiblineaR"))
+        return(TRUE)
+    else
+        return(FALSE)
+}
+

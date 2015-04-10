@@ -185,17 +185,21 @@ heatmap(km, symm=TRUE)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-(Mahrenholz, 2011) -- C. Mahrenholz, I. Abfalter, U.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U.
 Bodenhofer, R. Volkmer and S. Hochreiter. Complex networks
 govern coiled-coil oligomerizations - predicting and
 profiling by means of a machine learning approach.\cr
 (Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M.
 Ionescu and S. Hochreiter. Modelling position specificity
 in sequence kernels by fuzzy equivalence relations. \cr\cr
-(Kuksa, 2008) -- P. Kuksa, P. Huang and V. Pavlovic. Fast
-Protein Homology and Fold Detection with Sparse Spatial
-Sample Kernels\cr\cr
-\url{http://www.bioinf.jku.at/software/kebabs}
+(Kuksa, 2008) -- P. Kuksa, P.-H. Huang and V. Pavlovic.
+Fast Protein Homology and Fold Detection with Sparse
+Spatial Sample Kernels\cr\cr J. Palme, S. Hochreiter, and
+U. Bodenhofer (2015) KeBABS: an R package for kernel-based
+analysis of biological sequences. \emph{Bioinformatics}
+(accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{getKernelMatrix}}, \code{\link{getExRep}},

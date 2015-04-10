@@ -92,9 +92,13 @@
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' (Leslie, 2002) -- C. Leslie, et al. Mismatch String Kernels for
-#' SVM Protein Classification. \cr\cr
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' (Leslie, 2002) -- C. Leslie, E. Eskin, J. Weston and W.S. Noble. 
+#' Mismatch String Kernels for SVM Protein Classification. \cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kernel
 #' @keywords mismatchKernel, mismatch
 #' @keywords methods
@@ -137,8 +141,8 @@ mismatchKernel <- function(k=3, m=1, r=1, normalized=TRUE, exact=TRUE,
                                       presence=presence, self=self))
         }
 
-        return(new("MismatchKernel", .Data=rval, k=k, m=m, r=r,
-                   normalized=normalized, annSpec=FALSE,
+        return(new("MismatchKernel", .Data=rval, .userDefKernel=FALSE, k=k,
+                   m=m, r=r, normalized=normalized, annSpec=FALSE,
                    distWeight=numeric(0), exact=exact, ignoreLower=ignoreLower,
                    presence=presence))
     }
@@ -159,7 +163,8 @@ mismatchKernel <- function(k=3, m=1, r=1, normalized=TRUE, exact=TRUE,
                                           presence=presence, self=self))
             }
 
-            kernels[[i]] <- new("MismatchKernel", .Data=rval, k=kmPairs[i,1],
+            kernels[[i]] <- new("MismatchKernel", .Data=rval,
+                              .userDefKernel=FALSE, k=kmPairs[i,1],
                               m=kmPairs[i,2], r=r, normalized=normalized,
                               annSpec=FALSE, distWeight=numeric(0), exact=exact,
                               ignoreLower=ignoreLower, presence=presence)

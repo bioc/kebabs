@@ -102,13 +102,17 @@ heatmap(km, symm=TRUE)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-(Hue, 2002) -- M.Hue and J.-P.Vert. On learning with
-kernels for unordered pairs. \cr\cr (Ben-Hur, 2005) -- A.
-Ben-Hur and W.S. Noble. Kernel methods for predicting
-protein-protein interactions (Gaertner, 2002) -- T.
-Gaertner, P.. Flach, A. Kowalczyk, A.J. Smola.
-Multi-Instance Kernels. \cr\cr
-\url{http://www.bioinf.jku.at/software/kebabs}
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr (Hue,
+2002) -- M.Hue and J.-P.Vert. On learning with kernels for
+unordered pairs. \cr\cr (Ben-Hur, 2005) -- A. Ben-Hur and
+W.S. Noble. Kernel methods for predicting protein-protein
+interactions. \cr\cr (Gaertner, 2002) -- T. Gaertner, P.A.
+Flach, A. Kowalczyk, A.J. Smola. Multi-Instance Kernels.
+\cr\cr J. Palme, S. Hochreiter, and U. Bodenhofer (2015)
+KeBABS: an R package for kernel-based analysis of
+biological sequences. \emph{Bioinformatics} (accepted).
+DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{kernelParameters-method}},

@@ -43,7 +43,30 @@ trainSVM.KernelMatrix <- function(x, y=NULL, svmInfo, verbose, ...)
                     prob.model=svmInfo@probModel, scaled=scaling, ...))
     }
     else if (svmInfo@selPackage == "e1071")
-        stop("kernel matrix via e1071 is currently not supported\n")
+    {
+        if (verbose)
+        {
+            if (svmInfo@reqFeatureType == "quadratic")
+            {
+                verbM(paste("train svm dense with squared kernelMatrix:"),
+                            classifierType, addArgs)
+            }
+            else
+            {
+                verbM(paste("train svm dense with kernelMatrix:"),
+                            classifierType, addArgs)
+            }
+        }
+
+        if (svmInfo@reqFeatureType == "quadratic")
+            x <- x^2
+
+        scaling <- FALSE
+
+        return(svmd(x=x, y=y, type=classifierType,
+                    probability=svmInfo@probModel, scale=scaling,
+                    ...))
+    }
     else if (svmInfo@selPackage == "LiblineaR")
         stop("kernel matrix via LiblineaR is not supported\n")
     else

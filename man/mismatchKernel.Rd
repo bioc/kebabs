@@ -124,9 +124,14 @@ heatmap(km, symm=TRUE)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-(Leslie, 2002) -- C. Leslie, et al. Mismatch String Kernels
-for SVM Protein Classification. \cr\cr
-\url{http://www.bioinf.jku.at/software/kebabs}
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+(Leslie, 2002) -- C. Leslie, E. Eskin, J. Weston and W.S.
+Noble. Mismatch String Kernels for SVM Protein
+Classification. \cr\cr J. Palme, S. Hochreiter, and U.
+Bodenhofer (2015) KeBABS: an R package for kernel-based
+analysis of biological sequences. \emph{Bioinformatics}
+(accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{kernelParameters}},

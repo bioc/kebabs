@@ -109,20 +109,23 @@ linear SVMs (e.g. \code{\link[kernlab]{ksvm}}in package
 \bold{e1071}) can be performed either through passing a
 kernel matrix of similarity values or an explicit
 representation and a linear kernel to the SVM. The SVMs in
-package \bold{kernlab} support dense explicit
+package \bold{kernlab} support a dense explicit
 representation or kernel matrix as data representations.
 The SVMs in packages \bold{e1071}) and \bold{LiblineaR}
-only support dense or sparse explicit representation. In
-many cases there can be considerable performance
-differences between the two variants of passing data to the
-SVM. And especially for larger feature spaces the sparse
-explicit representation not only brings higher memory
-efficiency but also leads to drastically improved runtimes
-during training and prediction.\cr\cr In general all of the
-complexity of converting the sequences with a specific
-kernel to an explicit representation or a kernel matrix and
-adapting the formats and parameters to the specific SVM is
-hidden within the KeBABS training and predict methods (see
+support dense or sparse explicit representations. In many
+cases there can be considerable performance differences
+between the two variants of passing data to the SVM. And
+especially for larger feature spaces the sparse explicit
+representation not only brings higher memory efficiency but
+also leads to drastically improved runtimes during training
+and prediction. Starting with kebabs version 1.2.0 kernel
+matrix support is also available for package \code{e1071}
+via the dense LIBSVM implementation integrated in package
+\code{kebabs}.\cr\cr In general all of the complexity of
+converting the sequences with a specific kernel to an
+explicit representation or a kernel matrix and adapting the
+formats and parameters to the specific SVM is hidden within
+the KeBABS training and predict methods (see
 \code{\link{kbsvm}}, \code{\link{predict}}) and the user
 can concentrate on the actual data analysis task. During
 training via \code{\link{kbsvm}} the parameter
@@ -215,7 +218,11 @@ evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
+Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
+package for kernel-based analysis of biological sequences.
+\emph{Bioinformatics} (accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\linkS4class{ExplicitRepresentationDense}},

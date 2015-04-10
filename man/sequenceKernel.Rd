@@ -2,6 +2,8 @@
 \docType{methods}
 \name{seqKernelAsChar}
 \alias{getKernelMatrix}
+\alias{isUserDefined}
+\alias{isUserDefined,SequenceKernel-method}
 \alias{kernelParameters}
 \alias{kernelParameters,GappyPairKernel-method}
 \alias{kernelParameters,MismatchKernel-method}
@@ -27,6 +29,8 @@ getKernelMatrix(kernel, x, y, selx, sely)
 \S4method{kernelParameters}{MotifKernel}(object)
 
 \S4method{kernelParameters}{SymmetricPairKernel}(object)
+
+\S4method{isUserDefined}{SequenceKernel}(object)
 }
 \arguments{
   \item{from}{a sequence kernel object}
@@ -71,6 +75,9 @@ returns a kernel matrix of class
 values between pairs of the biological sequences.
 
 kernelParameters: the kernel parameters as list
+
+isUserDefined: boolean indicating whether kernel is
+user-defined or not
 }
 \description{
 Create the kernel matrix for a kernel object\cr\cr Retrieve
@@ -176,7 +183,11 @@ km[1:5,1:5]
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
+Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
+package for kernel-based analysis of biological sequences.
+\emph{Bioinformatics} (accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{as.KernelMatrix}},

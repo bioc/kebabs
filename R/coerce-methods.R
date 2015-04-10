@@ -26,7 +26,7 @@ setMethod("as.character", signature(x="BioVector"),
 
 asKernelMatrix <- function(x, center=FALSE)
 {
-    if(center){
+    if (center){
         m <- dim(x)[1]
         x <- t(t(x - colSums(x)/m) -  rowSums(x)/m) + sum(x)/m^2
     }
@@ -195,6 +195,9 @@ seqKernelAsChar <- function(from)
 {
     if (!is(from, "SequenceKernel"))
         return(NULL)
+
+    if (isUserDefined(from))
+        return(as(from, "character"))
 
     kChar <- class(from)
     firstPar <- TRUE

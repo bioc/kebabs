@@ -284,7 +284,11 @@
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kbsvm
 #' @keywords grid search
 #' @keywords model selection
@@ -300,12 +304,76 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
     if (is(object, "kernelMatrix"))
         object <- as.KernelMatrix(object)
 
+    ## allow overwritting of explicit for multiple kernels / multiple SVMS
+    overwriteExplicit <- FALSE
+    singleKernel <- NULL
+    explicitType <- model@svmInfo@reqExplicitType
+
     ## preload SparseM to avoid loading message to interfere with
     ## progress messages
-    if (model@svmInfo@reqExplicitType %in% c("auto","sparse"))
+    if (explicitType %in% c("auto","sparse"))
         library(SparseM, warn.conflicts=FALSE)
 
-    singleKernel <- NULL
+    if (explicit == "auto")
+    {
+        if (is(object, "KernelMatrix"))
+            explicit <- "no"
+        else if (is(object, "ExplicitRepresentation"))
+        {
+            explicit <- "yes"
+            
+            if (is(object, "ExplicitRepresentationDense"))
+                explicitType <- "dense"
+            else
+                explicitType <- "sparse"
+        }
+        else ## XStringSet or BioVector
+        {
+            if (all(unlist(lapply(model@modelSelResult@gridRows,
+                                  supportsExplicitRep))))
+            {
+                explicit <- "yes"
+
+                if (explicitType == "auto")
+                {
+                    if (model@ctlInfo@onlyDense == TRUE)
+                        explicitType <- "dense"
+                    else
+                        explicitType <- "sparse"
+                }
+            }
+            else if (length(model@modelSelResult@gridRows) < 2)
+            {
+                ## one kernel which does not support ER
+                explicit <- "no"
+            }
+            else
+            {
+                ## leave value auto for multiple kernels
+                overwriteExplicit <- TRUE
+            }
+        }
+    }
+
+    if (explicit == "auto")
+        overwriteExplicit <- TRUE
+
+    if (explicit == "no" &&
+        any(mapply(svmSupportsOnlyExplicitRep,
+                   model@svmInfo@reqPackage, model@svmInfo@reqSVM)))
+        stop("SVM package does not support a kernel matrix\n")
+
+    if (explicitType == "auto")
+    {
+        if (is(object, "ExplicitRepresentationDense") ||
+            model@ctlInfo@onlyDense)
+            explicitType <- "dense"
+        else
+            explicitType <- "sparse"
+    }
+
+    if (featureWeights == "auto")
+        featureWeights <- "no"
 
     if (is(object, "KernelMatrix"))
     {
@@ -336,11 +404,19 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
     }
     else
     {
+        if (inherits(object, "ExplicitRepresentation"))
+            callWithOrigData <- TRUE
+        else
+            callWithOrigData <- FALSE
+
         if (is.null(model@svmInfo@reqKernel))
         {
             noRows <- 1
             rowName <- "No Kernel"
             noKernel <- TRUE
+            
+            if (!is(object, "ExplicitRepresentation"))
+                stop("kernel is missing for grid search on sequences\n")
         }
         else
         {
@@ -360,7 +436,6 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
             }
         }
 
-        callWithOrigData <- FALSE
     }
 
 
@@ -474,42 +549,26 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
             model@ctlInfo@multiclassType <- getMulticlassType(model)
     }
 
-    if (explicit == "auto")
-    {
-        if(supportsExplicitRep(singleKernel))
-            explicit <- "yes"
-        else
-            explicit <- "no"
-    }
-
-    if (explicit != "no")
+    if (explicit == "yes")
     {
         model@svmInfo@selExplicit <- TRUE
         model@ctlInfo@selMethod <- "explicitRep"
 
-        if (inherits(object, "ExplicitRepresentation"))
-            callWithOrigData <- TRUE
-        else
+        ## precompute explicit representation
+        if (!is.null(singleKernel) &&
+            (is(object, "XStringSet") || is(object, "BioVector")))
         {
-            ## precompute explicit representation
-            if (!is.null(singleKernel))
-            {
-                ## k not available for motif kernel
-                if (!(model@svmInfo@reqExplicitType == "dense") &&
-                    ((class(singleKernel) == "MotifKernel") ||
-                    (kernelParameters(singleKernel)$k >= 5)))
-                    model@ctlInfo@sparse=TRUE
-
-                obj <- getExRep(x=object, kernel=singleKernel,
-                                sparse=model@ctlInfo@sparse, selx=sel,
-                                features=features)
-
-                model@trainingFeatures <- colnames(obj)
-                sel <- integer(0)
-            }
+            model@ctlInfo@sparse <- (explicitType == "sparse")
+            
+            obj <- getExRep(x=object, kernel=singleKernel,
+                            sparse=model@ctlInfo@sparse, selx=sel,
+                            features=features)
+            
+            model@trainingFeatures <- colnames(obj)
+            sel <- integer(0)
         }
     }
-    else
+    else if (explicit == "no")
     {
         model@svmInfo@selExplicit <- FALSE
         model@ctlInfo@selMethod <- "KernelMatrix"
@@ -530,7 +589,7 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
     yOrig <- y
     groupByOrig <- groupBy
 
-    if (model@svmInfo@selExplicit)
+    if (explicit == "yes")
         model@svmInfo@explicitKernel <- model@svmInfo@reqFeatureType
 
     if (includeFullModel)
@@ -587,22 +646,34 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
                 message("\n", currRowName, "  ", appendLF=FALSE)
         }
 
-        sparse <- TRUE
-
         if (!noKernel && is.null(singleKernel))
         {
+            if (overwriteExplicit)
+            {
+                ## only XStringSet or BioVector with mult. kernels
+                if (supportsExplicitRep(kernel))
+                {
+                    explicit <- "yes"
+                    model@svmInfo@selExplicit <- TRUE
+                    model@ctlInfo@selMethod <- "explicitRep"
+                    model@svmInfo@explicitKernel <- model@svmInfo@reqFeatureType
+                }
+                else
+                {
+                    explicit <- "no"
+                    model@svmInfo@selExplicit <- FALSE
+                    model@ctlInfo@selMethod <- "KernelMatrix"
+                }
+            }
+            
             if (is(object, "BioVector") || is(object, "XStringSet"))
             {
                 if (model@ctlInfo@selMethod == "KernelMatrix")
                     obj <- kernel(x=object, selx=sel)
                 else
                 {
-                    if (model@svmInfo@reqExplicitType == "dense" ||
-                        model@ctlInfo@onlyDense == TRUE)
-                        sparse <- FALSE
-
                     obj <- getExRep(x=object, kernel=kernel,
-                                    sparse=sparse, selx=sel)
+                                    sparse=(explicitType=="sparse"), selx=sel)
 
                     model@trainingFeatures <- colnames(obj)
                 }
@@ -619,9 +690,6 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
                         obj <- object[sel,]
                     else
                         obj <- object
-
-                    if (inherits(object, "ExplicitRepresentationDense"))
-                        sparse <- FALSE
                 }
 
                 sel <- integer(0)
@@ -634,7 +702,7 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
         {
             tempModel <- model
             tempModel@svmInfo@selKernel <- kernel
-            tempModel@ctlInfo@sparse <- sparse
+            tempModel@ctlInfo@sparse <- (explicitType == "sparse")
 
             if (!is.null(model@modelSelResult@gridCols) &&
                 startIndex == 2)
@@ -856,10 +924,6 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
             }
         }
 
-        fullModel@ctlInfo@classification <- isClassification(
-                                                fullModel@svmInfo@selPackage,
-                                                fullModel@svmInfo@selSVM)
-
         if (noSVMPar > 0)
         {
             for (j1 in 1:noSVMPar)
@@ -874,15 +938,59 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
                 fullModel@svmInfo <- convertSVMParameters(fullModel)
         }
 
-        if (fullModel@svmInfo@selPackage == "kernlab")
-            fullModel@ctlInfo@sparse <- FALSE
-        else
-            fullModel@ctlInfo@sparse <- sparse
+        ## set up explicit and explicit type parameter
+        if (overwriteExplicit == TRUE)
+        {
+            if (supportsExplicitRep(selKernel))
+            {
+                explicit <- "yes"
+                fullModel@svmInfo@selExplicit <- TRUE
+                fullModel@ctlInfo@selMethod <- "explicitRep"
+                fullModel@svmInfo@explicitKernel <- model@svmInfo@reqFeatureType
 
+                if (explicitType == "auto")
+                {
+                    if (fullModel@svmInfo@selPackage == "kernlab")
+                        explicitType <- "dense"
+                    else
+                        explicitType <- "sparse"
+                }
+            }
+            else
+            {
+                explicit <- "no"
+                fullModel@svmInfo@selExplicit <- FALSE
+                fullModel@ctlInfo@selMethod <- "KernelMatrix"
+            }
+        }
+
+        if (fullModel@svmInfo@selPackage == "kernlab")
+        {
+            fullModel@ctlInfo@sparse <- FALSE
+            
+            if (callWithOrigData)
+            {
+                if (is(object, "ExplicitRepresentationSparse"))
+                    object <- as(object, "ExplicitRepresentationDense")
+            }
+            else
+            {
+                if (is(obj, "ExplicitRepresentationSparse"))
+                    obj <- as(obj, "ExplicitRepresentationDense")
+            }
+        }
+        else
+        {
+            if (callWithOrigData && is(object, "ExplicitRepresentationDense"))
+                fullModel@ctlInfo@sparse <- FALSE
+            else
+                fullModel@ctlInfo@sparse <- TRUE
+        }
+        
         if (noRows > 1 && (is(object, "BioVector") ||
                            is(object, "XStringSet")))
         {
-            if (fullModel@svmInfo@selExplicit)
+            if (explicit == "yes")
             {
                 obj <- getExRep(x=object, kernel=selKernel,
                                 sparse=fullModel@ctlInfo@sparse,

@@ -128,16 +128,18 @@ plot(predProf, sel=c(1,2), ylim=c(-0.4, 0.2), heptads=TRUE, annotate=TRUE)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-(Mahrenholz, 2011) -- Mahrenholz, C.C., Abfalter, I.G.,
-Bodenhofer, U., Volkmer, R., and Hochreiter, S.; Complex
-networks govern coiled coil oligomerization - predicting
-and profiling by means of a machine learning approach.
-
-(Bodenhofer, 2009) -- Bodenhofer, U., Schwarzbauer, K.,
-Ionescu, S. and Hochreiter,S., Modeling Position
-Specificity in Sequence Kernels by Fuzzy Equivalence
-Relations. \cr\cr
-\url{http://www.bioinf.jku.at/software/kebabs}
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U.
+Bodenhofer, R. Volkmer, and S. Hochreiter. Complex networks
+govern coiled coil oligomerization - predicting and
+profiling by means of a machine learning approach.\cr\cr
+(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, S.
+Ionescu, and S. Hochreiter. Modeling Position Specificity
+in Sequence Kernels by Fuzzy Equivalence Relations. \cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS:
+an R package for kernel-based analysis of biological
+sequences. \emph{Bioinformatics} (accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\linkS4class{PredictionProfile}},

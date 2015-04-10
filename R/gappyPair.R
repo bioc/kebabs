@@ -143,15 +143,19 @@
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' (Mahrenholz, 2011) -- C. Mahrenholz, I. Abfalter, U. Bodenhofer, R. Volkmer
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' (Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer
 #' and S. Hochreiter. Complex networks govern coiled-coil oligomerizations -
 #' predicting and profiling by means of a machine learning approach.\cr
 #' (Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M. Ionescu and
 #' S. Hochreiter. Modelling position specificity in sequence kernels by fuzzy
 #' equivalence relations. \cr\cr
-#' (Kuksa, 2008) -- P. Kuksa, P. Huang and V. Pavlovic. Fast Protein Homology
+#' (Kuksa, 2008) -- P. Kuksa, P.-H. Huang and V. Pavlovic. Fast Protein Homology
 #' and Fold Detection with Sparse Spatial Sample Kernels\cr\cr
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kernel
 #' @keywords gappy pair
 #' @keywords methods
@@ -216,9 +220,15 @@ gappyPairKernel <- function(k=1, m=1, r=1, annSpec=FALSE, distWeight=numeric(0),
              "       gappy pair kernel\n")
     }
 
-    if ((length(mixCoef) > 0) && (!is.numeric(mixCoef) ||
-                                  length(mixCoef) != k))
-        stop("'mixCoef' must be a numeric vector of length k\n")
+    if (length(mixCoef) > 0)
+    {
+        if (!is.numeric(mixCoef) ||
+            length(mixCoef) != k)
+            stop("'mixCoef' must be a numeric vector of length k\n")
+
+        if (any(mixCoef < 0))
+            stop("mixing coefficients must be non-negative\n")
+    }
 
     if (length(k) == 1 && length(m) == 1)
     {
@@ -233,8 +243,8 @@ gappyPairKernel <- function(k=1, m=1, r=1, annSpec=FALSE, distWeight=numeric(0),
                         self=self))
         }
 
-        return(new("GappyPairKernel", .Data=rval, k=k, m=m, r=r,
-                   normalized=normalized, annSpec=annSpec,
+        return(new("GappyPairKernel", .Data=rval, .userDefKernel=FALSE,
+                   k=k, m=m, r=r, normalized=normalized, annSpec=annSpec,
                    distWeight=distWeight, exact=exact,
                    ignoreLower=ignoreLower, presence=presence,
                    revComplement=revComplement, mixCoef=mixCoef))
@@ -259,7 +269,8 @@ gappyPairKernel <- function(k=1, m=1, r=1, annSpec=FALSE, distWeight=numeric(0),
                                 mixCoef=mixCoef, self=self))
             }
 
-            kernels[[i]] <- new("GappyPairKernel", .Data=rval, k=kmPairs[i,1],
+            kernels[[i]] <- new("GappyPairKernel", .Data=rval,
+                                .userDefKernel=FALSE, k=kmPairs[i,1],
                                 m=kmPairs[i,2], r=r, normalized=normalized,
                                 annSpec=annSpec, distWeight=distWeight,
                                 exact=exact, ignoreLower=ignoreLower,

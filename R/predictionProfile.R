@@ -12,6 +12,9 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
     if (!is(kernel, "SequenceKernel"))
         stop("'kernel' must be a sequence kernel\n")
 
+    if (isUserDefined(kernel))
+        stop("prediction profiles not supported for user-defined kernel\n")
+    
     if (!is.numeric(b))
         stop("'b' must be a single numeric\n")
 
@@ -49,18 +52,21 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
     else
         annSpec <- FALSE
 
-    offsetX <- mcols(object)[["offset"]]
+    offsetX <- mcols(object)[["offset"]][sel]
 
     if (is.null(offsetX))
     {
         minPos <- 1
-        maxPos <- max(width(object[sel]))
+        maxPos <- max(width(object)[sel])
         offsetX <- integer(0)
     }
     else
     {
-        minPos <- min(offsetX)
-        maxPos <- max(offsetX + width(object[sel]) - 1)
+        startPosX <- -offsetX
+        startPosX[which(startPosX > 0)] <- 0
+        startPosX <- startPosX + 1
+        minPos <- min(startPosX)
+        maxPos <- max(startPosX + width(object)[sel])
     }
 
     if (!is(kernel, "MotifKernel"))
@@ -334,15 +340,18 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' (Mahrenholz, 2011) -- Mahrenholz, C.C., Abfalter, I.G., Bodenhofer, U.,
-#' Volkmer, R., and Hochreiter, S.; Complex networks govern coiled coil
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' (Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer,
+#' R. Volkmer, and S. Hochreiter. Complex networks govern coiled coil
 #' oligomerization - predicting and profiling by means of a machine learning
-#' approach.
-#'
-#' (Bodenhofer, 2009) -- Bodenhofer, U., Schwarzbauer, K.,  Ionescu, S. and
-#' Hochreiter,S., Modeling Position Specificity in Sequence Kernels by
+#' approach.\cr\cr
+#' (Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, S. Ionescu, and
+#' S. Hochreiter. Modeling Position Specificity in Sequence Kernels by
 #' Fuzzy Equivalence Relations. \cr\cr
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords prediction profile
 #' @keywords feature weights
 #' @keywords methods

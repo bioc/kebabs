@@ -61,25 +61,29 @@ This document is the user manual for the \R\ package \kebabs. It is meant as an 
 
 Please also consider that this manual is not an introduction to \R\ nor an introduction to machine learning in general or to support vector machine-based learning. The document provides the information in a form that also allows less experienced users to use the package. However, if you do not have any knowledge of these subjects, please read introductory literature first.
 
+\newpage
+
 \section*{Authorship and Contributions}
 
-Except for the header files {\tt khash.h} and {\tt ksort.h} and three small stub files for Bioconductor packages this package was written entirely by Johannes Palme as part of his master thesis in the Bioinformatics master program at the Johannes Kepler University in Linz, Austria, under the supervision of Ulrich Bodenhofer. The author wants to express his sincere gratitude to Ulrich Bodenhofer for numerous lively discussions throughout the development of the package. The two header files mentioned above provide a fast hash table implementation and sorting algorithms implemented in pure C code and are part of the open-source C-library {\tt klib} \citep{klib2011}. The R code for prediction profile plots partly uses a similar functionality in the package {\tt procoil} as inspiration \citep{procoil2011}.
+Except for the header files \texttt{khash.h} and \texttt{ksort.h}, three small stub files for Bioconductor packages and four files for the dense version of LIBSVM this package was written entirely by Johannes Palme as part of his master thesis in the Bioinformatics master program at the Johannes Kepler University in Linz, Austria, under the supervision of Ulrich Bodenhofer. The author wants to express his sincere gratitude to Ulrich Bodenhofer for numerous lively discussions throughout the development of the package. The two header files mentioned above provide a fast hash table implementation and sorting algorithms implemented in pure C code and are part of the open-source C-library \texttt{klib} \citep{klib2011}. The R code for prediction profile plots partly uses a similar functionality in the package \texttt{procoil} as inspiration \citep{procoil2011}.
+
+Starting with \kebabs\ version 1.2.0 the dense implementation of the LIBSVM support vector machine is included in the \kebabs\ package. This is now the reliable way for training and prediction via kernel matrices. Up to this version only the SVMs in package \texttt{kernlab} supported kernel matrices. The two files svm.cpp and svm.h were taken from the dense distribution of LIBSVM. In addition the interface files Rsvm.c and svm.R were used from package \texttt{e1071} and adapted to the dense LIBSVM. The author expresses his appreciation for the excellent work of Chih-Chung Chang and Chih-Jen Lin and the contributions from \R\ pacakge \texttt{e1071} written by David Meyer.
 
 The datasets delivered with the package come from two sources:
 \begin{itemize}
 \item TFBS - transcription factor binding site data:
 This data set is based on supplementary data provided with the publication "Discriminative prediction of mammalian enhancers from DNA sequence by \cite{Lee2011}.
 \item CCoil - protein sequences for coiled coil proteins :
-This dataset is part of the data collection for package {\tt procoil}\footnote{\url{http://www.bioinf.jku.at/software/procoil/data.html}}.
+This dataset is part of the data collection for package \texttt{procoil}\footnote{\url{http://www.bioinf.jku.at/software/procoil/data.html}}.
 \end{itemize}
 
 KeBABS relies heavily on functionality provided by other R packages, especially the packages
 \begin{itemize}
-\item {\tt Biostrings} for storing and manipulating biological sequences
-\item {\tt e1071}, {\tt Liblinear} and {\tt kernlab} for SVM implementations used in binary and multiclass classification and regression scenarios
+\item \texttt{Biostrings} for storing and manipulating biological sequences
+\item \texttt{e1071}, \texttt{Liblinear} and \texttt{kernlab} for SVM implementations used in binary and multiclass classification and regression scenarios
 \end{itemize}
 
-Special thanks go to the persons who have contributed to these packages, the C library {\tt klib} or any of the data mentioned above.
+Special thanks go to the persons who have contributed to these packages, the C library \texttt{klib} or any of the data mentioned above.
 
 \newpage
 
@@ -118,7 +122,7 @@ The \kebabs\ package provides functionality for kernel based analysis of biologi
 
 All of the kernels except the mismatch kernel support position-independent and position-dependent similarity measures. Because of the flexibility of the kernel formulation other kernels like the weighted degree kernel \citep{Raetsch2004} or the shifted weighted degree kernel with constant weighting of positions \citep{Raetsch2005}  are included as special cases. The kernels also exist in an annotation-specific version which uses annotation information placed along the sequence. The package allows for the generation of a kernel matrix or an explicit representation for all available kernels which can be used with methods implemented in other \R\ packages.
 
-\KeBABS\ focuses on SVM-based methods and provides a framework that simplifies the usage of existing SVM implementations in other \R\ packages. In the current version of the package the SVMs in the \R\ packages {\tt kernlab} \citep{Karatzoglou2004}, {\tt e1071} \citep{Chang2011} and {\tt LiblineaR} \citep{Fan2008} from the "The Comprehensive R Archive Network" (CRAN)\footnote{\url{http://cran.r-project.org}} are supported. Binary and multi-class classification as well as regression tasks can be used with the SVMs in these packages in a unified way without having to deal with the different functions, parameters and formats of the selected SVM. The package provides cross validation, grid search and model selection functions as support for choosing hyperparameters . Grouped cross validation, a form of cross validation which respects group membership is also available.
+\KeBABS\ focuses on SVM-based methods and provides a framework that simplifies the usage of existing SVM implementations in other \R\ packages. In the current version of the package the SVMs in the \R\ packages \texttt{kernlab} \citep{Karatzoglou2004}, \texttt{e1071} \citep{Chang2011} and \texttt{LiblineaR} \citep{Fan2008} from the "The Comprehensive R Archive Network" (CRAN)\footnote{\url{http://cran.r-project.org}} are supported. Binary and multi-class classification as well as regression tasks can be used with the SVMs in these packages in a unified way without having to deal with the different functions, parameters and formats of the selected SVM. The package provides cross validation, grid search and model selection functions as support for choosing hyperparameters . Grouped cross validation, a form of cross validation which respects group membership is also available.
 
 Another emphasis of this package is the biological interpretability of the machine learning results. This aspect is reflected in the computation of feature weights for all SVMs and prediction profiles which show the contribution of individual sequence positions to the prediction result and give an indication about the relevance of sequence sections for the learning result.
 
@@ -176,13 +180,13 @@ help(kebabs)
 
 In the following example, we perform SVM-based binary classification for prediction of EP300 bound enhancers from DNA sequence. From a set of sequences derived from ChIP-seq EP300 binding sites and a set of negative sequences sampled from the same genome we train a model which allows us to predict enhancers for new sequences. In this example a small subset of a much larger dataset is used for demonstration purpose.
 
-The analysis in \kebabs\ usually starts with sequence data for DNA, RNA or amino acid sequences. In the following examples, we use DNA sequences which are included in the \kebabs\ package to demonstrate package functionality. In \kebabs\ biological sequences are represented in one of the classes {\tt DNAStringSet}, {\tt RNAStringSet} or {\tt AAStringSet} from package \Biostrings. Sequences in this format can be created from character vectors containing the sequence data or through reading sequences from a FASTA file with the functions {\tt readDNAStringSet, readRNAStringSet, readAAStringSet} from package  \Biostrings. In the first example, we load sample sequences provided with the \kebabs\ package with
+The analysis in \kebabs\ usually starts with sequence data for DNA, RNA or amino acid sequences. In the following examples, we use DNA sequences which are included in the \kebabs\ package to demonstrate package functionality. In \kebabs\ biological sequences are represented in one of the classes \texttt{DNAStringSet}, \texttt{RNAStringSet} or \texttt{AAStringSet} from package \Biostrings. Sequences in this format can be created from character vectors containing the sequence data or through reading sequences from a FASTA file with the functions \texttt{readDNAStringSet, readRNAStringSet, readAAStringSet} from package  \Biostrings. In the first example, we load sample sequences provided with the \kebabs\ package with
 
 <<>>=
 data(TFBS)
 @
 
-The dataset contains 500 DNA sequence fragments with lengths between 277 and 2328 bases from the mouse genome mm9 used to study transcription factor binding for the EP300/ CREBBP binding proteins and a label vector which indicates whether the protein binds to a sequence fragment or not. The dataset is a sampled subset of the mouse enhancer forebrain data from \cite{Lee2011} based on a ChIP-seq study of \cite{Visel2009}.  Let us look at the sequences stored under the name {\tt enhancerFB}, the number of sequences in the sequence set and the minimal and maximal length of the contained sequences
+The dataset contains 500 DNA sequence fragments with lengths between 277 and 2328 bases from the mouse genome mm9 used to study transcription factor binding for the EP300/ CREBBP binding proteins and a label vector which indicates whether the protein binds to a sequence fragment or not. The dataset is a sampled subset of the mouse enhancer forebrain data from \cite{Lee2011} based on a ChIP-seq study of \cite{Visel2009}.  Let us look at the sequences stored under the name \texttt{enhancerFB}, the number of sequences in the sequence set and the minimal and maximal length of the contained sequences
 
 <<>>=
 enhancerFB
@@ -215,7 +219,7 @@ To look at individual sequences from this set or parts of them, e.g. for sample 
 showAnnotatedSeq(enhancerFB, sel=3)
 @
 
-The label vector is named {\tt yFB} and describes the interaction of the DNA sequence fragment and the binding factor considered in the underlying experiment. It contains a "1" for all positive samples to which the transcription factor binds and a "-1" for all negative samples for which no binding occurs. We look at the first few elements of the label vector with
+The label vector is named \texttt{yFB} and describes the interaction of the DNA sequence fragment and the binding factor considered in the underlying experiment. It contains a "1" for all positive samples to which the transcription factor binds and a "-1" for all negative samples for which no binding occurs. We look at the first few elements of the label vector with
 
 <<>>=
 head(yFB)
@@ -238,7 +242,7 @@ train <- sample(1:numSamples, trainingFraction * numSamples)
 test <- c(1:numSamples)[-train]
 @
 
-The vectors {\tt train} and {\tt test} now contain the sample indices for the training set and test set samples. The elements in {\tt train} are unordered because sample just picks elements randomly from the given set.
+The vectors \texttt{train} and \texttt{test} now contain the sample indices for the training set and test set samples. The elements in \texttt{train} are unordered because sample just picks elements randomly from the given set.
 
 In the next step, we select a kernel for the analysis. The sequences are character strings which are converted to numerical data representing similarity values with the help of sequence kernels. These similarity values are used to train a model via SVMs. In this example, the spectrum kernel is used. This kernel is described in detail in Section \ref{sec:SpectrumKernel}. First we define a kernel object with
 
@@ -248,7 +252,7 @@ specK2 <- spectrumKernel(k=2)
 
 which describes the type of kernel and the used setting of the kernel parameters. A spectrum kernel with $k=2$ considers substrings of length 2 in the sequences for the similarity consideration.
 
-Now everything is available to train a model from the sequences in the training set with the \KeBABS\ function \kbsvm. In its simplest form, the function expects the training set, the labels for the training samples, the kernel object and the SVM together with SVM parameters. The meaning of most other parameters will be introduced later in this manual. In this example, we perform classification using the C-SVM from package {\tt e1071} with a value 15 for the cost hyperparameter. The \kebabs\ SVM name is {\tt C-svc} which stands for "C support vector classification". The hyperparameter name {\tt cost} is the unified \kebabs\ name for the cost parameter called {\tt C} in package {\tt kernlab} and {\tt cost} in the packages {\tt e1071} and {\tt LiblineaR}. The function  \kbsvm\ returns the trained model.
+Now everything is available to train a model from the sequences in the training set with the \KeBABS\ function \kbsvm. In its simplest form, the function expects the training set, the labels for the training samples, the kernel object and the SVM together with SVM parameters. The meaning of most other parameters will be introduced later in this manual. In this example, we perform classification using the C-SVM from package \texttt{e1071} with a value 15 for the cost hyperparameter. The \kebabs\ SVM name is \texttt{C-svc} which stands for "C support vector classification". The hyperparameter name \texttt{cost} is the unified \kebabs\ name for the cost parameter called \texttt{C} in package \texttt{kernlab} and \texttt{cost} in the packages \texttt{e1071} and \texttt{LiblineaR}. The function  \kbsvm\ returns the trained model.
 
 <<>>=
 model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=specK2,
@@ -265,7 +269,7 @@ head(pred)
 head(yFB[test])
 @
 
-The vector {\tt pred} contains the predictions for the samples in the test set. The true values for the test set are shown in the last output above. With the knowledge of the true labels for the test set we can check the quality of our predictions, i.e. the performance of the model for the sequences in the test set, with
+The vector \texttt{pred} contains the predictions for the samples in the test set. The true values for the test set are shown in the last output above. With the knowledge of the true labels for the test set we can check the quality of our predictions, i.e. the performance of the model for the sequences in the test set, with
 
 <<>>=
 evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
@@ -295,7 +299,7 @@ pred <- predict(model, enhancerFB[test])
 evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 @
 
-The accuracy is nearly identical, but the confusion matrix has changed. This example shows that completely identical results cannot be expected from the same SVM in different packages. The results between {\tt kernlab} and {\tt e1071} are usually identical because the implementation is very similar.
+The accuracy is nearly identical, but the confusion matrix has changed. This example shows that completely identical results cannot be expected from the same SVM in different packages. The results between \texttt{kernlab} and \texttt{e1071} are usually identical because the implementation is very similar.
 
 We use now a different SVM, the L1 regularized L2 loss SVM from \texttt{LiblineaR}.
 
@@ -308,7 +312,7 @@ pred <- predict(model, enhancerFB[test])
 evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 @
 
-We have changed the value of the hyperparameter {\tt cost} as we switched to a different SVM. Hyperparameter values are dependent on the actual SVM formulation and the best performing values can be quite different between SVMs. Cross validation and grid search functions described in Section \ref{sec:HyperparSel} help to select good hyperparameter values. A description of the available SVMs in each package and the hyperparameters of each SVM can be found on the help page for the function \kbsvm\ which is shown with
+We have changed the value of the hyperparameter \texttt{cost} as we switched to a different SVM. Hyperparameter values are dependent on the actual SVM formulation and the best performing values can be quite different between SVMs. Cross validation and grid search functions described in Section \ref{sec:HyperparSel} help to select good hyperparameter values. A description of the available SVMs in each package and the hyperparameters of each SVM can be found on the help page for the function \kbsvm\ which is shown with
 
 <<eval=F>>=
 ?kbsvm
@@ -399,7 +403,7 @@ k^\prime(x, y) = \frac{k(x,y)}{\sqrt{k(x,x) \cdot k(y,y)}}
 \subsubsection{Spectrum Kernel}
 \label{sec:SpectrumKernel}
 
-For the spectrum kernel \citep{Leslie2002} with kernel parameter {\tt k}, the features are all substrings of fixed length $k$. The feature space is defined through all possible substrings of length $k$ for the given alphabet $\mathcal{A}$. If $| \mathcal{A} |$ is the number of characters in the character set, the feature space dimension is $| \mathcal{M} | = | \mathcal{A} | ^ k$.
+For the spectrum kernel \citep{Leslie2002} with kernel parameter \texttt{k}, the features are all substrings of fixed length $k$. The feature space is defined through all possible substrings of length $k$ for the given alphabet $\mathcal{A}$. If $| \mathcal{A} |$ is the number of characters in the character set, the feature space dimension is $| \mathcal{M} | = | \mathcal{A} | ^ k$.
 
 For DNA-sequences with the exact alphabet  $\mathcal{A} = \{\rm{A,C,G,T}\}$ or RNA-sequences with the exact alphabet  $\mathcal{A} = \{\rm{A,C,G,U}\}$ the alphabet size $| \mathcal{A} |$ is 4, for amino acid sequences with the exact alphabet it is 21. In addition to the 20 standard amino acids also the $21^{st}$ amino acid Selenocystein with the abbreviation U or Sec is included in the alphabet, as it occurs throughout all kingdoms and also in 25 human proteins. The feature space grows exponentially with $k$.
 
@@ -413,7 +417,7 @@ As already shown in Section \ref{sec:GettingStarted},  a kernel object for the s
 specK2 <- spectrumKernel(k=2)
 @
 
-This represents a normalized kernel for the spectrum kernel with k-mer length 2 because the {\tt normalized} parameter is set by default to {\tt TRUE}. The kernel object for the unnormalized kernel is created with
+This represents a normalized kernel for the spectrum kernel with k-mer length 2 because the \texttt{normalized} parameter is set by default to \texttt{TRUE}. The kernel object for the unnormalized kernel is created with
 
 <<>>=
 specK2 <- spectrumKernel(k=2, normalized=FALSE)
@@ -421,24 +425,24 @@ specK2 <- spectrumKernel(k=2, normalized=FALSE)
 
 When working with sequences of different lengths the normalized kernel usually leads to better results. Kernel objects are used for training as already shown in Section \ref{sec:GettingStarted} , invisibly for the user, also in prediction and for explicit creation of a kernel matrix or an explicit representation.
 
-With the kernel parameter {\tt exact} set to {\tt TRUE} the exact character set without ambiguous characters is used for the analysis. This is the default setting. Any character found in the sequence which is not in the character set is interpreted as invalid and leads to drop of open patterns and a restart of the pattern search with the next sequence position.  When setting this parameter to {\tt FALSE} the IUPAC character set with exact matching on each character of the character set is used. The IUPAC character set defines characters with ambiguous meaning in addition to A, C, G and T.
+With the kernel parameter \texttt{exact} set to \texttt{TRUE} the exact character set without ambiguous characters is used for the analysis. This is the default setting. Any character found in the sequence which is not in the character set is interpreted as invalid and leads to drop of open patterns and a restart of the pattern search with the next sequence position.  When setting this parameter to \texttt{FALSE} the IUPAC character set with exact matching on each character of the character set is used. The IUPAC character set defines characters with ambiguous meaning in addition to A, C, G and T.
 
-The  kernel parameter {\tt ignoreLower} with default setting {\tt TRUE} defines that lower case characters in the sequence should be ignored and treated like invalid characters described above. When the parameter is set to {\tt FALSE} the kernel becomes case insensitive and treats lower case characters like upper-case characters. The classes {\tt DNAStringSet, RNAStringSet} and {\tt AAStringSet} derived from {\tt XStringSet} do not store lowercase characters but convert them to uppercase automatically on creation. Lowercase
-characters can be stored in the {\tt BioVector} derived classes {\tt DNAVector, RNAVector} and {\tt AAVector}. These classes are structured similar to the {\tt XStringSet} derived classes   and they are treated identically in \KeBABS\. The  {\tt BioVector} derived classes should be used only when lowercase characters are needed, e.g. for representing repeat regions,  or in context with string kernels from package {\tt kernlab}. In all other situations sequence data should be represented through {\tt XStringSet} derived classes.
+The  kernel parameter \texttt{ignoreLower} with default setting \texttt{TRUE} defines that lower case characters in the sequence should be ignored and treated like invalid characters described above. When the parameter is set to \texttt{FALSE} the kernel becomes case insensitive and treats lower case characters like upper-case characters. The classes \texttt{DNAStringSet, RNAStringSet} and \texttt{AAStringSet} derived from \texttt{XStringSet} do not store lowercase characters but convert them to uppercase automatically on creation. Lowercase
+characters can be stored in the \texttt{BioVector} derived classes \texttt{DNAVector, RNAVector} and \texttt{AAVector}. These classes are structured similar to the \texttt{XStringSet} derived classes   and they are treated identically in \KeBABS\. The  \texttt{BioVector} derived classes should be used only when lowercase characters are needed, e.g. for representing repeat regions,  or in context with string kernels from package \texttt{kernlab}. In all other situations sequence data should be represented through \texttt{XStringSet} derived classes.
 
-With the kernel parameter {\tt presence} set to {\tt TRUE}, only the presence of a pattern in the sequence is relevant for the similarity consideration not the actual number of occurrences.
+With the kernel parameter \texttt{presence} set to \texttt{TRUE}, only the presence of a pattern in the sequence is relevant for the similarity consideration not the actual number of occurrences.
 
-Reverse complements of patterns are considered identical to the forward version of patterns when the kernel parameter {\tt revComplement}  is set to {\tt TRUE}. For example, in the case of a spectrum kernel with {\tt k=3}, the k-mer ACG and its reverse complement CGT are treated as one feature. The parameter can be helpful when analyzing interaction with double stranded DNA.
+Reverse complements of patterns are considered identical to the forward version of patterns when the kernel parameter \texttt{revComplement}  is set to \texttt{TRUE}. For example, in the case of a spectrum kernel with \texttt{k=3}, the k-mer ACG and its reverse complement CGT are treated as one feature. The parameter can be helpful when analyzing interaction with double stranded DNA.
 
-The parameter {\tt r} allows exponentiation of the kernel value. Only values larger than 0 are allowed. This parameter can only be different from 1 when computing kernel matrices explicitly but not as part of a regular SVM training or when generating an explicit representation with this kernel. Please be aware that only integer values ensure positive definiteness of the resulting kernel matrix.
+The parameter \texttt{r} allows exponentiation of the kernel value. Only values larger than 0 are allowed. This parameter can only be different from 1 when computing kernel matrices explicitly but not as part of a regular SVM training or when generating an explicit representation with this kernel. Please be aware that only integer values ensure positive definiteness of the resulting kernel matrix.
 
-When similarity values of multiple kernels are combined to define a new similarity measure we speak of a mixture kernel. In the mixed spectrum kernel $k$-mers with multiple $k$-mer lengths are taken into account for the similarity value. Within \KeBABS\ similarity values are only combined through weighted sums. The kernel parameter {\tt mixCoef} is used to define the mixture coefficients of a mixture kernel of several spectrum kernels. The parameter must be a numeric vector with k elements. For instance, for $k=3$ the spectrum kernel values for $k=1$, $k=2$ and $k=3$ are computed and mixed with the three elements in {\tt mixCoef} as mixture coefficients. If individual kernels components in the mixture kernel should not be included in the mixture the corresponding element in {\tt mixCoef} is set to zero.
+When similarity values of multiple kernels are combined to define a new similarity measure we speak of a mixture kernel. In the mixed spectrum kernel $k$-mers with multiple $k$-mer lengths are taken into account for the similarity value. Within \KeBABS\ similarity values are only combined through weighted sums. The kernel parameter \texttt{mixCoef} is used to define the mixture coefficients of a mixture kernel of several spectrum kernels. The parameter must be a numeric vector with k elements. For instance, for $k=3$ the spectrum kernel values for $k=1$, $k=2$ and $k=3$ are computed and mixed with the three elements in \texttt{mixCoef} as mixture coefficients. If individual kernels components in the mixture kernel should not be included in the mixture the corresponding element in \texttt{mixCoef} is set to zero.
 
 
 \subsubsection{Mismatch Kernel}
 \label{sec:MismatchKernel}
 
-The mismatch kernel \citep{Leslie2003} is similar to the spectrum kernel. The kernel parameter {\tt k} has the same meaning in the mismatch kernel as in the spectrum kernel. The mismatch kernel also extracts substrings of fixed length k. The kernel parameter {\tt m} defines the maximum number of mismatches that are allowed for each k-mer. For example with $k=2$ and $m=1$ the occurrence of substring TA found in the sequence matches to the features AA, CA, GA, TA, TC, TG, TT  with not more than one mismatch and therefore increases the feature count for these seven features. The feature space and the feature space dimension with $| \mathcal{M} | = | \mathcal{A} | ^ k$ is identical to the spectum kernel. The parameter {\tt m} has no impact on feature space size.
+The mismatch kernel \citep{Leslie2003} is similar to the spectrum kernel. The kernel parameter \texttt{k} has the same meaning in the mismatch kernel as in the spectrum kernel. The mismatch kernel also extracts substrings of fixed length k. The kernel parameter \texttt{m} defines the maximum number of mismatches that are allowed for each k-mer. For example with $k=2$ and $m=1$ the occurrence of substring TA found in the sequence matches to the features AA, CA, GA, TA, TC, TG, TT  with not more than one mismatch and therefore increases the feature count for these seven features. The feature space and the feature space dimension with $| \mathcal{M} | = | \mathcal{A} | ^ k$ is identical to the spectum kernel. The parameter \texttt{m} has no impact on feature space size.
 
 A kernel object for the normalized mismatch kernel with $k=3$ and $m=1$ is created in the following way:
 
@@ -446,12 +450,12 @@ A kernel object for the normalized mismatch kernel with $k=3$ and $m=1$ is creat
 mismK3M1 <- mismatchKernel(k=3, m=1)
 @
 
-Apart from the new kernel parameter {\tt m}, the kernel parameters {\tt k}, {\tt r}, {\tt normalized}, {\tt exact}, {\tt ignoreLower} and {\tt presence} of the mismatch match kernel have the same functionality as described in Section \ref{sec:SpectrumKernel} for the spectrum kernel. The position-dependent kernel variants, the annotation-specific variant and the mixture kernel are not supported for the mismatch kernel.
+Apart from the new kernel parameter \texttt{m}, the kernel parameters \texttt{k}, \texttt{r}, \texttt{normalized}, \texttt{exact}, \texttt{ignoreLower} and \texttt{presence} of the mismatch match kernel have the same functionality as described in Section \ref{sec:SpectrumKernel} for the spectrum kernel. The position-dependent kernel variants, the annotation-specific variant and the mixture kernel are not supported for the mismatch kernel.
 
 \subsubsection{Gappy Pair Kernel}
 \label{sec:GappyPairKernel}
 
-The gappy pair kernel \citep{Kuksa2008, Mahrenholz2011} looks for pairs of $k$-mers separated by several wildcard positions in between for which matching occurs for every alphabet character. For this kernel the kernel parameter {\tt m} has a different meaning than in the mismatch kernel. It defines the maximum number of wildcard positions. A single feature of the gappy pair kernel is structured in the following way
+The gappy pair kernel \citep{Kuksa2008, Mahrenholz2011} looks for pairs of $k$-mers separated by several wildcard positions in between for which matching occurs for every alphabet character. For this kernel the kernel parameter \texttt{m} has a different meaning than in the mismatch kernel. It defines the maximum number of wildcard positions. A single feature of the gappy pair kernel is structured in the following way
 
 \begin{align*}
 \underbrace{kmer1}_{k}  \underbrace{\hspace{5pt}.\hspace{5pt}.\hspace{5pt}.\hspace{5pt}.\hspace{5pt}.\hspace{5pt}.\hspace{5pt}.\hspace{5pt}}_{0 \le i \le m} \underbrace{kmer2}_{k}
@@ -463,7 +467,7 @@ An irrelevant position i can contain any character from the character set. In th
 gappyK1M2 <- gappyPairKernel(k=1, m=2)
 @
 
-The feature space for the gappy pair kernel is $| \mathcal{M} | = (m + 1) | \mathcal{A} | ^ {2k}$. It is considerably larger than that of the spectrum or mismatch kernel with same values for {\tt k}. Through the factor 2 in the exponent the dimensionality grows much faster with increasing k. For amino acids with $k=2$ and $m=10$ the feature space size is already larger than 2 million features. The feature space size grows exponentially with {\tt k} and linearly with {\tt m}, which means that through the parameter {\tt m} the complexity of the kernel can be adjusted better than for other sequence kernels.
+The feature space for the gappy pair kernel is $| \mathcal{M} | = (m + 1) | \mathcal{A} | ^ {2k}$. It is considerably larger than that of the spectrum or mismatch kernel with same values for \texttt{k}. Through the factor 2 in the exponent the dimensionality grows much faster with increasing k. For amino acids with $k=2$ and $m=10$ the feature space size is already larger than 2 million features. The feature space size grows exponentially with \texttt{k} and linearly with \texttt{m}, which means that through the parameter \texttt{m} the complexity of the kernel can be adjusted better than for other sequence kernels.
 
 The other kernel parameters are identical to the spectrum kernel as described in section \ref{sec:SpectrumKernel}.
 
@@ -490,7 +494,7 @@ motif1 <- motifKernel(motifCollection1)
 
 The feature space size of the motif kernel corresponds to the number of motifs in the  motif collection. Here a motif kernel with a small collection of motifs is defined just to show some of the possibilities for pattern definition. In realistic scenarios the motif collection is usually much larger and could contain up to several hundred thousand motifs. Often motif collections are created from a subset of entries in a motif database.
 
-Apart from kernel parameters {\tt revComplement} and {\tt mixCoef} which are not available for the motif kernel, the other kernel parameters are identical to the spectrum kernel as described in Section \ref{sec:SpectrumKernel}. The motif kernel can also be used to run sequence analysis with a subset of the features of a spectrum or gappy pair kernel.
+Apart from kernel parameters \texttt{revComplement} and \texttt{mixCoef} which are not available for the motif kernel, the other kernel parameters are identical to the spectrum kernel as described in Section \ref{sec:SpectrumKernel}. The motif kernel can also be used to run sequence analysis with a subset of the features of a spectrum or gappy pair kernel.
 
 Hint: For a normalized motif kernel with a feature subset of a normalized spectrum / gappy pair kernel the explicit representation will not be identical to the subset of an explicit representation for the normalized spectrum / gappy pair kernel because the motif kernel is not aware of the other k-mers which are used in the spectrum / gappy pair kernel additionally for normalization.
 
@@ -521,14 +525,14 @@ k(x,y) = \sum_{m \in \mathcal{M}}\sum_{p=1}^{L} \mathbf{1}(m, x, p) \cdot \mathb
 
 with $L$ being the minimum length of the sequences x and y. The unnormalized kernel version just counts the occurrences where the same pattern at a position is found in both sequences.
 
-The spectrum kernel, the gappy pair kernel, and the motif kernel can be used in the position-specific variant. For creating position-specific kernels, the parameter {\tt distWeight} is set to 1 as in the following example of a position-specific, unnormalized gappy pair kernel:
+The spectrum kernel, the gappy pair kernel, and the motif kernel can be used in the position-specific variant. For creating position-specific kernels, the parameter \texttt{distWeight} is set to 1 as in the following example of a position-specific, unnormalized gappy pair kernel:
 
 <<>>=
 gappyK1M2ps <- gappyPairKernel(k=1, m=2, distWeight=1,
                                  normalized=FALSE)
 @
 
-The reason for using the parameter {\tt distWeight} with position-specific kernels will become obvious in a few moments when the distance-weighted kernel is explained.
+The reason for using the parameter \texttt{distWeight} with position-specific kernels will become obvious in a few moments when the distance-weighted kernel is explained.
 
 As mentioned above, the sequences analyzed with a position-specific kernel must be aligned in some way. Flexible alignment without changing the sequence set is possible through assignment of an offset vector as metadata to the sequence set. This vector gives the offset from the sequence start to position 1 for each sequence. The offset metadata is element metadata because it contains metadata for each element of the sequence set. For example for a set of amino acid sequences given as AAStringSet the offset vector is assigned with
 
@@ -659,7 +663,7 @@ kmSWD <- getKernelMatrix(swdK3, x=enhancerFB, selx=1:5)
 kmSWD[1:5,1:5]
 @
 
-The function {\tt swdWeight} was a simple example of a user-defined weighting function without parametrization. In fact it is also contained as predefined weighting function in the package, but was used here to show how a user defined function can be defined. Please note that the weighting function returns itself as function if the distance parameter {\tt d} is missing. If parameters are used in a user defined weighting function it must be defined as closure for which all arguments except the distance argument are fixed once the function is called to do the actual distance weighting. In this way, the function can be passed when creating a kernel just fixing the parameters without actually passing the distance data which is not available at this time. As an example we use the following weighting function
+The function \texttt{swdWeight} was a simple example of a user-defined weighting function without parametrization. In fact it is also contained as predefined weighting function in the package, but was used here to show how a user defined function can be defined. Please note that the weighting function returns itself as function if the distance parameter \texttt{d} is missing. If parameters are used in a user defined weighting function it must be defined as closure for which all arguments except the distance argument are fixed once the function is called to do the actual distance weighting. In this way, the function can be passed when creating a kernel just fixing the parameters without actually passing the distance data which is not available at this time. As an example we use the following weighting function
 
 \begin{align}
 \label{eq:ShiftedWDKernel}
@@ -712,7 +716,7 @@ For all learning methods that require positive definite kernel matrices, especia
 
 The annotation specific kernel evaluates annotation information together with the patterns in the sequence. For example the similarity considerations for gene sequences could be split according to exonic and intronic parts of the sequences. This is achieved by aligning an annotation string which contains one annotation character for each sequence position to the sequence. Each pattern in the sequence concatenated with the corresponding pattern of the annotation characters is used as feature. In the abovementioned example of exon/intron annotation the feature space contains separate features for identical patterns in exon and intron regions.
 
-The following small toy example shows how to assign exon/intron annotation to a DNA sequence set. A sequence set with just two sequences for very similar genes HBA1 and HBA2 from the human genome hg19 is generated. For this example the packages {\tt BSgenome.Hsapiens.UCSC.hg19}, {\tt TxDb.Hsapiens.UCSC.hg19.knownGene} and {\tt BSgenome} must be installed. Each gene contains three exons. Again checks on input parameters are omitted.
+The following small toy example shows how to assign exon/intron annotation to a DNA sequence set. A sequence set with just two sequences for very similar genes HBA1 and HBA2 from the human genome hg19 is generated. For this example the packages \texttt{BSgenome.Hsapiens.UCSC.hg19}, \texttt{TxDb.Hsapiens.UCSC.hg19.knownGene} and \texttt{BSgenome} must be installed. Each gene contains three exons. Again checks on input parameters are omitted.
 
 <<eval=FALSE>>=
 getGenesWithExonIntronAnnotation <- function(geneList, genomelib,
@@ -781,14 +785,14 @@ hba <- getGenesWithExonIntronAnnotation(c("3039", "3040"),
            "TxDb.Hsapiens.UCSC.hg19.knownGene")
 @
 
-For exon/intron annotation, we defined the annotation character set with character "e" denoting an exon position and "i" for an intron position. Up to 32 characters can be defined by the user in the annotation character set. The character "-" is used to mask sequence parts that should not be evaluated in the sequence kernel. It must not be used as regular annotation character  defined in the annotation character set  because with masking a different function is assigned already. The annotation strings are built up from the length of exons and introns for the two genes in the gene set. Annotation strings must have identical number of characters as the sequences. With the function {\tt annotationMetadata} the annotation character set and the annotation strings are  assigned to the sequence set. Individual sequences or sequence parts can be shown together with annotation information in the following way
+For exon/intron annotation, we defined the annotation character set with character "e" denoting an exon position and "i" for an intron position. Up to 32 characters can be defined by the user in the annotation character set. The character "-" is used to mask sequence parts that should not be evaluated in the sequence kernel. It must not be used as regular annotation character  defined in the annotation character set  because with masking a different function is assigned already. The annotation strings are built up from the length of exons and introns for the two genes in the gene set. Annotation strings must have identical number of characters as the sequences. With the function \texttt{annotationMetadata} the annotation character set and the annotation strings are  assigned to the sequence set. Individual sequences or sequence parts can be shown together with annotation information in the following way
 
 <<eval=FALSE>>=
 annotationCharset(hba)
 showAnnotatedSeq(hba, sel=1, start=1, end=400)
 @
 
-Annotation metadata can be deleted for the sequence set through assignment of {\tt NULL}. Now we generate an explicit representation with and without annotation. First a kernel object for the standard and the annotation-specific version of the spectrum kernel is created. The annotation metadata is only evaluated in the kernel when the kernel parameter {\tt annSpec} is set to {\tt TRUE}, i.e. for the second kernel object which can be used for sequence analysis in the same way as the standard spectrum kernel object.
+Annotation metadata can be deleted for the sequence set through assignment of \texttt{NULL}. Now we generate an explicit representation with and without annotation. First a kernel object for the standard and the annotation-specific version of the spectrum kernel is created. The annotation metadata is only evaluated in the kernel when the kernel parameter \texttt{annSpec} is set to \texttt{TRUE}, i.e. for the second kernel object which can be used for sequence analysis in the same way as the standard spectrum kernel object.
 
 <<eval=FALSE>>=
 specK2 <- spectrumKernel(k=2)
@@ -799,7 +803,7 @@ erK2a <- getExRep(hba, specK2a, sparse=FALSE)
 erK2a[,1:6]
 @
 
-We create a kernel matrix from the explicit representations via the function {\tt linearKernel}.
+We create a kernel matrix from the explicit representations via the function \texttt{linearKernel}.
 
 <<eval=FALSE>>=
 km <- linearKernel(erK2)
@@ -810,9 +814,9 @@ kma
 
 For the normalized sequence kernels, the similarity values have a range from 0 to 1. For 1 the sequences are considered identical for the given similarity measure defined through the kernel. The similarity between HBA1 and HBA2 is close to 1 and the sequences are very similar related to dimer content. For the annotation specific kernel, the similarity between the sequences HBA1 and HBA2 decreases because the dimer content of exonic and intronic regions is considered separately.
 
-The second example for annotation specific kernels predicts the oligomerization state of coiled coil proteins from sequence using a heptad annotation for the amino acid sequences. The sequence data available on the web page for the R package {\tt procoil} contains amino acid sequences for which the formation of dimers or trimers is known. We first predict the oligomerization state from sequence alone. In a second step a heptad pattern placed along the sequence is used in addition as annotation information. The heptad characters describe position-specificas of the amino acids within the coiled coil structure.
+The second example for annotation specific kernels predicts the oligomerization state of coiled coil proteins from sequence using a heptad annotation for the amino acid sequences. The sequence data available on the web page for the R package \texttt{procoil} contains amino acid sequences for which the formation of dimers or trimers is known. We first predict the oligomerization state from sequence alone. In a second step a heptad pattern placed along the sequence is used in addition as annotation information. The heptad characters describe position-specificas of the amino acids within the coiled coil structure.
 
-The analysis is done with the gappy pair kernel, first without annotation and then using the annotation specific version of this kernel. The coiled coil data are 477 amino acid sequences with lengths between 8 and 123 amino acids. Roughly 80\% of the sequences form dimers and only 20\% trimers, which means that the data is very unbalanced. We will see how we can better deal with this unbalancedness. First the data is loaded, the sequences {\tt ccseq} are stored in an AAStringSet, the annotation {\tt ccannot} in a character vector and the labels {\tt yCC} in a factor. The annotation is already assigned to the sequence set but to show the assignment it is deleted in the first step.
+The analysis is done with the gappy pair kernel, first without annotation and then using the annotation specific version of this kernel. The coiled coil data are 477 amino acid sequences with lengths between 8 and 123 amino acids. Roughly 80\% of the sequences form dimers and only 20\% trimers, which means that the data is very unbalanced. We will see how we can better deal with this unbalancedness. First the data is loaded, the sequences \texttt{ccseq} are stored in an AAStringSet, the annotation \texttt{ccannot} in a character vector and the labels \texttt{yCC} in a factor. The annotation is already assigned to the sequence set but to show the assignment it is deleted in the first step.
 
 <<>>=
 data(CCoil)
@@ -847,7 +851,7 @@ pred <- predict(model, ccseq[test])
 evaluatePrediction(pred, yCC[test], allLabels=unique(yCC))
 @
 
-We see that the balanced accuracy decreases which could indicate that the annotation specific  kernel with annotation performs worse than the kernel without annotation, but we have silently assumed that the same cost value should be used for the annotated gappy pair kernel. The comparison of different kernels with the same hyperparameter values is usually not adequate because the best performing hyperparameter value might be quite different for the two kernels. Hyperparameter selection must be performed individually for each kernel. Please also note that comparing kernels should be done based on multiple training runs on independent data or cross validation and not from a single training run. In the following example grid search (see section \ref{sec:GridSearch}) is performed with both kernels at the same time with a kernel list and a vector of values for the {\tt cost} hyperparameter using 5-fold cross validation for each grid point. With the parameter {\tt perfObjective} the balanced accuracy is set as objective for the parameter search. Multiple performance parameters (accuracy, balanced accuracy and Matthews correlation coefficient) are recorded for each grid point when the parameter {\tt perfParameters} is set to {\tt "ALL"}.
+We see that the balanced accuracy decreases which could indicate that the annotation specific  kernel with annotation performs worse than the kernel without annotation, but we have silently assumed that the same cost value should be used for the annotated gappy pair kernel. The comparison of different kernels with the same hyperparameter values is usually not adequate because the best performing hyperparameter value might be quite different for the two kernels. Hyperparameter selection must be performed individually for each kernel. Please also note that comparing kernels should be done based on multiple training runs on independent data or cross validation and not from a single training run. In the following example grid search (see section \ref{sec:GridSearch}) is performed with both kernels at the same time with a kernel list and a vector of values for the \texttt{cost} hyperparameter using 5-fold cross validation for each grid point. With the parameter \texttt{perfObjective} the balanced accuracy is set as objective for the parameter search. Multiple performance parameters (accuracy, balanced accuracy and Matthews correlation coefficient) are recorded for each grid point when the parameter \texttt{perfParameters} is set to \texttt{"ALL"}.
 
 <<>>=
 ## grid search with two kernels and 6 hyperparameter values
@@ -888,9 +892,9 @@ dev.off()
 \end{center}
 \end{figure}
 
-The color range in this plot is similar to heatmaps. The annotated kernel, which is {\tt K\_2} in the plot, shows higher balanced accuracy in the grid search than the gappy pair kernel without annotation for several values of the hyperparameter.
+The color range in this plot is similar to heatmaps. The annotated kernel, which is \texttt{K\_2} in the plot, shows higher balanced accuracy in the grid search than the gappy pair kernel without annotation for several values of the hyperparameter.
 
-Through user-definable annotation the sequence kernels provide great flexibility for including additional sequence related information in kernel processing. As shown in this example the prediction of coiled-coil interactions in proteins as proposed in \cite{Mahrenholz2011} and described in the vignette of the R package {\tt procoil}\footnote{\url{http://www.bioconductor.org/packages/release/bioc/html/procoil.html}}  can be performed with \KeBABS\ in a faster and more flexible way. The heptad information is assigned as sequence annotation to the amino acid sequences. The annotation specific gappy pair kernel can be used instead of the {\tt PrOCoil} kernel with regular and irregular heptad patterns.
+Through user-definable annotation the sequence kernels provide great flexibility for including additional sequence related information in kernel processing. As shown in this example the prediction of coiled-coil interactions in proteins as proposed in \cite{Mahrenholz2011} and described in the vignette of the R package \texttt{procoil}\footnote{\url{http://www.bioconductor.org/packages/release/bioc/html/procoil.html}}  can be performed with \KeBABS\ in a faster and more flexible way. The heptad information is assigned as sequence annotation to the amino acid sequences. The annotation specific gappy pair kernel can be used instead of the \texttt{PrOCoil} kernel with regular and irregular heptad patterns.
 
 \subsection{List of Spectrum Kernel Variants}
 \label{sec:KernelVariants}
@@ -949,7 +953,7 @@ specK2ud <- spectrumKernel(k=3, distWeight=udWeight(b=2))
 \subsection{Kernel Lists}
 \label{sec:KernelLists}
 
-For grid search (see section \ref{sec:GridSearch}) and model selection (see section \ref{sec:ModelSelection}) often multiple kernels are relevant. In such cases a list of kernel objects can be passed to \kbsvm\ instead of a single kernel object. Kernel lists are either created implicitly through passing a vector for a single kernel parameter to the kernel constructor or explicitly through the user by putting multiple kernel objects into a list. In the following example we show the first variant in a grid search with hyperparameter {\tt cost}. The output shows the cross validation error for 5-fold cross validation for each combination of kernel and hyperparameter cost.
+For grid search (see section \ref{sec:GridSearch}) and model selection (see section \ref{sec:ModelSelection}) often multiple kernels are relevant. In such cases a list of kernel objects can be passed to \kbsvm\ instead of a single kernel object. Kernel lists are either created implicitly through passing a vector for a single kernel parameter to the kernel constructor or explicitly through the user by putting multiple kernel objects into a list. In the following example we show the first variant in a grid search with hyperparameter \texttt{cost}. The output shows the cross validation error for 5-fold cross validation for each combination of kernel and hyperparameter cost.
 
 <<>>=
 specK25 <- spectrumKernel(k=2:5)
@@ -962,7 +966,7 @@ model <- kbsvm(x=enhancerFB[train], y=yFB[train],
 modelSelResult(model)
 @
 
-A value range is supported in the spectrum kernel for the kernel parameter {\tt k} and in the gappy pair kernel for the parameters {\tt k} and {\tt m}. The range of {\tt k} for the gappy pair kernel is limited because of the exponential decrease of the feature space with an additional factor 2. Kernel lists can also be created by putting multiple kernel objects into a list, for example
+A value range is supported in the spectrum kernel for the kernel parameter \texttt{k} and in the gappy pair kernel for the parameters \texttt{k} and \texttt{m}. The range of \texttt{k} for the gappy pair kernel is limited because of the exponential decrease of the feature space with an additional factor 2. Kernel lists can also be created by putting multiple kernel objects into a list, for example
 
 <<>>=
 kernelList1 <- list(spectrumKernel(k=3), mismatchKernel(k=3,m=1),
@@ -981,7 +985,7 @@ Apart from grid search and model selection kernel lists cannot be used instead o
 \section{Data Representations}
 \label{sec:DataRepresentations}
 
-For SVM based learning, the training and prediction data can either be presented in the form of a numeric kernel matrix or numeric data matrix in which the rows represent the data samples with the features as columns. \KeBABS\ kernels support the generation of both data structures. For position-dependent sequence kernels, the explicit representation is not available. For the supported packages {\tt kernlab}, {\tt e1071} and {\tt LiblineaR} learning via explicit representation is possible. The learning via kernel matrix is currently only available with package {\tt kernlab}.
+For SVM based learning, the training and prediction data can either be presented in the form of a numeric kernel matrix or numeric data matrix in which the rows represent the data samples with the features as columns. \KeBABS\ kernels support the generation of both data structures. For position-dependent sequence kernels, the explicit representation is not available. For the supported packages \texttt{kernlab}, \texttt{e1071} and \texttt{LiblineaR} learning via explicit representation is possible. The learning via kernel matrix is currently only available with package \texttt{kernlab}.
 
 The generation of these data structures is usually performed internally by \KeBABS\ as part of the \kbsvm\ function invisible for the user. For very large datasets, the data structures can be precomputed once and saved to file to avoid repeated computation. For precomputing or usage in other machine learning methods or R packages not supported by \KeBABS\ the following sections give a short overview about both data structures and describes how they can be created.
 
@@ -989,7 +993,7 @@ The generation of these data structures is usually performed internally by \KeBA
 \subsection{Kernel Matrix}
 \label{sec:KernelMatrix}
 
-The kernel matrix contains similarity values between pairs of sequences computed with the kernel. One matrix element describes the similarity between the samples represented by the corresponding row name and column name. Within \KeBABS\ kernel matrices are stored in the class {\tt KernelMatrix} which is essentially a lightweight wrapper around the standard dense matrix class {\tt matrix}. \KeBABS\ supports only dense kernel matrices. For usage in other R packages, the kernel matrix must be converted to the format needed in the respective package. A kernel matrix can be created in two ways. We have already seen the first of them in previous sections.
+The kernel matrix contains similarity values between pairs of sequences computed with the kernel. One matrix element describes the similarity between the samples represented by the corresponding row name and column name. Within \KeBABS\ kernel matrices are stored in the class \texttt{KernelMatrix} which is essentially a lightweight wrapper around the standard dense matrix class \texttt{matrix}. \KeBABS\ supports only dense kernel matrices. For usage in other R packages, the kernel matrix must be converted to the format needed in the respective package. A kernel matrix can be created in two ways. We have already seen the first of them in previous sections.
 
 <<>>=
 specK2 <- spectrumKernel(k=2)
@@ -999,7 +1003,7 @@ dim(km)
 km[1:3, 1:3]
 @
 
-If the argument {\tt y} is not specified in the call of getKernelMatrix, a quadratic and symmetrical kernel matrix with all samples against all samples is created. For normalized sequence kernels, the range of kernel values in the matrix is between 0 and 1, for unnormalized kernels the values are larger than or equal to 0. A heatmap of the kernel matrix showing a few clusters is plotted with
+If the argument \texttt{y} is not specified in the call of getKernelMatrix, a quadratic and symmetrical kernel matrix with all samples against all samples is created. For normalized sequence kernels, the range of kernel values in the matrix is between 0 and 1, for unnormalized kernels the values are larger than or equal to 0. A heatmap of the kernel matrix showing a few clusters is plotted with
 
 <<eval=FALSE>>=
 heatmap(km, symm=TRUE)
@@ -1043,7 +1047,7 @@ dim(km)
 km[1:4,1:5]
 @
 
-or the same rectangular kernel matrix via parameters {\tt selx} and {\tt sely}
+or the same rectangular kernel matrix via parameters \texttt{selx} and \texttt{sely}
 
 <<>>=
 km <- getKernelMatrix(specK2, x=enhancerFB, selx=1:200,
@@ -1063,7 +1067,7 @@ The explicit representation contains the feature counts for all features occurri
 \subsubsection{Linear Explicit Representation}
 \label{sec:LinearExRep}
 
-The explicit representation is stored in an object of class {\tt ExplicitRepresentationSparse} or {\tt ExplicitRepresentationDense}. Apart from the feature counts, it also contains the kernel object used for generating the explicit representation and a flag that indicates whether it is a linear or quadratic explicit representation. The feature count matrix can be extracted with a standard coercion to type {\tt matrix} if needed. In the following example, we generate an explicit representation for the first five package-provided sequences for the unnormalized spectrum kernel with $k=2$ in dense format.
+The explicit representation is stored in an object of class \texttt{ExplicitRepresentationSparse} or \texttt{ExplicitRepresentationDense}. Apart from the feature counts, it also contains the kernel object used for generating the explicit representation and a flag that indicates whether it is a linear or quadratic explicit representation. The feature count matrix can be extracted with a standard coercion to type \texttt{matrix} if needed. In the following example, we generate an explicit representation for the first five package-provided sequences for the unnormalized spectrum kernel with $k=2$ in dense format.
 
 <<>>=
 specK2 <- spectrumKernel(k=2, normalized=FALSE)
@@ -1071,7 +1075,7 @@ erd <- getExRep(enhancerFB, selx=1:5, kernel=specK2, sparse=FALSE)
 erd
 @
 
-Because of the short $k$-mer length all features are present in all sequences. If {\tt k} is increased to 6, the picture changes.
+Because of the short $k$-mer length all features are present in all sequences. If \texttt{k} is increased to 6, the picture changes.
 
 <<>>=
 specK6 <- spectrumKernel(k=6, normalized=FALSE)
@@ -1081,7 +1085,7 @@ dim(erd)
 erd[,1:6]
 @
 
-Here we see that most features occur in only a few sequences. To save storage space, features that are not present in any sample are removed from the dense explicit representation. In spite of this storage improvement a sparse storage format is much more efficient in this situation. A sparse explicit representation is created through changing parameter {\tt sparse} to TRUE. Now we create the explicit representation for all sequences both in sparse and dense format to see the space saving of the sparse format.
+Here we see that most features occur in only a few sequences. To save storage space, features that are not present in any sample are removed from the dense explicit representation. In spite of this storage improvement a sparse storage format is much more efficient in this situation. A sparse explicit representation is created through changing parameter \texttt{sparse} to TRUE. Now we create the explicit representation for all sequences both in sparse and dense format to see the space saving of the sparse format.
 
 <<>>=
 specK6 <- spectrumKernel(k=6, normalized=FALSE)
@@ -1094,16 +1098,16 @@ object.size(ers)
 ers[1:5, 1:6]
 @
 
-The dense explicit representation is with around 16MB four times as large as the sparse explicit representation with 4MB. The factor of memory efficiency becomes more prominent when the feature space dimension and the number of sequences increase. The sparse format can also lead to considerable speedups in the learning. The SVMs in package {\tt kernlab} do not support the sparse format for explicit representations, the SVMs in the other packages support both variants. \KeBABS\ internally selects the appropriate format for the used SVM during training and prediction. With the parameter {\tt explicitType} in \kbsvm\ dense or sparse processing can be enforced.
+The dense explicit representation is with around 16MB four times as large as the sparse explicit representation with 4MB. The factor of memory efficiency becomes more prominent when the feature space dimension and the number of sequences increase. The sparse format can also lead to considerable speedups in the learning. The SVMs in package \texttt{kernlab} do not support the sparse format for explicit representations, the SVMs in the other packages support both variants. \KeBABS\ internally selects the appropriate format for the used SVM during training and prediction. With the parameter \texttt{explicitType} in \kbsvm\ dense or sparse processing can be enforced.
 
-When setting the kernel flag {\tt zeroFeatures} zero feature columns remain in the explicit representation and the number of columns increases to the full feature space dimension. For sparse explicit representations, just the names of the features which do not occur are added when the flag is set. This could be necessary when using the explicit representation together with other software.
+When setting the kernel flag \texttt{zeroFeatures} zero feature columns remain in the explicit representation and the number of columns increases to the full feature space dimension. For sparse explicit representations, just the names of the features which do not occur are added when the flag is set. This could be necessary when using the explicit representation together with other software.
 
 Please consider that for all kernels except the motif kernel the feature space dimension
-increases drastically with increasing kernel parameter {\tt k} with an especially large increase for the gappy pair kernel. For the feature space size, the parameter {\tt m} is not relevant in the mismatch kernel and the increase is not as drastical for {\tt m} as for {\tt k} for the gappyPairKernel allowing also larger values of m.
+increases drastically with increasing kernel parameter \texttt{k} with an especially large increase for the gappy pair kernel. For the feature space size, the parameter \texttt{m} is not relevant in the mismatch kernel and the increase is not as drastical for \texttt{m} as for \texttt{k} for the gappyPairKernel allowing also larger values of m.
 
-An explicit representation can be generated for a subset of the features in the feature space. This subset is specified as character vector in the {\tt feature} argument of the function getExplicitRepresentation.  For normalization all features of the feature space are used. Dependent on the setting of the flag {\tt zeroFeatures}, features from this subset that do not occur in the sequences are included in the explicit representation or not. It should be mentioned that an explicit representation generated from a feature subset in a normalized spectrum kernel or normalized gappy pair kernel is not identical to an explicit representation generated from the same features in a normalized motif kernel because because the feature space and therefore the normalization is different in the two cases.
+An explicit representation can be generated for a subset of the features in the feature space. This subset is specified as character vector in the \texttt{feature} argument of the function getExplicitRepresentation.  For normalization all features of the feature space are used. Dependent on the setting of the flag \texttt{zeroFeatures}, features from this subset that do not occur in the sequences are included in the explicit representation or not. It should be mentioned that an explicit representation generated from a feature subset in a normalized spectrum kernel or normalized gappy pair kernel is not identical to an explicit representation generated from the same features in a normalized motif kernel because because the feature space and therefore the normalization is different in the two cases.
 
-Finally a small example with clustering shows how a kernel matrix or an explicit representation generated with a \KeBABS\ kernel can be used in other ML methods. We compute a kernel matrix for the 500 samples with the gappy pair kernel and use {\tt APCluster} \citep{Bodenhofer2011a}. The package implements affinity propagation clustering to find cluster structures in the data from the similarity matrix. The package {\tt apcluster}\footnote{\url{http://cran.r-project.org/package=apcluster}} must be installed for this example.
+Finally a small example with clustering shows how a kernel matrix or an explicit representation generated with a \KeBABS\ kernel can be used in other ML methods. We compute a kernel matrix for the 500 samples with the gappy pair kernel and use \texttt{APCluster} \citep{Bodenhofer2011a}. The package implements affinity propagation clustering to find cluster structures in the data from the similarity matrix. The package \texttt{apcluster}\footnote{\url{http://cran.r-project.org/package=apcluster}} must be installed for this example.
 
 <<>>=
 library(apcluster)
@@ -1113,7 +1117,7 @@ apres <- apcluster(s=km, p=0.8)
 length(apres)
 @
 
-With the given setting of the preference parameter {\tt p=0.8} thirteen clusters were found. The clustering result is stored in the result object {\tt apres}. We perform agglomerative clustering starting from the previous clustering result to generate a cluster dendrogram.
+With the given setting of the preference parameter \texttt{p=0.8} thirteen clusters were found. The clustering result is stored in the result object \texttt{apres}. We perform agglomerative clustering starting from the previous clustering result to generate a cluster dendrogram.
 
 <<eval=FALSE>>=
 aggres <- aggExCluster(km, apres)
@@ -1133,7 +1137,7 @@ dev.off()
 \end{center}
 \end{figure}
 
-The cluster dendrogram shows that either a two or a four cluster solution are quite stable with respect to the preference parameter.  Also the explicit representation could have been used for clustering together with one of the similarity measures defined in {\tt apcluster}. The simplest case of a linear kernel as similarity measure is identical to the clustering with the kernel matrix and with a changed preference value we get four clusters.
+The cluster dendrogram shows that either a two or a four cluster solution are quite stable with respect to the preference parameter.  Also the explicit representation could have been used for clustering together with one of the similarity measures defined in \texttt{apcluster}. The simplest case of a linear kernel as similarity measure is identical to the clustering with the kernel matrix and with a changed preference value we get four clusters.
 
 <<>>=
 exrep <- getExRep(enhancerFB, gappyK1M4, sparse=FALSE)
@@ -1144,9 +1148,9 @@ length(apres1)
 \subsubsection{Quadratic Explicit Representation}
 \label{sec:QuadraticExrep}
 
-Learning with a quadratic kernel, i.e. a polynomial kernel of degree 2 without offset, is based on looking at pairs of features instead of single features. An analysis with a quadratic kernel is performed when the parameter {\tt featureType} in {\tt kbsvm} is set to {\tt "quadratic"}. The SVMs in package {\tt LiblineaR} are linear SVMs. These SVMs do not support non-linear kernels. To allow the usage of the SVMs in {\tt LiblineaR} for quadratic analysis a quadratic explicit representation can be computed from the linear explicit representation. The features in the quadratic explicit representation are computed from pairs of features of the linear explicit representation. In the feature names of the quadratic explicit representation, the individual features of the pair are separated by the underscore character.
+Learning with a quadratic kernel, i.e. a polynomial kernel of degree 2 without offset, is based on looking at pairs of features instead of single features. An analysis with a quadratic kernel is performed when the parameter \texttt{featureType} in \texttt{kbsvm} is set to \texttt{"quadratic"}. The SVMs in package \texttt{LiblineaR} are linear SVMs. These SVMs do not support non-linear kernels. To allow the usage of the SVMs in \texttt{LiblineaR} for quadratic analysis a quadratic explicit representation can be computed from the linear explicit representation. The features in the quadratic explicit representation are computed from pairs of features of the linear explicit representation. In the feature names of the quadratic explicit representation, the individual features of the pair are separated by the underscore character.
 
-Please note that symmetric feature pairs are combined into a single value to reduce the dimensionality of the quadratic explicit representation. The quadratic explicit representation can be used in training and prediction on {\tt LiblineaR} in the same way as a linear explicit representation. For the SVMs in other packages the quadratic explicit representation is not needed because the linear explicit representation is combined with a polynomial kernel of degree 2 for quadratic processing.
+Please note that symmetric feature pairs are combined into a single value to reduce the dimensionality of the quadratic explicit representation. The quadratic explicit representation can be used in training and prediction on \texttt{LiblineaR} in the same way as a linear explicit representation. For the SVMs in other packages the quadratic explicit representation is not needed because the linear explicit representation is combined with a polynomial kernel of degree 2 for quadratic processing.
 
 All of the necessary conversions from linear to quadratic explicit representation are handled within \KeBABS\ automatically. If the quadratic explicit representation is needed for usage in an external software package it can be generated from any linear explicit representation in the following way - in this example again for only five sequences
 
@@ -1164,11 +1168,11 @@ The number of features increases drastically in the quadratic explicit represent
 \section{Training and Prediction for Binary Classification}
 \label{sec:Training}
 
-As already seen in the Section \ref{sec:GettingStarted}, the \KeBABS\ training method \kbsvm\ follows the usual SVM training logic. In addition to sequences, the label vector and a sequence kernel the function allows for selection of one SVM from the supported packages. SVM parameters passed to the function are dependent on the selected SVM. They are specified in a unified format to avoid changes in parameter names or formats when switching SVM implementations. \KeBABS\ translates the parameter names and formats to the specific SVM which is used in the training run. Details on the supported packages, the available SVMs and the unified SVM parameters for each SVM can be found on the help page for \kbsvm. Please be aware that identically named parameters e.g. {\tt cost} do not have the same values in different SVM formulations. This means that the value of such SVM parameters need to be adapted when changing to an SVM with a different SVM formulation.
+As already seen in the Section \ref{sec:GettingStarted}, the \KeBABS\ training method \kbsvm\ follows the usual SVM training logic. In addition to sequences, the label vector and a sequence kernel the function allows for selection of one SVM from the supported packages. SVM parameters passed to the function are dependent on the selected SVM. They are specified in a unified format to avoid changes in parameter names or formats when switching SVM implementations. \KeBABS\ translates the parameter names and formats to the specific SVM which is used in the training run. Details on the supported packages, the available SVMs and the unified SVM parameters for each SVM can be found on the help page for \kbsvm. Please be aware that identically named parameters e.g. \texttt{cost} do not have the same values in different SVM formulations. This means that the value of such SVM parameters need to be adapted when changing to an SVM with a different SVM formulation.
 
 Please note that in binary classification the value used for the positive label must be selected in a specific way. For numeric labels in binary classification the positive class must have the larger value, for factor or character based labels the positive label must be at the first position when sorting the labels in descendent order according to the C locale.
 
-Instead of sequences, also a precomputed kernel matrix or an explicit representation can be passed as training data to the method \kbsvm. Precomputed kernel matrices can be interesting for large data sets or kernels with higher runtime when multiple training runs should be performed without the overhead of recreating the kernel matrix on each run. A sequence kernel should be passed to \kbsvm\ also in this situation as it might be needed for the computation of feature weights. The following example shows how to train and predict with a precomputed explicit representation. In this example the C-SVM from package {\tt kernlab} is used and a dense explicit representation is generated because the SVMs in {\tt kernlab} currently only support dense explicit representations. For the packages {\tt e1071} and {\tt LiblineaR} sparse explicit representations can also be used which are more efficient both statically and dynamically and also reduce the training time, especially for larger feature spaces.
+Instead of sequences, also a precomputed kernel matrix or an explicit representation can be passed as training data to the method \kbsvm. Precomputed kernel matrices can be interesting for large data sets or kernels with higher runtime when multiple training runs should be performed without the overhead of recreating the kernel matrix on each run. A sequence kernel should be passed to \kbsvm\ also in this situation as it might be needed for the computation of feature weights. The following example shows how to train and predict with a precomputed explicit representation. In this example the C-SVM from package \texttt{kernlab} is used and a dense explicit representation is generated because the SVMs in \texttt{kernlab} currently only support dense explicit representations. For the packages \texttt{e1071} and \texttt{LiblineaR} sparse explicit representations can also be used which are more efficient both statically and dynamically and also reduce the training time, especially for larger feature spaces.
 
 <<>>=
 gappyK1M4 <- gappyPairKernel(k=1, m=4)
@@ -1183,34 +1187,34 @@ pred <- predict(model, exrep[test, ])
 evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 @
 
-When the training is performed with a precomputed kernel matrix also in prediction a kernel matrix must be passed to the {\tt predict()} method. In this case the kernel matrix is rectangular, the rows of the kernel matrix correspond to the test samples and the columns to the support vectors determined in the training as shown below. Please note that the support vector indices read from the model with the accessor {\tt SVindex()} refer to the training set order. Currently training and prediction via kernel matrix is only supported by the SVMs implemented in package {\tt kernlab}. With a precomputed kernel matrix the repeated effort for kernel matrix computation in multiple training runs can be avoided. However, for training with a precomputed kernel matrix the computation of feature weights is not possible.
+When the training is performed with a precomputed kernel matrix also in prediction a kernel matrix must be passed to the \texttt{predict()} method. In this case the kernel matrix is rectangular, the rows of the kernel matrix correspond to the test samples and the columns to the training samples in the training set order. The preferred way of training and prediction via kernel matrix is the dense LIBSVM implementation integrated in \kebabs\ which is addressed when package \texttt{e1071} is selected for training with a kernel matrix. With a precomputed kernel matrix the repeated effort for kernel matrix computation in multiple training runs can be avoided. However, for training with a precomputed kernel matrix the computation of feature weights is not possible.
 
 <<>>=
-## compute quadratic kernel matrix for training samples
+## compute symmetric kernel matrix for training samples
 kmtrain <- getKernelMatrix(gappyK1M4, x=enhancerFB, selx=train)
 model1 <- kbsvm(x=kmtrain, y=yFB[train], kernel=gappyK1M4,
-                pkg="kernlab", svm="C-svc", cost=15)
+                pkg="e1071", svm="C-svc", cost=15)
 ## compute rectangular kernel matrix of test samples against support vectors
 kmtest <- getKernelMatrix(gappyK1M4, x=enhancerFB, y=enhancerFB, selx=test, 
-                          sely=train[SVindex(model1)])
+                          sely=train)
 pred1 <- predict(model1, kmtest)
 evaluatePrediction(pred1, yFB[test], allLabels=unique(yFB))
 @
 
-The method {\tt kbsvm()} returns a \KeBABS\ model of class {\tt KBModel} which is needed for prediction, calculation of feature weights and generation of prediction profiles. It stores all data needed for these functions in an SVM independent format. It also contains the native model returned by the selected SVM. This model can be retrieved from the \KeBABS\  model with the accessor {\tt svmModel}. Apart from this data, the \KeBABS\ model also can contain results returned from cross validation, grid search and model selection (see Section \ref{sec:HyperparSel}).
+The method \texttt{kbsvm()} returns a \KeBABS\ model of class \texttt{KBModel} which is needed for prediction, calculation of feature weights and generation of prediction profiles. It stores all data needed for these functions in an SVM independent format. It also contains the native model returned by the selected SVM. This model can be retrieved from the \KeBABS\  model with the accessor \texttt{svmModel}. Apart from this data, the \KeBABS\ model also can contain results returned from cross validation, grid search and model selection (see Section \ref{sec:HyperparSel}).
 
-The method {\tt predict()} is used to predict the class for new sequences from the model. The methods returns the class labels by default. Controlled through the parameter {\tt predictionType}, the {\tt predict()} method can also return the decision values or class membership probability values instead of the class label. For class membership probability values, a probability model is necessary which is computed during training when the parameter {\tt probModel} is set to {\tt TRUE}. When feature weights (see Section \ref{sec:FeatureWeights}) are available in the model, prediction is performed entirely within \KeBABS. Native prediction in the selected SVM can be enforced by setting the flag {\tt native} to {\tt TRUE} in the {\tt predict()} method.
+The method \texttt{predict()} is used to predict the class for new sequences from the model. The methods returns the class labels by default. Controlled through the parameter \texttt{predictionType}, the \texttt{predict()} method can also return the decision values or class membership probability values instead of the class label. For class membership probability values, a probability model is necessary which is computed during training when the parameter \texttt{probModel} is set to \texttt{TRUE}. When feature weights (see Section \ref{sec:FeatureWeights}) are available in the model, prediction is performed entirely within \KeBABS. Native prediction in the selected SVM can be enforced by setting the flag \texttt{native} to \texttt{TRUE} in the \texttt{predict()} method.
 
-Prediction profiles (see Section \ref{sec:PredictionProfiles}) are computed during prediction for the predicted sequences when the parameter {\tt predProfiles} is set to {\tt TRUE} in  {\tt predict}. Prediction profile generation requires the presence of feature weights (see Section \ref{sec:FeatureWeights}) in the \KeBABS\ model.
+Prediction profiles (see Section \ref{sec:PredictionProfiles}) are computed during prediction for the predicted sequences when the parameter \texttt{predProfiles} is set to \texttt{TRUE} in  \texttt{predict}. Prediction profile generation requires the presence of feature weights (see Section \ref{sec:FeatureWeights}) in the \KeBABS\ model.
 
-For classification the {\tt evaluatePrediction()} method can be used to compute the performance parameters accuracy (ACC), balanced accuracy (BACC), Matthews Correlation Coefficient (MCC), area under the ROC curve (AUC), sensitivity (SENS), specificity (SPEC) and precision (PREC) from the predicted values and the true labels as shown in the previous examples. The AUC value is computed when the decision values are passed to the function additionally like in the following example. Currently it is available for binary classification only. 
+For classification the \texttt{evaluatePrediction()} method can be used to compute the performance parameters accuracy (ACC), balanced accuracy (BACC), Matthews Correlation Coefficient (MCC), area under the ROC curve (AUC), sensitivity (SENS), specificity (SPEC) and precision (PREC) from the predicted values and the true labels as shown in the previous examples. The performance measures are defined in section \ref{sec:Performance Measures}. The AUC value is computed when the decision values are passed to the function additionally like in the following example. Currently it is available for binary classification only. 
 
 <<>>=
 preddec <- predict(model, exrep[test, ], predictionType="decision")
 evaluatePrediction(pred, yFB[test], allLabels=unique(yFB), decValues=preddec)
 @
 
-Performance values can stored in a data frame for user-specific processing. The columns of the data frame are explained on the help page of the function {\tt evaluatePrediction()}.
+Performance values can stored in a data frame for user-specific processing. The columns of the data frame are explained on the help page of the function \texttt{evaluatePrediction()}.
 
 <<>>=
 perf <- evaluatePrediction(pred, yFB[test], allLabels=unique(yFB), 
@@ -1242,9 +1246,9 @@ dev.off()
 \section{Selection of Kernel Parameters, Hyperparameters and Models}
 \label{sec:HyperparSel}
 
-For selection of kernel, kernel parameters, and SVM hyperparameters \KeBABS\ provides cross validation and grid search. Both functionalities are implemented entirely in the {\tt kebabs} package. They are available for all supported SVMs in a package-independent way for binary and multi-class classification as well as regression. Also model selection is provided by \KeBABS\ for all supported SVMs. All of these functions require repeated training and prediction and, therefore, \KeBABS\ was designed with strong focus on good performance of individual training and prediction runs allowing reasonable number of repetitions.
+For selection of kernel, kernel parameters, and SVM hyperparameters \KeBABS\ provides cross validation and grid search. Both functionalities are implemented entirely in the \texttt{kebabs} package. They are available for all supported SVMs in a package-independent way for binary and multi-class classification as well as regression. Also model selection is provided by \KeBABS\ for all supported SVMs. All of these functions require repeated training and prediction and, therefore, \KeBABS\ was designed with strong focus on good performance of individual training and prediction runs allowing reasonable number of repetitions.
 
-Under special circumstances, it might make sense to first narrow down the parameter range with the fast SVM implementations in package {\tt LiblineaR} and then refine the reduced range with the slower but likely slightly more accurate SVMs from package {\tt e1071} or {\tt kernlab}.
+Under special circumstances, it might make sense to first narrow down the parameter range with the fast SVM implementations in package \texttt{LiblineaR} and then refine the reduced range with the slower but likely slightly more accurate SVMs from package \texttt{e1071} or \texttt{kernlab}.
 
 
 \subsection{Cross Validation}
@@ -1258,13 +1262,13 @@ Cross validation (CV) is provided in \KeBABS\ in three different variants:
            called folds. One of these folds is used as test set and the other $k-1$ folds as training
            set. In $k$ training runs the test fold is changed cyclically giving k different
            performance values on different subsets of the data. This variant is selected through
-           setting the parameter {\tt cross}, which defines the number of folds, to values larger
+           setting the parameter \texttt{cross}, which defines the number of folds, to values larger
            than 1 in \kbsvm.
  \item [Leave-One-Out cross validation (LOOCV):]
            The LOOCV is $k$-fold CV taken to the extreme with a fold size of one sample. This
            variant is dynamically quite demanding and leads to the same number of training runs
            as there are samples in the data set. It is selected through setting the parameter
-           {\tt cross} to -1 in \kbsvm.
+           \texttt{cross} to -1 in \kbsvm.
  \item [Grouped cross validation (GCV):]
            For this variant samples must be assigned to groups before running cross validation.
            Grouping can be performed in a way that learning can focus on the relevant features
@@ -1272,16 +1276,16 @@ Cross validation (CV) is provided in \KeBABS\ in three different variants:
            about the classes. GCV is a specialized version of $k$-fold CV which respects group
            membership when splitting the data into folds. This means that one group is never
            distributed over more than one fold. GCV is performed when passing the group
-           assignment of samples as integer vector or factor with the parameter {\tt groupBy} to
-           \kbsvm\ together with a value of parameter {\tt cross} that is smaller or equal to the
+           assignment of samples as integer vector or factor with the parameter \texttt{groupBy} to
+           \kbsvm\ together with a value of parameter \texttt{cross} that is smaller or equal to the
            number of groups.
 \end{description}
 
-For all types of CV, the result can be retrieved from the model with the accessor function {\tt cvResult}. For classification the cross validation error is the mean classification error over all CV runs.  For regression, the average of the mean squared errors of the runs is used.
+For all types of CV, the result can be retrieved from the model with the accessor function \texttt{cvResult}. For classification the cross validation error is the mean classification error over all CV runs.  For regression, the average of the mean squared errors of the runs is used.
 
-For classification tasks, the collection of additional performance parameters  during cross validation runs can be requested with the parameter {\tt perfParameters} in \kbsvm. This could be helpful especially when working with unbalanced datasets. For multiple repetitions of CV, the parameter {\tt noCross} is used.
+For classification tasks, the collection of additional performance parameters  during cross validation runs can be requested with the parameter \texttt{perfParameters} in \kbsvm. This could be helpful especially when working with unbalanced datasets. For multiple repetitions of CV, the parameter \texttt{noCross} is used.
 
-In the following example, grid search with grouped CV for the coiled coil sequences is shown as 3-fold grouped cross validation with two repetitions. In this example the groups were determined through single linkage clustering of sequence similarities derived from ungapped heptad-specific pairwise alignment of the sequences. The variable {\tt ccgroup} contains the pre-calculated group assignments for the individual sequences. The grouping is a measure against over-representation of specific sequences in the PDB and ensures, that no pair of sequences from two different clusters match to a degree of 60\% or higher of match positions related to the length of the shorter sequence (see also data Web page of package {\tt procoil}\footnote{\url{http://www.bioinf.jku.at/software/procoil/data.html}}).
+In the following example, grid search with grouped CV for the coiled coil sequences is shown as 3-fold grouped cross validation with two repetitions. In this example the groups were determined through single linkage clustering of sequence similarities derived from ungapped heptad-specific pairwise alignment of the sequences. The variable \texttt{ccgroup} contains the pre-calculated group assignments for the individual sequences. The grouping is a measure against over-representation of specific sequences in the PDB and ensures, that no pair of sequences from two different clusters match to a degree of 60\% or higher of match positions related to the length of the shorter sequence (see also data Web page of package \texttt{procoil}\footnote{\url{http://www.bioinf.jku.at/software/procoil/data.html}}).
 
 <<>>=
 data(CCoil)
@@ -1299,7 +1303,7 @@ cvResult(model)
 \subsection{Grid Search}
 \label{sec:GridSearch}
 
-The grid search functionality gives an overview of the performance behavior for different parameter settings and supports the user in the selection of the sequence kernel and optimal values for the kernel parameters and SVM hyperparameters. The grid in this functionality is defined as rectangular data structure, where the rows correspond to different sequence kernels including their kernel parameters. Each row corresponds to a single sequence kernel object with a specific setting of the kernel parameters. The columns correspond to the SVM parameters. \KeBABS\ automatically performs cross validations for each of these grid points and returns the CV error as performance measure by default.  Also grouped CV can be used for each grid point as shown above. The accessor {\tt modelSelResult} to the grid search results in the model is identical to the accessor for model selection results.
+The grid search functionality gives an overview of the performance behavior for different parameter settings and supports the user in the selection of the sequence kernel and optimal values for the kernel parameters and SVM hyperparameters. The grid in this functionality is defined as rectangular data structure, where the rows correspond to different sequence kernels including their kernel parameters. Each row corresponds to a single sequence kernel object with a specific setting of the kernel parameters. The columns correspond to the SVM parameters. \KeBABS\ automatically performs cross validations for each of these grid points and returns the CV error as performance measure by default.  Also grouped CV can be used for each grid point as shown above. The accessor \texttt{modelSelResult} to the grid search results in the model is identical to the accessor for model selection results.
 
 <<>>=
 specK24 <- spectrumKernel(k=2:4)
@@ -1312,11 +1316,11 @@ model <- kbsvm(x=enhancerFB, y=yFB, kernel=gridKernels,
 modelSelResult(model)
 @
 
-In this example, only 3-fold CV was used to save time for vignette generation. When using 10-fold CV the differences between the kernels become more prominent because the effect of random splits of the data average out better. When the parameter {\tt showProgress} is set to {\tt TRUE} in \kbsvm\ , a progress indication is displayed.
+In this example, only 3-fold CV was used to save time for vignette generation. When using 10-fold CV the differences between the kernels become more prominent because the effect of random splits of the data average out better. When the parameter \texttt{showProgress} is set to \texttt{TRUE} in \kbsvm\ , a progress indication is displayed.
 
-The default performance parameter in grid search is the CV error, as in cross validation. For non-symmetrical datasets other performance parameters set with parameter {\tt perfParameters} might be more expressive. For grid search, the performance objective can be defined explicitly with the parameter {\tt perfObjective} as criterion to select the best setting of the grid parameters. The accuracy (ACC), balanced accuracy (BACC), Matthews Correlation Coefficient (MCC) and area under the ROC curve (AUC) can be chosen as performance objective. The AUC is currently only supported for binary classification.
+The default performance parameter in grid search is the CV error, as in cross validation. For non-symmetrical datasets other performance parameters set with parameter \texttt{perfParameters} might be more expressive. For grid search, the performance objective can be defined explicitly with the parameter \texttt{perfObjective} as criterion to select the best setting of the grid parameters. The accuracy (ACC), balanced accuracy (BACC), Matthews Correlation Coefficient (MCC) and area under the ROC curve (AUC) can be chosen as performance objective. The AUC is currently only supported for binary classification.
 
-Grid search can also be done over multiple SVMs in the same or in different packages as in the next example. In this case vectors of identical length must be passed for the parameters {\tt pkg}, {\tt svm} and the respective SVM parameters. The corresponding entries in these vectors refer to one SVM with its hyperparameter(s) represent one grid column. With the parameter {\tt showCVTimes} set to {\tt TRUE } in \kbsvm\ the cross validation runtimes are recorded for each individual grid point and are displayed at the end of the grid search.
+Grid search can also be done over multiple SVMs in the same or in different packages as in the next example. In this case vectors of identical length must be passed for the parameters \texttt{pkg}, \texttt{svm} and the respective SVM parameters. The corresponding entries in these vectors refer to one SVM with its hyperparameter(s) represent one grid column. With the parameter \texttt{showCVTimes} set to \texttt{TRUE } in \kbsvm\ the cross validation runtimes are recorded for each individual grid point and are displayed at the end of the grid search.
 
 <<>>=
 specK34 <- spectrumKernel(k=3:4)
@@ -1337,7 +1341,7 @@ modelSelResult(model)
 
 In \KeBABS\ model selection is performed very similar to grid search. It is based on nested cross validation with an inner cross validation loop that determines the best setting of the hyper parameters and an outer cross validation loop to test the performance of the model with the best parameter settings on independent test sets. The result of model selection is the performance of the complete model selection process, not that of a single best model.
 
-Model selection is triggered when the parameter {\tt nestedCross} in \kbsvm\ is set to a value larger than 1. This parameter defines the number of folds in the outer cross validation. The number of folds in the inner cross validation is defined through the parameter {\tt cross} as usual. Multiple repetitions of model selection can be requested with the parameter {\tt noNestedCross}.
+Model selection is triggered when the parameter \texttt{nestedCross} in \kbsvm\ is set to a value larger than 1. This parameter defines the number of folds in the outer cross validation. The number of folds in the inner cross validation is defined through the parameter \texttt{cross} as usual. Multiple repetitions of model selection can be requested with the parameter \texttt{noNestedCross}.
 
 In the following example, model selection is performed with 4-fold outer cross validation and 10-fold inner cross validation. The parameters of the best models selected in the inner cross validation are shown in the model selection result object and the results of the outer cross validation in the CV result object extracted from the model.
 
@@ -1353,13 +1357,19 @@ modelSelResult(model)
 cvResult(model)
 @
 
-The accuracy of the model selection procedure is the average of the results from the outer CV runs. The performance for the best model is pretty similar and the gappy pair kernel together with a cost parameter value of 50 is selected as best model in most cases. This result shows that the best model with the gappy pair kernel is pretty stable for different splits of the data. Please also consider the small amount of data that is used for model selection in this example. Usually a larger number of samples should be used. Even under these unfavorable conditions, the performance is very reasonable.
+
+The accuracy of the model selection procedure is the average of the results from the outer CV runs. The performance for the best model is pretty similar and the gappy pair kernel together with a cost parameter value of 50 is selected as best model in most cases. This result shows that the best model with the gappy pair kernel is pretty stable for different splits of the data. Please also consider the small amount of data that is used for model selection in this example. Usually a larger number of samples should be used. Even under these unfavorable conditions, the performance is very reasonable. The fold performance can be displayed through the accessor \texttt{foldPerformance()} for the \texttt{CrossValidationResult} object which returns the run performance and fold performance as list.
+
+<<>>=
+performance(cvResult(model))$foldErrors
+@
+
 
 
 \section{Regression}
 \label{sec:Regression}
 
-The classification examples shown up to now were based on real world data for transcription factor binding. For regression, no real-world data exists for the sequences provided in the package. We use a toy dataset with an artificial set of real values as target values for the regression example through linear combination of feature values for the features A.A, CC, C.G, GG, G.G, TG and T.G plus added noise. The vector with the target values is called {\tt yReg}. We perform grid search with the gappy pair kernel on the nu support vector regression in e1071 for hyperparameter {\tt nu}.
+The classification examples shown up to now were based on real world data for transcription factor binding. For regression, no real-world data exists for the sequences provided in the package. We use a toy dataset with an artificial set of real values as target values for the regression example through linear combination of feature values for the features A.A, CC, C.G, GG, G.G, TG and T.G plus added noise. The vector with the target values is called \texttt{yReg}. We perform grid search with the gappy pair kernel on the nu support vector regression in e1071 for hyperparameter \texttt{nu}.
 
 <<>>=
 head(yReg)
@@ -1370,7 +1380,7 @@ model <- kbsvm(x=enhancerFB, y=yReg, kernel=gappyK1M2,
 modelSelResult(model)
 @
 
-Now a model is trained on a training set with the best performing hyperparameters {\tt nu=0.7} and the target value for the remaining sequences is predicted. Usually the hyperparameters should be selected on independent data which is not used for verification of the performance of the selected hyperparameter set. Because of the small size of the dataset we could not perform hyperparameter selection on independent data. In the regression scenario the mean squared error is used as performance measure. Finally we check the feature weights (see section \ref{sec:FeatureWeights}) which were computed by default.
+Now a model is trained on a training set with the best performing hyperparameters \texttt{nu=0.7} and the target value for the remaining sequences is predicted. Usually the hyperparameters should be selected on independent data which is not used for verification of the performance of the selected hyperparameter set. Because of the small size of the dataset we could not perform hyperparameter selection on independent data. In the regression scenario the mean squared error is used as performance measure. Finally we check the feature weights (see section \ref{sec:FeatureWeights}) which were computed by default.
 
 <<>>=
 numSamples <- length(enhancerFB)
@@ -1440,7 +1450,7 @@ Through rearrangement of the sums, terms that are not dependent on the current s
 
 The feature weight values give the contribution of each occurrence of a pattern to the discrimination value. As mentioned before, this gives some rough hint on the relevance of a pattern but does not describe the importance of a pattern exactly because of overlapping features and substring features. We will see in the Section \ref{sec:PredictionProfiles} how to get a clearer picture about the relevance of specific positions in the sequence.
 
-Feature weights are computed by default if possible during training. With the parameter {\tt featureWeights} set to {\tt FALSE} in \kbsvm\ the generation of feature weights can be suppressed. When a pre-computed kernel matrix for a sequence kernel is passed to \KeBABS\ training feature weights cannot be computed. Feature weights are used for prediction and they are a prerequisite for the generation of feature profiles.
+Feature weights are computed by default if possible during training. With the parameter \texttt{featureWeights} set to \texttt{FALSE} in \kbsvm\ the generation of feature weights can be suppressed. When a pre-computed kernel matrix for a sequence kernel is passed to \KeBABS\ training feature weights cannot be computed. Feature weights are used for prediction and they are a prerequisite for the generation of feature profiles.
 
 For the position-dependent kernel, a similar representation of the feature weights can be derived. The position-dependent kernel in its most general form can be described as
 
@@ -1465,7 +1475,7 @@ In a similar way as in the position-independent case a part that is independent 
 
 As feature weights for the position-dependent kernel are dependent on the positions, they are not computed fully during the training. Only a first step of feature weight computation is performed during training allowing faster computation of full feature weights during prediction or computation of feature profiles when the actual sequences are available.
 
-Feature weights can be extracted from the model with the accessor {\tt featureWeights}. For pairwise multiclass the feature weights of multiple pairwise SVMs are stored as list in the model. When feature weights are present in the model the prediction is performed via feature weights in \KeBABS\ except for multiclass classification where always native prediction is used.
+Feature weights can be extracted from the model with the accessor \texttt{featureWeights}. For pairwise multiclass the feature weights of multiple pairwise SVMs are stored as list in the model. When feature weights are present in the model the prediction is performed via feature weights in \KeBABS\ except for multiclass classification where always native prediction is used.
 
 
 \section{Prediction Profiles}
@@ -1473,7 +1483,7 @@ Feature weights can be extracted from the model with the accessor {\tt featureWe
 
 Prediction profiles are computed from feature weights to show the contribution of each sequence position to the decision value. If stretches of the DNA sequence show a clear positive or negative contribution they are likely relevant for the biological function underlying the learning task.
 
-Prediction profiles can be computed for all sequence kernels provided in \KeBABS\. Feature weights are a prerequisite for computation of feature profiles and must either be computed during training (see parameter {\tt featureWeights} in method \kbsvm) or added later to the model with the function {\tt getFeatureWeights()}. Prediction profiles can either be generated during prediction (see parameter {\tt predProf} in {\tt predict()}) or specifically for a given set of sequences from a given model with {\tt getPredictionProfile}. Finally the predicition profiles for a single sequence or a pair of sequences can be plotted. Usually only plotting to a PDF file makes sense to get a reasonable resolution for longer sequences.
+Prediction profiles can be computed for all \KeBABS\ provided sequence kernels. Feature weights are a prerequisite for computation of feature profiles and must either be computed during training (see parameter \texttt{featureWeights} in method \kbsvm) or added later to the model with the function \texttt{getFeatureWeights()}. Prediction profiles can either be generated during prediction (see parameter \texttt{predProf} in \texttt{predict()}) or specifically for a given set of sequences from a given model with \texttt{getPredictionProfile}. Finally the predicition profiles for a single sequence or a pair of sequences can be plotted. Usually only plotting to a PDF file makes sense to get a reasonable resolution for longer sequences.
 
 The example for prediction profiles is based on the sequence data for coiled coiled proteins that we used earlier already. A more detailed description is presented in \citep{Mahrenholz2011}. We train a model on the full dataset and compute prediction profiles for the wild-type yeast protein GCN4. Finally the prediction profile for this sequence is generated.
 
@@ -1533,7 +1543,7 @@ dev.off()
 \end{center}
 \end{figure}
 
-In this simple example with short sequences the plot can easily be displayed. When using longer sequences plotting to PDF file is necessary. The help page for {\tt plot()} in \KeBABS\ shows an example. The plotting function also provides the possibility for smoothing the profile with a sliding window average. This could be interesting in situations where regions of interest should be identified.
+In this simple example with short sequences the plot can easily be displayed. When using longer sequences plotting to PDF file is necessary. The help page for \texttt{plot()} in \KeBABS\ shows an example. The plotting function also provides the possibility for smoothing the profile with a sliding window average. This could be interesting in situations where regions of interest should be identified.
 
 In contrast to feature weights which show the individual contribution of a single feature occurrence but are not as clearly indicative because of overlaps with other features and substring features in prediction profiles the contribution of all features present at a single position is summed up showing the full contribution of each position to the decision value. In this way prediction profiles provide much better biological interpretability of the learning results because individual positions as in this example or stretches of the sequence containing the driving patterns become visible.
 
@@ -1543,7 +1553,7 @@ The sequence patterns driving the microbiological mechanism which is studied mig
 \section{Multiclass Classification}
 \label{sec:Multiclass}
 
-As in the regression case, no real-wold multi-class labels are available for the sequences provided with the package. We create synthetic labels by splitting the value range of the regression target into three similar sized intervals. The multiclass label vector provided with the package is called {\tt yMC}. Different types of multiclass are implemented for the non-native multiclass variants in the supported packages. In {\tt LiblineaR} all non-native multiclass implementations are based on One-Against-The-Rest which is used in the following example of multiclass training and prediction.
+As in the regression case, no real-wold multi-class labels are available for the sequences provided with the package. We create synthetic labels by splitting the value range of the regression target into three similar sized intervals. The multiclass label vector provided with the package is called \texttt{yMC}. Different types of multiclass are implemented for the non-native multiclass variants in the supported packages. In \texttt{LiblineaR} all non-native multiclass implementations are based on One-Against-The-Rest which is used in the following example of multiclass training and prediction.
 
 <<>>=
 table(yMC)
@@ -1555,7 +1565,7 @@ pred <- predict(model, enhancerFB[test])
 evaluatePrediction(pred, yMC[test], allLabels=unique(yMC))
 @
 
-In the One-Against-The-Rest approach with $k$ classes multi-class training consists of $k$ binary classification training runs using in each run one class and the union of all other classes as second class. When feature weights are computed, the model also contains the feature weights for these $k$ binary classifiers structured as list.
+In the One-Against-The-Rest approach with $k$ classes multi-class training consists of $k$ binary classification training runs using in each run one class and the union of all other classes as second class. As for binary classification the performance measures can be determines with the function \texttt{evalualuatePrediction()}. For multi class classification the performance measures sensitivity (SENS), specificity (SPEC) and precision (PREC) are class specific. The performance measures are defined in section \ref{sec:Performance Measures}. When feature weights are computed, the model also contains the feature weights for these $k$ binary classifiers structured as list.
 
 <<>>=
 featWeights <- featureWeights(model)
@@ -1565,7 +1575,7 @@ featWeights[[2]][1:5]
 featWeights[[3]][1:5]
 @
 
-Multiclass prediction is always performed natively in the package used for training. Prediction profiles can be generated in the multiclass case for the individual binary SVMs with the function {\tt getPredictionProfiles} by passing the respective element from feature weights and from the model offset vector as in the following example.
+Multiclass prediction is always performed natively in the package used for training. Prediction profiles can be generated in the multiclass case for the individual binary SVMs with the function \texttt{getPredictionProfiles} by passing the respective element from feature weights and from the model offset vector as in the following example.
 
 <<>>=
 predProf <- getPredictionProfile(enhancerFB, gappyK1M2,
@@ -1574,14 +1584,120 @@ predProf <- getPredictionProfile(enhancerFB, gappyK1M2,
 predProf
 @
 
-The non-native multiclass implementation in packages {\tt kernlab} and {\tt e1071} are based  on pairwise binary classifications. For $k$ classes $k * (k-1) / 2$ binary classifications are performed and the feature weights and model offsets of these models are stored in the \KeBABS\ model. For larger numbers of classes the number of binary training runs is considerably higher than for the One-Against-The-Rest approach which was chosen in {\tt LiblineaR} because this package is especially aiming at large feature spaces and large number of samples. If the performance is not an issue, usually pairwise multiclass is considered as the preferred method. The native multiclass approach according to Crammer and Singer is available in packages {\tt kernlab} and {\tt LiblineaR} by selecting the value {\tt mc-natC} for the parameter {\tt svm}. The Weston/Watkins native multiclass approach is only available in {\tt kernlab} and is selected with the parameter value {\tt mc-natW}. For Weston/Watkins multiclass no feature weights and prediction profiles are available. As \KeBABS\ supports all of the variants via the supported packages and as switching between implementations is simple the performance of all methods can be compared easily if the data size allows it.
+The non-native multiclass implementation in packages \texttt{kernlab} and \texttt{e1071} are based  on pairwise binary classifications. For $k$ classes $k * (k-1) / 2$ binary classifications are performed and the feature weights and model offsets of these models are stored in the \KeBABS\ model. For larger numbers of classes the number of binary training runs is considerably higher than for the One-Against-The-Rest approach which was chosen in \texttt{LiblineaR} because this package is especially aiming at large feature spaces and large number of samples. If the performance is not an issue, usually pairwise multiclass is considered as the preferred method. The native multiclass approach according to Crammer and Singer is available in packages \texttt{kernlab} and \texttt{LiblineaR} by selecting the value \texttt{mc-natC} for the parameter \texttt{svm}. The Weston/Watkins native multiclass approach is only available in \texttt{kernlab} and is selected with the parameter value \texttt{mc-natW}. For Weston/Watkins multiclass no feature weights and prediction profiles are available. As \KeBABS\ supports all of the variants via the supported packages and as switching between implementations is simple the performance of all methods can be compared easily if the data size allows it.
+
+\section{Definition of Performance Measures for Binary and Multiclass Classification}
+\label{sec:Performance Measures}
+
+Several performance measures are computed in \KeBABS\ to estimate the performance behavior of a model on future data. With L as the total number of samples, TP as true positives, FP as false positives, TN as true negatives and FN as false negatives the performance measures for binary classification are defined as \\
+\\
+
+Accuracy (ACC)
+\begin{align}
+\label{eq:ACC}
+ACC = \frac{TP + TN}{TP + FP + FN + TN}
+\end{align}
+
+Sensitivity (SENS)
+\begin{align}
+\label{eq:SENS}
+SENS = \frac{TP}{TP + FN}
+\end{align}
+
+Specificity (SPEC)
+\begin{align}
+\label{eq:SPEC}
+SPEC = \frac{TN}{TN + FP}
+\end{align}
+
+Precision (PREC)
+\begin{align}
+\label{eq:PREC}
+PREC = \frac{TP}{TP + FP}
+\end{align}
+
+Balanced Accuracy (BACC)
+\begin{align}
+\label{eq:BACC}
+BACC = \frac{SENS + SPEC}{2} = \frac{1}{2}(\frac{TP}{TP + FN} + \frac{TN}{TN + FP})
+\end{align}
+
+Matthews Correlation Coefficient (MCC)
+\begin{align}
+\label{eq:MCC}
+MCC = \frac{TP * TN - FP * FN}{\sqrt{(TP + FP) * (TP + FN) * (TN + FP) * (TN + FN)}}
+\end{align}\\
+\\
+
+Multiclass Performance Parameters
+
+Using $\mathbf{M}$ as the $m \times m$ confusion matrix for $m$ classes with rows as predictions and columns as true labels the performance parameters for multi class are defined as follows\\
+\\
+
+Accuracy (ACC)
+\begin{align}
+\label{eq:ACC}
+ACC = \frac{\sum_{i=1}^m M_{ii}}{\sum_{i,j=1}^m M_{ij}} 
+\end{align}
+
+Balanced Accuracy (BACC)
+\begin{align}
+\label{eq:BACC}
+BACC = \frac{1}{m} \sum_{j=1}^m \frac{M_{jj}}{\sum_{i=1}^m M_{ij}} 
+\end{align}
+
+Matthews Correlation Coefficient (MCC) according to \cite{Gorodkin2004}
+\begin{align}
+\label{eq:MCC}
+MCC = \frac{\sum_{i,j,k=1}^m M_{ii} M_{jk} - M_{ij} M_{ki}}{\sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ij})(\sum_{\substack{k,l=1\\k!=i}}^m M_{kl})} \sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ji})(\sum_{\substack{k,l=1\\k!=i}}^m M_{lk})}}
+\end{align}\\
+
+In the multi class scenario sensitivity, specificity and precision are defined as class specific measures.\\
+\\
+
+Sensitivity (SENS)
+\begin{align}
+\label{eq:SENS}
+SENS_i = \frac{M_{ii}}{\sum_{j=1}^m M_{ji}}
+\end{align}
+
+Specificity (SPEC)
+\begin{align}
+\label{eq:SPEC}
+SPEC_i = \frac{\sum_{\substack{j=1\\j!=i}}^m M_{jj}}{\sum_{\substack{j,k=1\\k!=i}}^m M_{jk}}
+\end{align}
+
+Precision (PREC)
+\begin{align}
+\label{eq:PREC}
+PREC_i = \frac{M_{ii}}{\sum_{j=1}^m M_{ij}}
+\end{align}
+
+
+\section{User-Defined Sequence Kernels}
+\label{sec:UserDefinedSequenceKernels}
+
+The \KeBABS\ SVM framework gives the users the possibility to work with user-defined sequence kernels. The definition of the kernel is loaded from an R source file before the analysis is started. Following definitions are needed for a user-defined sequence kernel
+
+\begin{description}
+\item[kernel class definition] a kernel class for the new kernel must be defined as subclass of the generic \kebabs\ sequence kernel class \texttt{SequenceKernel}.
+\item[kernel constructor] the constructor function takes kernel parameters as input and returns a kernel object
+\item[kernel processing function] this function performs the actual computation of the kernel matrix 
+\item[show method] a method to display the kernel object 
+\item[coercion method to character] a method that coerces the sequence kernel object to a character string
+\item[kernel parameter getter] the getter reads the kernel parameters of a given kernel object and returns them as list
+\end{description}
+
+An example for a user-defined sequence kernel containing all of these elements can be found in the directory inst/example/UserDefinedSequenceKernel of the \kebabs\ package source tar ball. This example makes the spectrum kernel in package \texttt{kernlab} available as user-defined sequence kernel. The file SpectrumKernlabKernel.R contains the R definitions for the new sequence kernel which internally in the kernel matrix processing routine invokes the kernlab kernel matrix generation using the string dot spectrum kernel. The file RunKernel.R shows an example analysis with the user-defined sequence kernel. The new kernel can be used in the analysis like any \kebabs\ sequence kernel. In this example no additional C/C++ code is necessary. If the new sequence kernel requires code parts in C/C++ a shared library must be prebuilt and loaded. Building of the shared library is done on the command line with R CMD SHLIB, the loading of the shared library in the R session through \texttt{dyn.load()}.
+
+For user-defined sequence kernels an explicit representation, feature weights and prediction profiles are not supported. The new kernel cannot be used as single instance kernel in the symmetric pair kernel.
 
 \section{Future Extensions}
 \label{sec:FutureExtensions}
 
 The current version of the package is single threaded and does not make use of multiprocessing infrastructures. The performance of this framework can further be improved by parallelization of various functions in the package for multicore machines.
 
-To restrict the effort the current implementation only considers SVMs in the packages {\tt kernlab}, {\tt e1071} and {\tt LiblineaR}. In the future additional SVMs should be included in the framework, e.g.
+To restrict the effort the current implementation only considers SVMs in the packages \texttt{kernlab}, \texttt{e1071} and \texttt{LiblineaR}. In the future additional SVMs should be included in the framework, e.g.
 
 \begin{itemize}
  \item Potential Support Vector Machine (PSVM) \citep{Hochreiter2006}
@@ -1590,11 +1706,25 @@ To restrict the effort the current implementation only considers SVMs in the pac
  \item . . .
 \end{itemize}
 
-Currently only {\tt kernlab} supports training via the kernel matrix. For all other SVMs training can only be performed via the explicit representation. The dense version of {\tt libsvm} should be included to provide an alternative training possibility via kernel matrix.
+Additional sequence kernels like the local alignment kernel, Fisher kernel and TOP kernel should be considered for implementation.
 
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.1.9:] \hfill
+\begin{itemize}
+\item inclusion of dense LIBSVM 3.20 for dense kernel matrix support to provide a reliable way for training with kernel matrix
+\item new accessors folds and performance for CrossValidationResult
+\item removed fold performance from show of CV result
+\item adaptions for user defined sequence kernel with new export isUserDefined, example in inst/examples/UserDefinedKernel
+\item correction of errors with position offset for position specific kernels
+\item computation of AUC via trapezoidal rule
+\item changes for auto mode in CV, grid search, model selection
+\item check for non-negative mixing coefficients in spectrum and gappy pair kernel
+\item build warnings in Windows removed
+\item added definition of performance parameters for binary and multiclass classification to vignette
+\item update of citation file and reference section in help pages
+\end{itemize}
 \item[Version 1.1.8:] \hfill
 \begin{itemize}
 \item new accessors selGridRow, selGridCol and fullModel for class ModelSelectionResult
@@ -1666,9 +1796,7 @@ Currently only {\tt kernlab} supports training via the kernel matrix. For all ot
 If you use this package for research that is published later, you are kindly asked to cite it as follows:
 
 \begin{quote}
-J. Palme and U.Bodenhofer (2014).\\
-KeBABS - An R Package for Kernel Based Analysis of Biological Sequences.\\
-Unpublished. http://www.bioconductor.org/packages/release/html/kebabs.html.
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package for kernel-based analysis of biological sequences. Bioinformatics (accepted). DOI: 10.1093/bioinformatics/btv176.
 \end{quote}
 
 To obtain Bib\TeX\ entries of the reference, you can enter the following into your R session:

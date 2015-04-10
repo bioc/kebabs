@@ -5,7 +5,7 @@
 // Package: kebabs
 // Author : J. P.
 //
-// Copyright (C) 2014   J o h a n n e s  P a l m e
+// Copyright (C) 2014-2015   J o h a n n e s  P a l m e
 //
 
 #include "Kebabs.h"
@@ -356,17 +356,17 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                     {
                         switch (indexSize) {
                             case 1:
-                                key = (offset + j + 1) * dimFeatureSpace + ((uint8_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1) * dimFeatureSpace + ((uint8_t *) featVectorIndex)[j];
                                 break;
                             case 2:
-                                key = (offset + j + 1) * dimFeatureSpace + ((uint16_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1) * dimFeatureSpace + ((uint16_t *) featVectorIndex)[j];
                                 break;
                             case 3:
                             case 4:
-                                key = (offset + j + 1) * dimFeatureSpace + ((uint32_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1) * dimFeatureSpace + ((uint32_t *) featVectorIndex)[j];
                                 break;
                             default:
-                                key = (offset + j + 1) * dimFeatureSpace + ((uint64_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1) * dimFeatureSpace + ((uint64_t *) featVectorIndex)[j];
                                 break;
                         }
                     }
@@ -414,17 +414,17 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                     {
                         switch (indexSize) {
                             case 1:
-                                key = (offset + j + 1) * dimFeatureSpace + ((uint8_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1) * dimFeatureSpace + ((uint8_t *) featVectorIndex)[j];
                                 break;
                             case 2:
-                                key = (offset + j + 1) * dimFeatureSpace + ((uint16_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1) * dimFeatureSpace + ((uint16_t *) featVectorIndex)[j];
                                 break;
                             case 3:
                             case 4:
-                                key = (offset + j + 1) * dimFeatureSpace + ((uint32_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1) * dimFeatureSpace + ((uint32_t *) featVectorIndex)[j];
                                 break;
                             default:
-                                key = (offset + j + 1) * dimFeatureSpace + ((uint64_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1) * dimFeatureSpace + ((uint64_t *) featVectorIndex)[j];
                                 break;
                         }
 
@@ -435,7 +435,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                             if (iter != kh_end(hmap64))
                             {
                                 part = normFactor * slot_x[kh_value(hmap64, iter)] / k;
-                                position = offset + j + 1 - minPos;
+                                position = -offset + j + 1 - minPos;
 
                                 for (l = position; l < position + k; l++)
                                     pprof(i, l) += part;
@@ -448,7 +448,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                             if (iter != kh_end(hmap32))
                             {
                                 part = normFactor * slot_x[kh_value(hmap32, iter)] / k;
-                                position = offset + j + 1 - minPos;
+                                position = -offset + j + 1 - minPos;
 
                                 for (l = position; l < position + k; l++)
                                     pprof(i, l) += part;
@@ -613,7 +613,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                     if (iter != kh_end(hmap64))
                     {
                         if (implicitPosition)
-                            position = offset + j - minPos + 1;
+                            position = -offset + j - minPos + 1;
                         else
                             position = featVectorValue[j] - minPos;
 
@@ -652,7 +652,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                     {
                         if (implicitPosition)
                         {
-                            position = offset + j + 1 - minPos;
+                            position = -offset + j + 1 - minPos;
                             weight = featureWeights(kh_value(hmap64, iter), position);
 
                             // late weight pruning for distance weighted kernels

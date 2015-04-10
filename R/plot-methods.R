@@ -64,19 +64,55 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
     if (!is.null(legend))
     {
         if (length(legend) == 1 && legend[1] == "default")
+        {
             legend <- rownames(x@profiles)[sel]
+            
+            if (is.null(legend))
+                legend <- as.character(sel)
+        }
     }
 
     doubleProf <- length(sel) == 2
-    annot <- mcols(x@sequences[sel])[["annotation"]]
-    offset <- mcols(x@sequences[sel])[["offset"]]
 
+    if (inherits(x@kernel, "SequenceKernel") && !isUserDefined(x@kernel) &&
+        kernelParameters(x@kernel)$annSpec ==TRUE)
+        annot <- mcols(x@sequences[sel])[["annotation"]]
+    else
+        annot <- NULL
+    
+    if (inherits(x@kernel, "SequenceKernel") && !isUserDefined(x@kernel) &&
+        length(kernelParameters(x@kernel)$distWeight) > 0)
+        offset <- mcols(x@sequences[sel])[["offset"]]
+    else
+        offset <- NULL
+    
+    shift <- 0
+    
     if (!is.null(offset))
-        shift <- offset[1] - offset[2]
+    {
+        offsetAll <- mcols(x@sequences)[["offset"]]
+        startPos <- -offsetAll
+        startPos[which(startPos > 0)] <- 0
+        startPos <- startPos + 1
+        minPos <- min(startPos)
+
+        if (doubleProf)
+        {
+            shift <- offset[1] - offset[2]
+            start1 <- startPos[sel[1]] - minPos + 1
+            start2 <- startPos[sel[2]] - minPos + 1
+        }
+        else
+        {
+            start1 <- startPos[sel[1]] - minPos + 1
+            start2 <- 0
+        }
+    }
     else
     {
         markOffset <- FALSE
-        shift <- 0
+        start1 <- 1
+        start2 <- 1
     }
 
     if (!doubleProf)
@@ -114,10 +150,10 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 
     n <- max(width(x@sequences[sel]))
 
-    prfl1 <- x@profiles[sel[1],1:n]
+    prfl1 <- x@profiles[sel[1],start1:(start1 + length1 - 1)]
 
     if (doubleProf)
-        prfl2 <- x@profiles[sel[2],1:n]
+        prfl2 <- x@profiles[sel[2],start2:(start2 + length2 - 1)]
     else
         prfl2 <- NULL
 
@@ -231,7 +267,7 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 
     if (markOffset)
     {
-        if (shift2 + offset[2] > 0)
+        if (doubleProf && (shift2 + offset[2] > 0))
         {
             mtext(side=1, at=(shift2 + offset[2] + 0.5), line=-1.3, text="v",
                   col=col[2], cex=1.2)
@@ -460,7 +496,7 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 #'
 #' ## generate prediction profile for the first three test sequences
 #' predProf <- getPredictionProfile(enhancerFB, gappy, featureWeights(model),
-#'                                  model@@b, sel=test[1:3])
+#'                                  modelOffset(model), sel=test[1:3])
 #'
 #' ## show prediction profiles
 #' predProf
@@ -492,7 +528,11 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords prediction profile
 #' @keywords plot
 #' @keywords methods

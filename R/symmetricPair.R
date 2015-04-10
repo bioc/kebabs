@@ -91,13 +91,17 @@
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
 #' (Hue, 2002) -- M.Hue and J.-P.Vert. On learning with kernels for unordered
 #' pairs. \cr\cr
 #' (Ben-Hur, 2005) -- A. Ben-Hur and W.S. Noble. Kernel methods for predicting
-#' protein-protein interactions
-#' (Gaertner, 2002) -- T. Gaertner, P.. Flach, A. Kowalczyk, A.J. Smola.
+#' protein-protein interactions. \cr\cr
+#' (Gaertner, 2002) -- T. Gaertner, P.A. Flach, A. Kowalczyk, A.J. Smola.
 #' Multi-Instance Kernels. \cr\cr
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kernel
 #' @keywords symmetric, pair, symmetricPairKernel, multiple instance learning
 #' @keywords methods
@@ -120,13 +124,16 @@ symmetricPairKernel <- function(siKernel, kernelType=c("mean", "TPPK"),
         (!is(siKernel, "SequenceKernel") && !is(siKernel, "stringkernel")))
         stop("'siKernel' must be a single SequenceKernel or stringkernel\n")
 
+    if (isUserDefined(siKernel))
+        stop("User defined single instance kernel not supported\n")
+
     if (!isSingleNumber(r) || r <= 0)
         stop("r must be a number larger than 0\n")
 
     kernelType <- match.arg(kernelType)
 
-    return(new("SymmetricPairKernel", .Data=rval, siKernel=siKernel,
-               kernelType=kernelType, r=r))
+    return(new("SymmetricPairKernel", .Data=rval, .userDefKernel=FALSE,
+               siKernel=siKernel, kernelType=kernelType, r=r))
 }
 
 symmPairProcessing <- function(x, y, selx, sely, siKernel, kernelType, r,

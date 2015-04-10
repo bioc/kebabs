@@ -5,7 +5,7 @@
 // Package: kebabs
 // Author : J. P.
 //
-// Copyright (C) 2014   J o h a n n e s  P a l m e
+// Copyright (C) 2014-2015   J o h a n n e s  P a l m e
 //
 
 #include "Kebabs.h"
@@ -609,7 +609,7 @@ void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, B
         noSamples += sizeY;
 
     // add one for the sentinel
-    if (dimFeatureSpace < maxSeqLength)
+    if (dimFeatureSpace < (uint64_t) maxSeqLength)
         maxNumFeatures = dimFeatureSpace + 1;
     else
         maxNumFeatures = maxSeqLength + 1;
@@ -1131,7 +1131,7 @@ void getKMPosDistSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
 
         featVectorsStart[i + 1] = elemIndex;
 
-        if (maxFeaturesPerSample < (featVectorsStart[i + 1] - featVectorsStart[i]))
+        if (maxFeaturesPerSample < (int) (featVectorsStart[i + 1] - featVectorsStart[i]))
             maxFeaturesPerSample = featVectorsStart[i + 1] - featVectorsStart[i];
 
         // for dist weighting the kernel value is determined in computeKernelMatrixPos

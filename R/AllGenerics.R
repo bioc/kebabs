@@ -16,6 +16,12 @@ if (!isGeneric("kernelParameters"))
                                          standardGeneric("kernelParameters"))
 }
 
+if (!isGeneric("isUserDefined"))
+{
+    setGeneric("isUserDefined", function(object, ...)
+                                         standardGeneric("isUserDefined"))
+}
+
 if (!isGeneric("getFeatureSpaceDimension"))
 {
     setGeneric("getFeatureSpaceDimension", function(kernel, ...)
@@ -160,6 +166,16 @@ if (!isGeneric("fullModel"))
         fun <- function(object, ...) standardGeneric("fullModel")
     
     setGeneric("fullModel", fun)
+}
+
+if (!isGeneric("folds"))
+{
+    if (is.function("folds"))
+        fun <- folds
+    else
+        fun <- function(object, ...) standardGeneric("folds")
+    
+    setGeneric("folds", fun)
 }
 
 ## accessors for KBModel

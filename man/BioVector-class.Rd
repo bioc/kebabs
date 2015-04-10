@@ -51,7 +51,17 @@ and holds a DataTable with one entry per sequence in each column.
 KeBABS uses the column names "annotation" and "offset".}
 
 \item{\code{metadata}}{metadata applicable for the entire sequence set as list.
-KeBABS stores the annotation character set as list element
-named "annotationCharset".}
+      KeBABS stores the annotation character set as list element
+      named "annotationCharset".}
 }}
+\author{
+Johannes Palme <kebabs@bioinf.jku.at>
+}
+\references{
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
+Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
+package for kernel-based analysis of biological sequences.
+\emph{Bioinformatics} (accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+}
 

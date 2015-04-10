@@ -90,6 +90,12 @@ maxAnnotationCharsetLength <- 32
 #' \code{\link{RNAStringSet}}, \code{\link{AAStringSet}}
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 
 ###################################################
 ##
@@ -456,6 +462,97 @@ setReplaceMethod("mcols", signature(x="BioVector"),
     }
 )
 
+###################################################
+##
+## CrossValidationResult accessors
+##
+###################################################
+
+#' @rdname CrossValidationResultAccessors
+#' @title CrossValidationResult Accessors
+#' @name CrossValidationResultAccessors
+#' @aliases
+#' folds
+#' folds,CrossValidationResult-method
+#' performance,CrossValidationResult-method
+#' @param object a cross validation result object (can be extracted from
+#' KeBABS model with accessor \code{\link{cvResult}})
+#' @section Accessor-like methods:
+#'
+#' \describe{
+#'   \item{}{\code{folds}:
+#'   return the CV folds.
+#'   }
+#'   \item{}{\code{performance}:
+#'   return the collected performance parameters.
+#'   }
+#' }
+#' @return \code{folds}: returns the folds used in CV\cr
+#' \code{performance}: returns a list with the performance values
+#' @examples
+#' ## create kernel object for normalized spectrum kernel
+#' specK5 <- spectrumKernel(k=5)
+#' \dontrun{
+#' ## load data
+#' data(TFBS)
+#'
+#' ## perform training - feature weights are computed by default
+#' model <- kbsvm(enhancerFB, yFB, specK5, pkg="LiblineaR",
+#'                svm="C-svc", cross=10, cost=15, perfParameters="ALL")
+#'
+#' ## show model selection result
+#' cvResult(model)
+#'
+#' ## extract fold AUC
+#' performance(cvResult(model))$foldAUC
+#' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+
+setMethod("folds", "CrossValidationResult",
+function(object) object@folds)
+
+performance.CrossValidationResult <- function(object)
+{
+    result <- list()
+
+    result$cvError <- object@cvError
+    result$foldErrors <- object@foldErrors
+    result$noSV <- object@noSV
+
+    if ("ACC" %in% object@perfParameters)
+    {
+        result$ACC <- object@ACC
+        result$foldACC <- object@foldACC
+    }
+    if ("BACC" %in% object@perfParameters)
+    {
+        result$BACC <- object@BACC
+        result$foldBACC <- object@foldBACC
+    }
+    
+    if ("MCC" %in% object@perfParameters)
+    {
+        result$MCC <- object@MCC
+        result$foldMCC <- object@foldMCC
+    }
+    
+    if ("AUC" %in% object@perfParameters)
+    {
+        result$AUC <- object@AUC
+        result$foldAUC <- object@foldAUC
+    }
+    
+    result
+}
+
+setMethod("performance", "CrossValidationResult",
+performance.CrossValidationResult)
 
 ###################################################
 ##
@@ -539,6 +636,13 @@ setReplaceMethod("mcols", signature(x="BioVector"),
 #' ## extract other performance parameters
 #' performance(mres)
 #' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 
 setMethod("gridRows", "ModelSelectionResult",
           function(object) object@gridRows)
@@ -635,6 +739,13 @@ setMethod("fullModel", "ModelSelectionResult",
 #' ## accessor for auc
 #' auc(rocdata)
 #' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 
 ## accessor auc
 setMethod("auc", "ROCData", function(object) object@AUC)
@@ -755,6 +866,13 @@ setReplaceMethod("fpr", "ROCData",
 #' ## show model offset
 #' modelOffset(model)
 #' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 
 
 ## accessor modelOffset for b
@@ -898,6 +1016,13 @@ setReplaceMethod("probabilityModel", "KBModel",
 #' km1to5 <- km[1:5,1:5]
 #' km1to5
 #' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 
 
 setMethod("[", signature(x="KernelMatrix", i="index", j="missing"),
@@ -1092,6 +1217,13 @@ setMethod("[", signature(x="KernelMatrix", i="index", j="index"),
 #'   }
 #' }
 #' @return see details above 
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 
 setMethod("[", signature(x="ExplicitRepresentationDense", i="index",
                          j="missing"),
@@ -1635,6 +1767,13 @@ setMethod("[", signature(x="ExplicitRepresentationSparse", i="index",
 #' profiles(predProf15)
 #' baselines(predProf15)
 #' }
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 
 setMethod("sequences", "PredictionProfile", function(object) object@sequences)
 setMethod("profiles", "PredictionProfile", function(object) object@profiles)

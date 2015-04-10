@@ -125,7 +125,11 @@
 #' 
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kernel
 #' @keywords methods
 #' @export
@@ -165,6 +169,17 @@ getKernelMatrix <- function(kernel, x, y, selx, sely)
     }
 }
 
+anyUserDefinedKernel <- function(kernels)
+{
+    if (is.null(kernels))
+        return(FALSE)
+    
+    if (is(kernels, "SequenceKernel"))
+        return(isUserDefined(kernels))
+    else
+        return(any(unlist(lapply(kernels, isUserDefined))))
+}
+
 #' @rdname sequenceKernel
 #' @name kernelParameters-method
 #' @aliases
@@ -192,7 +207,7 @@ setMethod("kernelParameters", signature=signature(object="MismatchKernel"),
 #' kernelParameters,GappyPairKernel-method
 
 setMethod("kernelParameters", signature=signature(object="GappyPairKernel"),
-function(object){object(self=object)})
+          function(object){object(self=object)})
 
 #' @rdname sequenceKernel
 #' @aliases
@@ -210,6 +225,28 @@ setMethod("kernelParameters", signature=signature(object="SymmetricPairKernel"),
 
 ## compatibility to kernlab
 #setMethod("kernelParameters","kernel", function(object) kpar(object))
+
+#' @rdname sequenceKernel
+#' @aliases
+#' isUserDefined
+#' isUserDefined,SequenceKernel-method
+#'
+#' @return
+#' isUserDefined: boolean indicating whether kernel is user-defined or not
+
+
+setMethod("isUserDefined", signature=signature(object="SequenceKernel"),
+          function(object){object@.userDefKernel})
+
+supportsExplicitRep <- function(kernel)
+{
+    if (inherits(kernel, "SequenceKernel") &&
+        !isUserDefined(kernel) &&
+        length(kernelParameters(kernel)$distWeight) == 0)
+        return(TRUE)
+    else
+        return(FALSE)
+}
 
 getFeatureSpaceDimension.stringkernel <- function(kernel, x)
 {

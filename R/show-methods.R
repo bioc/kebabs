@@ -108,6 +108,13 @@ show.BioVectorSeq <- function(object, index, wIndex, wWidth, wSeq,
 #'
 #' ## show dense explicit representation
 #' show(er)
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 
 show.BioVector <- function(object)
 {
@@ -603,6 +610,23 @@ setMethod("show", signature(object="GappyPairKernel"),
 
 #' @rdname show-methods
 #' @aliases
+#' show,SymmetricPairKernel-method
+#'
+
+setMethod("show", signature(object="SymmetricPairKernel"),
+    function(object)
+    {
+        cat("Symmetric Pair Kernel: ")
+        cat("kernelType=", object@kernelType)
+        if (object@r > 1)
+            cat(paste(", r=", object@r, sep=""))
+        cat("\n  Single Instance Kernel:\n    ")
+        show(object@siKernel)
+    }
+)
+
+#' @rdname show-methods
+#' @aliases
 #' show,ExplicitRepresentationDense-method
 #'
 
@@ -766,129 +790,6 @@ setMethod("show", signature(object="CrossValidationResult"),
             }
 
             cat("\n")
-        }
-
-
-        if (length(object@groupBy) > 0)
-        {
-            cat(paste("groupBy:\n"))
-
-            if (length(object@groupBy) < 100)
-                cat(paste(object@groupBy, collapse=","))
-            else
-            {
-                cat(paste(object@groupBy[1:3], collapse=","), "...",
-                    paste(object@groupBy[(length(object@groupBy)-2):
-                                         length(object@groupBy)],
-                          collapse=","))
-            }
-
-            cat("\n\n")
-        }
-
-
-        cat(paste("Fold CV errors:\n"))
-
-        if (length(object@foldErrors) < 24)
-            cat(paste(format(object@foldErrors, digits=8), collapse=", "))
-        else
-        {
-            cat(paste(format(object@foldErrors[1:2], digits=8),
-                      collapse=", "), "...",
-                paste(format(object@foldErrors[(length(object@foldErrors)-1):
-                                               length(object@foldErrors)],
-                              digits=8), collapse=", "))
-        }
-
-        cat("\n")
-
-        if ("ACC" %in% object@perfParameters)
-        {
-            cat(paste("\nFold accuracies:\n"))
-
-            if (length(object@foldACC) < 24)
-                cat(paste(format(object@foldACC, digits=8), collapse=", "))
-            else
-            {
-                cat(paste(format(object@foldACC[1:2], digits=8),
-                          collapse=", "), "...",
-                    paste(format(object@foldACC[(length(object@foldACC)-1):
-                                                length(object@foldACC)],
-                                 digits=8), collapse=", "))
-            }
-
-            cat("\n")
-        }
-
-        if ("BACC" %in% object@perfParameters)
-        {
-            cat(paste("\nFold balanced accuracies:\n"))
-
-            if (length(object@foldBACC) < 24)
-            cat(paste(format(object@foldBACC, digits=8), collapse=", "))
-            else
-            {
-                cat(paste(format(object@foldBACC[1:2], digits=8),
-                          collapse=", "), "...",
-                    paste(format(object@foldBACC[(length(object@foldBACC)-1):
-                                                 length(object@foldBACC)],
-                                 digits=8), collapse=", "))
-            }
-
-            cat("\n")
-        }
-
-        if ("MCC" %in% object@perfParameters)
-        {
-            cat(paste("\nFold Matthews CC:\n"))
-
-            if (length(object@foldMCC) < 24)
-            cat(paste(format(object@foldMCC, digits=8), collapse=", "))
-            else
-            {
-                cat(paste(format(object@foldMCC[1:2], digits=8),
-                          collapse=", "), "...",
-                    paste(format(object@foldMCC[(length(object@foldMCC)-1):
-                                                length(object@foldMCC)],
-                                 digits=8), collapse=", "))
-            }
-
-            cat("\n")
-        }
-
-        if ("AUC" %in% object@perfParameters)
-        {
-            cat(paste("\nFold AUCs:\n"))
-
-            if (length(object@foldAUC) < 24)
-                cat(paste(format(object@foldAUC, digits=8), collapse=", "))
-            else
-            {
-                cat(paste(format(object@foldAUC[1:2], digits=8),
-                          collapse=", "), "...",
-                    paste(format(object@foldAUC[(length(object@foldAUC)-1):
-                                                length(object@foldAUC)],
-                                 digits=8), collapse=", "))
-            }
-
-            cat("\n")
-        }
-
-        cat("\n")
-
-        if (!all(is.na(object@noSV)))
-        {
-            cat(paste("No of support vectors:\n"))
-            if (length(object@noSV) < 24)
-                cat(paste(object@noSV, collapse=", "))
-            else
-            {
-                cat(paste(object@noSV[1:3], collapse=", "), "...",
-                    paste(object@noSV[(length(object@noSV)-2):
-                                      length(object@noSV)], collapse=", "))
-            }
-
-            cat("\n\n")
         }
     }
 )

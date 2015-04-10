@@ -6,6 +6,9 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
                        groupBy, nestedCross, noNestedCross, perfParameters,
                        perfObjective, runtimeWarning, addArgs)
 {
+    ## pkg can still be "auto" for basic training and CV in this
+    ## function and is set after this function in selectSVMMethod
+    
     ## allocate new model
     model <- new("KBModel")
     model@svmInfo <- new("SVMInformation")
@@ -19,9 +22,17 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
     if (!is.character(pkg))
         stop("'pkg' parameter must be a character vector\n", call.=FALSE)
 
-    ## load SVM packages
-    loadSVMPackages(pkg)
 
+    ## check and load SVM packages
+    if (!(length(pkg) == 1 && pkg[1] == "auto"))
+    {
+        pkg <- checkSVMPackagePresence(pkg)
+        loadSVMPackages(pkg)
+        
+        if (all(pkg == "kernlab"))
+            model@ctlInfo@onlyDense <- TRUE
+    }
+    
     if (!is.character(svm))
         stop("'svm' parameter must be a character vector\n", call.=FALSE)
 
@@ -44,7 +55,7 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
         if (length(sel) > 0)
             stop("parameter 'sel' only allowed for sequences\n", call.=FALSE)
 
-        if (length(explicit) > 0 && !(explicit == "no"))
+        if (length(explicit) > 0 && (explicit == "yes"))
         {
             stop("explicit representation not available for call with\n",
                  "       kernel matrix\n", call.=FALSE)
@@ -53,12 +64,10 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
         if (any(pkg == "LiblineaR"))
             stop("kernel matrix via LiblineaR is not supported\n", call.=FALSE)
 
-        if (any(pkg == "e1071"))
-        {
-            stop("kernel matrix via e1071 is currently not supported\n",
-                 call.=FALSE)
-        }
         model@numSequences <- nrow(x)
+        
+        if (featureWeights == "auto")
+            featureWeights <- "no"
     }
     else
     {
@@ -113,12 +122,6 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
                 stop("kernel matrix via LiblineaR is not supported\n",
                      call.=FALSE)
             }
-
-            if (any(pkg == "e1071"))
-            {
-                stop("kernel matrix via e1071 is currently not supported\n",
-                     call.=FALSE)
-            }
         }
     }
 
@@ -150,40 +153,44 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
         else
             model@levels <- sort(unique(y))
             
-            ## $$$ TODO AUC for multiclass is currently not supported
-            if (("AUC" %in% perfParameters) && length(model@levels) > 2)
-            {
-                if (length(setdiff(c("ACC","BACC","MCC","AUC"), perfParameters)) == 0)
-                    perfParameters <- setdiff(perfParameters, "AUC")
-                else
-                    stop("AUC is currently not supported for multiclass")
-            }
+        ## $$$ TODO AUC for multiclass is currently not supported
+        if (("AUC" %in% perfParameters) && length(model@levels) > 2)
+        {
+            if (length(setdiff(c("ACC","BACC","MCC","AUC"),
+                               perfParameters)) == 0)
+                perfParameters <- setdiff(perfParameters, "AUC")
+            else
+                stop("AUC is currently not supported for multiclass")
+        }
     }
 
     if (!isSingleString(explicitType) ||
         !(explicitType %in% c("auto", "sparse", "dense")))
         stop("'explicitType' must be auto, sparse or dense\n",call.=FALSE)
 
-    if ((length(features) > 0) && !is.character(features))
-        stop("'features' must be a character vector\n", call.=FALSE)
-
-    if ((!(is.null(kernel) && is.list(kernel))) ||
-        length(svm) > 1 || length(pkg) > 1 ||
-        (!is.null(addArgs) && length(addArgs) > 0))
-    {
-        model <- checkModelSelParams(model=model, x=x, y=y, kernel=kernel,
-                        svm=svm, pkg=pkg, explicit=explicit,
-                        featureWeights=featureWeights, sel=sel,
-                        features=features, weightLimit=weightLimit,
-                        cross=cross, noCross=noCross, groupBy=groupBy,
-                        nestedCross=nestedCross, noNestedCross=noNestedCross,
-                        addArgs=addArgs, perfParameters=perfParameters,
-                        perfObjective=perfObjective)
-    }
+    if (explicitType == "sparse" &&
+        model@ctlInfo@onlyDense == TRUE)
+        stop("package kernlab does not support sparse data\n",call.=FALSE)
 
     if (!isSingleString(featureWeights) ||
         !(featureWeights %in% c("auto", "yes", "no")))
         stop("'featureWeights' must be auto, yes or no\n", call.=FALSE)
+
+    ## feature weights not supported for user-defined kernels
+    if (anyUserDefinedKernel(kernel))
+    {
+        if (featureWeights == "yes")
+        {
+            stop("feature weights not supported for user-defined kernels\n",
+                 call.=FALSE)
+        }
+
+        if (featureWeights == "auto")
+            featureWeights <- "no"
+
+        if (explicit == "auto")
+            explicit <- "no"
+    }
 
     ## feature weights currently not supported for mc-natW (kbb-svc in kernlab)
     if ("mc-natW" %in% svm)
@@ -196,6 +203,23 @@ checkKBSVMParams <- function(x, y, sel, kernel, svm, pkg, explicit,
 
         if (featureWeights == "auto")
             featureWeights <- "no"
+    }
+
+    if ((length(features) > 0) && !is.character(features))
+        stop("'features' must be a character vector\n", call.=FALSE)
+
+    if ((!is.null(kernel) && is.list(kernel)) ||
+        length(svm) > 1 || length(pkg) > 1 ||
+        (!is.null(addArgs) && any(lapply(addArgs, length) > 1)))
+    {
+        model <- checkModelSelParams(model=model, x=x, y=y, kernel=kernel,
+                        svm=svm, pkg=pkg, explicit=explicit,
+                        featureWeights=featureWeights, sel=sel,
+                        features=features, weightLimit=weightLimit,
+                        cross=cross, noCross=noCross, groupBy=groupBy,
+                        nestedCross=nestedCross, noNestedCross=noNestedCross,
+                        addArgs=addArgs, perfParameters=perfParameters,
+                        perfObjective=perfObjective)
     }
 
     if (!is.null(weightLimit) && !isSingleNumber(weightLimit))
@@ -294,6 +318,10 @@ checkModelSelParams <- function(model, x, y, sel, features, kernel, svm, pkg,
 {
     modelSel <- FALSE
 
+    ## no automatic package selection for grid search and model selection
+    if (length(pkg) == 1 && pkg == "auto")
+        stop("missing SVM package name(s)\n")
+
     if (is.null(model@modelSelResult))
     {
         if (!(perfObjective %in% perfParameters))
@@ -348,27 +376,9 @@ checkModelSelParams <- function(model, x, y, sel, features, kernel, svm, pkg,
             }
 
             modelSel <- TRUE
-            count <- length(which(tolower(pkg) == "kernlab"))
-
-            if (count == length(pkg))
-            {
-                if (length(model@svmInfo@reqExplicitType) > 0 &&
-                    model@svmInfo@reqExplicitType == "sparse")
-                {
-                    stop("Package kernlab does not support sparse data\n",
-                         call.=FALSE)
-                }
-
-                model@ctlInfo@onlyDense <- TRUE
-            }
-            else
-                model@ctlInfo@onlyDense <- FALSE
 
             for (i in 1:length(pkg))
             {
-                if (!(pkg[i] %in% model@svmInfo@availPackages))
-                    stop("not installed or unsupported package\n", call.=FALSE)
-
                 if (tolower(pkg[i]) == "liblinear")
                     pkg[i] = "LiblineaR"
                 else
@@ -378,23 +388,9 @@ checkModelSelParams <- function(model, x, y, sel, features, kernel, svm, pkg,
 
                 if (nchar(classifierType) < 1)
                     stop("invalid svm selected\n", call.=FALSE)
-
-                if (!require(pkg[i], character.only=TRUE))
-                {
-                    stop(paste("Could not load package", pkg[i]), "\n",
-                         call.=FALSE)
-                }
             }
 
             model@modelSelResult@gridCols <- data.frame(pkg=pkg, svm=svm)
-        }
-        else
-        {
-            if (!require(pkg[1], character.only=TRUE))
-            {
-                stop(paste("Could not load package", pkg[1]), "\n",
-                     call.=FALSE)
-            }
         }
 
         if(!is.null(addArgs) && length(addArgs) > 0)
@@ -489,13 +485,6 @@ checkModelSelParams <- function(model, x, y, sel, features, kernel, svm, pkg,
     return(model)
 }
 
-## $$$ TODO Remove ???
-getSVMParams <- function(model, ...)
-{
-    ## $$$ TODO
-    return(model@svmInfo)
-}
-
 detectInstalledPackages <- function(lookFor)
 {
     ## check which of the packages are available
@@ -503,28 +492,39 @@ detectInstalledPackages <- function(lookFor)
     return(detected)
 }
 
-loadSVMPackages <- function(pkgs)
+checkSVMPackagePresence <- function(pkgs)
 {
+    if (length(pkgs) == 1 && pkgs[1] == "auto")
+        return(pkgs)
+    
     ## neutralization of case sensitivity
-    neededPkgs = tolower(unique(pkgs))
-    neededPkgs[which(neededPkgs == "liblinear")] <- "LiblineaR"
+    newPkgs <- tolower(pkgs)
+    newPkgs[which(newPkgs == "liblinear")] <- "LiblineaR"
+    neededPkgs <- unique(newPkgs)
     unsuppPkgs <- setdiff(neededPkgs, getSupportedPackages())
 
     if (length(unsuppPkgs) > 0)
     {
         stop("\npackage list contains following unsupported packages:",
-             unsuppPkgs, call.=FALSE)
+        unsuppPkgs, call.=FALSE)
     }
 
     presentPkgs <- detectInstalledPackages(neededPkgs)
 
     if (length(presentPkgs) < length(neededPkgs))
     {
-        stop("\nplease install following packages:", 
-             setdiff(neededPkgs, presentPkgs))
+        stop("\nplease install following packages:",
+        setdiff(neededPkgs, presentPkgs))
     }
+    
+    return(newPkgs)
+}
 
+loadSVMPackages <- function(pkgs)
+{
     loadSuccess <- TRUE
+    neededPkgs <- unique(pkgs)
+
     for (i in 1:length(neededPkgs))
     {
         tryCatch({library(neededPkgs[i], character.only=TRUE,
@@ -549,40 +549,67 @@ loadSVMPackages <- function(pkgs)
 
 selectSVMMethod <- function(model, supportedPackages, x)
 {
-    ## determine control information
+    sampleLimitForKM <- 5000
+    fastSVMLimitForER <- 1000
+    denseERFeatureLimit <- 1000
+    featureSpaceLimit <- 100000
 
-    ## $$$ TODO
+    ## $$$ TODO Remove
+    kebabsInfo@kebabsDebug <- FALSE
+    
+    ## support automatic package selection only for C-svc
+    if (model@svmInfo@reqPackage == "auto" &&
+        model@svmInfo@reqSVM != "C-svc")
+        stop("please specific an SVM package\n")
 
-    kmSampleLimit = 99
-    exRepLimit = 100
+    model@svmInfo@selKernel <- model@svmInfo@reqKernel
+    model@svmInfo@selSVM <- model@svmInfo@reqSVM
 
-    ## $$$ TODO decide whether dense or sparse ER
-    ## $$$ TODO for probModel only kernlab or e1071 is possible as
-    ##          automatically selected package
+    ## select method and package dependent on data size, capabilities of
+    ## SVM, compatibility with requested parameters and knowledge of
+    ## performance characteristics
+    
+    ## 1. Determine whether explicit representation or kernel matrix
 
-    ## select svm and method dependent on data size, compatibility of
-    ## requested paramters and knowledge of performance characteristics
-    ## warning if high performance demand expected
-
-    ## string kernel does not support explicit representation
-    ## => always go via kernel matrix in this case
-
-    ## decide whether explicit representation or kernel matrix
+    ## user requests ER or package needs ER
     if (model@svmInfo@reqExplicit == "yes" ||
-        (model@svmInfo@reqExplicit=="auto" &&
-         (!is(model@svmInfo@reqKernel, "stringkernel") &&
-          !(is(model@svmInfo@reqKernel, "SequenceKernel") &&
-            length(kernelParameters(model@svmInfo@reqKernel)$distWeight) > 0))
-            && (model@numSequences > kmSampleLimit ||
-                model@svmInfo@reqPackage %in% c("e1071", "LiblineaR"))))
+        model@svmInfo@reqPackage %in% c("LiblineaR"))
     {
         model@svmInfo@selExplicit <- TRUE
         model@svmInfo@explicitKernel <- model@svmInfo@reqFeatureType
     }
-    else
+    ## user requests KM or passes kernel matrix or kernel allows only KM
+    else if (model@svmInfo@reqExplicit == "no" ||
+             is(x, "KernelMatrix") ||
+             ((is(x, "XstringSet") || is(x, "BioVector")) &&
+              !supportsExplicitRep(model@svmInfo@selKernel)))
     {
         model@svmInfo@selExplicit <- FALSE
         model@svmInfo@explicitKernel <- "no"
+        
+        if (model@svmInfo@reqExplicit == "yes")
+            stop("processing via explicit representation is not possible\n")
+    }
+    else if (model@svmInfo@reqExplicit == "auto")
+    {
+        ## all packages support ER but kernlab only dense
+        if (!is(x, "KernelMatrix") &&
+            (is(x, "ExplicitRepresentation") ||
+             supportsExplicitRep(model@svmInfo@selKernel) &&
+             (model@numSequences > sampleLimitForKM ||
+              (!isUserDefined(model@svmInfo@selKernel) &&
+               (is(x, "XStringSet") || is(x, "BioVector")) &&
+               getFeatureSpaceDimension(model@svmInfo@selKernel, x) <
+                  featureSpaceLimit))))
+        {
+            model@svmInfo@selExplicit <- TRUE
+            model@svmInfo@explicitKernel <- model@svmInfo@reqFeatureType
+        }
+        else
+        {
+            model@svmInfo@selExplicit <- FALSE
+            model@svmInfo@explicitKernel <- "no"
+        }
     }
 
     if (model@svmInfo@selExplicit == TRUE)
@@ -590,76 +617,93 @@ selectSVMMethod <- function(model, supportedPackages, x)
     else
         model@ctlInfo@selMethod <- "KernelMatrix"
 
-    if (kebabsInfo@kebabsDebug == "TRUE")
-    {
-        print(model@ctlInfo@selMethod)
-        print(model@svmInfo@selExplicit)
-        print(model@svmInfo@explicitKernel)
-    }
-
-    ## decide which package should be used and load it
-    if (model@svmInfo@reqPackage != "auto")
-    {
-        if (!require(model@svmInfo@reqPackage, character.only=TRUE))
-        {
-            stop(paste("Could not load package", model@svmInfo@reqPackage,
-                       "\n", call.=FALSE))
-        }
-
-        model@svmInfo@selPackage <- model@svmInfo@reqPackage
-        model@svmInfo@selSVM <- model@svmInfo@reqSVM
-        model@svmInfo@selKernel <- model@svmInfo@reqKernel
-        model@svmInfo@selSVMPar <- model@svmInfo@reqSVMPar
-    }
-    else
-    {
-        if (model@svmInfo@selExplicit == TRUE &&
-            model@numSequences > exRepLimit &&
-            "LiblineaR" %in% model@svmInfo@availPackages)
-            model@svmInfo@selPackage <- "LiblineaR"
-        else
-            model@svmInfo@selPackage <- "e1071"
-
-        if (model@svmInfo@selPackage != model@svmInfo@reqPackage)
-        {
-            # model@svmInfo <- transSVMAndKernelPars(model)
-            model@svmInfo <- convertSVMParameters(model)
-        }
-        else
-        {
-            model@svmInfo@selSVM <- model@svmInfo@reqSVM
-            model@svmInfo@selKernel <- model@svmInfo@reqKernel
-            model@svmInfo@selSVMPar <- model@svmInfo@reqSVMPar
-        }
-    }
-
-    ## $$$ TODO extend sparsity control
+    ## 2. If ER determine dense or sparse
 
     if (model@svmInfo@selExplicit == TRUE)
     {
-        if (model@svmInfo@reqExplicitType == "auto")
-        {
-            if (model@svmInfo@selPackage == "kernlab")
-                model@ctlInfo@sparse <- FALSE
-            else
-                model@ctlInfo@sparse <- TRUE
-        }
-        else if (model@svmInfo@reqExplicitType == "sparse")
-            model@ctlInfo@sparse <- TRUE
-        else
+        model@ctlInfo@sparse <- TRUE
+
+        if (model@svmInfo@reqExplicitType == "dense")
             model@ctlInfo@sparse <- FALSE
+        else if (model@svmInfo@reqExplicitType == "auto")
+        {
+            if (model@svmInfo@reqPackage == "kernlab")
+                model@ctlInfo@sparse <- FALSE
+        }
     }
 
-#    if (model@svmInfo@selExplicit == TRUE &&
-#        !model@svmInfo@reqExplicitType == "dense" &&
-#        (is.null(model@modelSelResult) &&
-#         model@svmInfo@selPackage != "kernlab") &&
-#        !is.null(model@svmInfo@selKernel))
-#    {
-#        if ((class(model@svmInfo@selKernel) == "MotifKernel") ||
-#            (kernelParameters(model@svmInfo@selKernel)$k >= 5))
-#            model@ctlInfo@sparse=TRUE
-#    }
+    ## 3. Select package if not predefined
+
+    if (model@svmInfo@reqPackage != "auto")
+    {
+        model@svmInfo@selPackage <- model@svmInfo@reqPackage
+        model@svmInfo@selSVM <- model@svmInfo@reqSVM
+        model@svmInfo@selSVMPar <- model@svmInfo@reqSVMPar
+
+        if (model@svmInfo@selExplicit == TRUE &&
+            !supportsExplicitRep(model@svmInfo@selKernel))
+            stop("kernel does not support an explicit representation\n")
+
+        if (model@svmInfo@selExplicit == FALSE &&
+            model@svmInfo@selPackage %in% c("LiblineaR"))
+            stop("SVM does not support kernel matrices\n")
+    }
+    else
+    {
+        if (length(model@svmInfo@reqSVM) > 1 ||
+            !(model@svmInfo@reqSVM %in%
+              c("C-svc", "nu-svc", "eps-svr", "nu-svr")))
+            stop("please specific an R package")
+
+        ## probability model only available in kernlab and e1071
+        if (model@svmInfo@selExplicit == FALSE)
+        {
+            model@svmInfo@selPackage <- "e1071"
+            
+            if (model@svmInfo@reqExplicitType == "auto")
+                model@ctlInfo@sparse <- FALSE
+        }
+        else
+        {
+            if (model@numSequences > fastSVMLimitForER &&
+                "LiblineaR" %in% model@svmInfo@availPackages &&
+                !(model@svmInfo@probModel == TRUE))
+            {
+                model@svmInfo@selPackage <- "LiblineaR"
+
+                if (model@svmInfo@reqExplicitType == "auto")
+                    model@ctlInfo@sparse <- FALSE
+            }
+            else
+            {
+                model@svmInfo@selPackage <- "e1071"
+            
+                if (model@svmInfo@reqExplicitType == "auto")
+                {
+                    if (inherits(x, "ExplicitRepresentationDense") ||
+                        (length(model@svmInfo@selKernel) == 1 &&
+                        inherits(model@svmInfo@selKernel, "SequenceKernel") &&
+                        !isUserDefined(model@svmInfo@selKernel) &&
+                        (is(x, "XstringSet") || is(x, "BioVector")) &&
+                        getFeatureSpaceDimension(model@svmInfo@selKernel, x) <
+                        denseERFeatureLimit))
+                        model@ctlInfo@sparse <- FALSE
+                    else
+                        model@ctlInfo@sparse <- TRUE
+                }
+            }
+        }
+
+        if (model@svmInfo@selPackage != model@svmInfo@reqPackage)
+            model@svmInfo <- convertSVMParameters(model)
+        else
+            model@svmInfo@selSVMPar <- model@svmInfo@reqSVMPar
+    }
+
+    ## 4. Load package if a new one was selected
+    
+    if (model@svmInfo@reqPackage == "auto")
+        loadSVMPackages(model@svmInfo@selPackage)
 
     model@ctlInfo@classification <-
         isClassification(model@svmInfo@selPackage,
@@ -667,14 +711,16 @@ selectSVMMethod <- function(model, supportedPackages, x)
 
     if (kebabsInfo@kebabsDebug == "TRUE")
     {
-        print(model@ctlInfo@selMethod)
-        print(model@svmInfo@selExplicit)
-        print(model@svmInfo@explicitKernel)
-        print(model@svmInfo@selSVM)
-        print(model@svmInfo@selPackage)
+        cat("Classification: ", model@ctlInfo@classification, "\n")
+        cat("Method:         ", model@ctlInfo@selMethod, "\n")
+        cat("Sparse:         ", model@ctlInfo@sparse, "\n")
+        cat("Explicit Type:  ", model@svmInfo@explicitKernel, "\n")
+        cat("Package:        ", model@svmInfo@selPackage, "\n")
+        cat("SVM:            ", model@svmInfo@selSVM, "\n")
+        cat("SVM Parameters:\n")
         print(model@svmInfo@selSVMPar)
     }
-
+    
     return(list(model@svmInfo, model@ctlInfo))
 }
 

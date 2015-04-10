@@ -1,14 +1,13 @@
-/*
- *   Utilitiy Routines
- *
- *   Source: Utils.cpp
- *   Author: Johannes Palme
- *
- *   Copyright (c) 2014, Johannes Palme
- *
- */
+//
+// Utilitiy Routines
+//
+// Source : Utils.cpp
+// Package: kebabs
+// Author : J. P.
+//
+// Copyright (C) 2014-2015   J o h a n n e s  P a l m e
+//
 
-//#include <Rcpp.h>
 #include "Kebabs.h"
 #include "KernelUtils.h"
 

@@ -1,12 +1,12 @@
-/*
- *   Utilitiy Routines for SequenceKernels
- *
- *   Source: KernelUtils.cpp
- *   Author: Johannes Palme
- *
- *   Copyright (c) 2014, Johannes Palme
- *
- */
+//
+// Utilitiy Routines for SequenceKernels
+//
+// Source : KernelUtils.cpp
+// Package: kebabs
+// Author : J. P.
+//
+// Copyright (C) 2014-2015   J o h a n n e s  P a l m e
+//
 
 #include "KernelUtils.h"
 

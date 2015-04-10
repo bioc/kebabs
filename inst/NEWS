@@ -1,6 +1,24 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.1.9
+- inclusion of dense LIBSVM 3.20 for dense kernel matrix support
+  to provide a reliable way for training with kernel matrices
+- new accessors folds and performance for CrossValidationResult
+- removed fold performance from show of CV result
+- adaptions for user defined sequence kernel with new export
+  isUserDefined, example in inst/examples/UserDefinedKernel
+- correction of errors with position offset for position specific
+  kernels
+- computation of AUC via trapezoidal rule
+- changes for auto mode in CV, grid search, model selection
+- check for non-negative mixing coefficients in spectrum and
+  gappy pair kernel
+- build warnings on Windows removed
+- added definition of performance parameters for binary
+  and multiclass classification to vignette
+- update of citation file and reference section in help pages
+
 Version 1.1.8
 - new accessors selGridRow, selGridCol and fullModel for class
   ModelSelectionResult

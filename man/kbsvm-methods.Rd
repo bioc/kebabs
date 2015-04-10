@@ -97,7 +97,9 @@
   to "no" the kernel matrix is used, for "yes" the model is
   trained from the explicit representation. When set to
   "auto" KeBABS automatically selects a variant based on
-  runtime heuristics. Default="auto"}
+  runtime heuristics. For training via kernel matrix the
+  dense LIBSVM implementation included in package kebabs is
+  the preferred processing variant. Default="auto"}
 
   \item{explicitType}{this parameter is only relevant when
   parameter 'explicit' is different from "no". The values
@@ -260,28 +262,33 @@ implementations in other R packages. In the current
 implementation the SVMs provided in the packages
 \code{\link[kernlab:ksvm]{kernlab}},
 \code{\link[e1071:svm]{e1071}} and
-\code{\link[LiblineaR:LiblineaR]{LiblineaR}} are in
-focus.\cr\cr This framework can be considered like a
-"meta-SVM", which provides a simple and unified user
-interface to these SVMs for classification (binary and
-multiclass) and regression tasks. The user calls the
-"meta-SVM" in a classical SVM-like manner by passing
-sequence data, a sequence kernel with kernel parameters and
-the SVM which should be used for the learning task togehter
-with SVM parameters. KeBABS internally generates the
-relevant representations (see \code{\link{getKernelMatrix}}
-or \code{\link{getExRep}}) from the sequence data using the
-specified kernel, adapts parameters and formats to the
-selected SVM and internally calls the actual SVM
-implementation in the requested package. KeBABS unifies the
-result returned from the invoked SVM and returns a unified
-data structure, the KeBABS model, which also contains the
-SVM-specific model (see \code{\link{svmModel}}.\cr\cr The
-KeBABS model is used in prediction (see
-\code{\link{predict}}) to predict the response for new
-sequence data. On user request the feature weights are
-computed and stored in the Kebabs model during training
-(see below). The feature weights are used for the
+\code{\link[LiblineaR:LiblineaR]{LiblineaR}} are in focus.
+Starting with version 1.2.0 KeBABS also contains the dense
+implementation of LIBSVM which is functionally equivalent
+to the sparse implementation of LIBSVM in package
+\code{\link[e1071:svm]{e1071}} but additionally supports
+dense kernel matrices as preferred implementation for
+learning via kernel matrices.\cr\cr This framework can be
+considered like a "meta-SVM", which provides a simple and
+unified user interface to these SVMs for classification
+(binary and multiclass) and regression tasks. The user
+calls the "meta-SVM" in a classical SVM-like manner by
+passing sequence data, a sequence kernel with kernel
+parameters and the SVM which should be used for the
+learning task togehter with SVM parameters. KeBABS
+internally generates the relevant representations (see
+\code{\link{getKernelMatrix}} or \code{\link{getExRep}})
+from the sequence data using the specified kernel, adapts
+parameters and formats to the selected SVM and internally
+calls the actual SVM implementation in the requested
+package. KeBABS unifies the result returned from the
+invoked SVM and returns a unified data structure, the
+KeBABS model, which also contains the SVM-specific model
+(see \code{\link{svmModel}}.\cr\cr The KeBABS model is used
+in prediction (see \code{\link{predict}}) to predict the
+response for new sequence data. On user request the feature
+weights are computed and stored in the Kebabs model during
+training (see below). The feature weights are used for the
 generation of prediction profiles (see
 \code{\link{getPredictionProfile}}) which show the
 importance of sequence positions for a specfic learning
@@ -505,9 +512,10 @@ specK2 <- spectrumKernel(k=2)
 ## show details of kernel object
 specK2
 
-## run training with kernel matrix
+## run training with kernel matrix on e1071 (via the
+## dense LIBSVM implementation integrated in kebabs)
 model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=specK2,
-               pkg="kernlab", svm="C-svc", C=10, explicit="no")
+               pkg="e1071", svm="C-svc", C=10, explicit="no")
 
 ## show KeBABS model
 model
@@ -520,8 +528,8 @@ class(svmModel(model))
 
 \dontrun{
 ## examples for package and SVM selection
-## now run the same samples with the same kernel on e1071 which
-## currently only supports an explicit representation
+## now run the same samples with the same kernel on e1071 via
+## explicit representation
 model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=specK2,
                pkg="e1071", svm="C-svc", C=10, explicit="yes")
 
@@ -564,9 +572,10 @@ model <- kbsvm(x=enhancerFB[train], y=yFB[train], kernel=specK2,
 dim(featureWeights(model))
 
 ## training with precomputed kernel matrix
+## feature weights cannot be computed for precomputed kernel matrix
 km <- getKernelMatrix(specK2, x=enhancerFB, selx=train)
 model <- kbsvm(x=km, y=yFB[train], kernel=specK2,
-               pkg="kernlab", svm="C-svc", C=10, explicit="no")
+               pkg="e1071", svm="C-svc", C=10, explicit="no")
 
 ## training with precomputed explicit representation
 exrep <- getExRep(enhancerFB, sel=train, kernel=specK2)
@@ -594,7 +603,11 @@ probabilityModel(model)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
+Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
+package for kernel-based analysis of biological sequences.
+\emph{Bioinformatics} (accepted). DOI:
+\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{predict}}, \code{\link{getKernelMatrix}},

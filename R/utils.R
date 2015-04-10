@@ -20,14 +20,6 @@ isSingleString <- function(x)
     !is.null(x) && !is.na(x) && is.character(x) && length(x) == 1L
 }
 
-supportsExplicitRep <- function(kernel)
-{
-    if (inherits(kernel, "SequenceKernel") &&
-        (length(kernelParameters(kernel)$distWeight) == 0))
-        return(TRUE)
-    else
-        return(FALSE)
-}
 
 #' @rdname LinearKernel
 #' @title Linear Kernel
@@ -101,11 +93,18 @@ supportsExplicitRep <- function(kernel)
 #' km[1:5, 1:5]
 #'
 #' ## plot histogram of similarity values
-#' hist(km@@x, breaks=30)
+#' hist(as(km, "numeric"), breaks=30)
 #'
 #' ## compute sparse kernel matrix with similarities above 0.5 only
 #' km <- linearKernel(ers, sparse=TRUE, lowerLimit=0.5)
 #' km[1:5, 1:5]
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kernel, linearKernel
 #' @export
 
@@ -257,7 +256,7 @@ linearKernel <- function(x, y=NULL, selx=integer(0), sely=integer(0),
     }
 }
 
-## subsetting for Biovector, XStringSet, KernelMatrix and ExplicitRep
+## subsetting for BioVector, XStringSet, KernelMatrix and ExplicitRep
 subsetSeqRep <- function(x, sel)
 {
     if (is.null(sel) || length(sel) == 0)
@@ -277,7 +276,7 @@ subsetSeqRep <- function(x, sel)
         return(x[sel])
 }
 
-## no of elements for Biovector, XStringSet, KernelMatrix and ExplicitRep
+## no of elements for BioVector, XStringSet, KernelMatrix and ExplicitRep
 getNoOfElementsOfSeqRep <- function(x)
 {
     if (is.null(x))
@@ -428,7 +427,11 @@ setMethod("%*%", signature(x="dgRMatrix", y="numeric"),
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords methods
 #' @export
 
@@ -567,7 +570,11 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords prediction performance
 #' @keywords methods
 #' @export
@@ -590,7 +597,7 @@ computeROCandAUC <- function(prediction, labels, allLabels=NULL)
     if (length(allLabels) > 2)
         stop("AUC is only supported for binary classification\n")
 
-    allLabels <- sort(allLabels, decreasing=TRUE)
+    allLabels <- sortWith_LC_Collate_C(allLabels, decreasing=TRUE)
     numSamples <- length(prediction)
     posSamples <- sum(labels == allLabels[1])
     negSamples <- sum(labels == allLabels[2])
@@ -598,15 +605,8 @@ computeROCandAUC <- function(prediction, labels, allLabels=NULL)
     if ((posSamples + negSamples) != numSamples)
         stop("AUC is only supported for binary classification\n")
 
-    result <- new("ROCData")
-    
     if (posSamples == 0 || negSamples == 0)
-    {
-        result@AUC <- NA
-        result@TPR <- NA
-        result@FPR <- NA
-        return(result)
-    }
+        return(new("ROCData", AUC=NA, TPR=numeric(0), FPR=numeric(0)))
 
     ## contribution per sample
     TPC <- 1 / posSamples
@@ -614,27 +614,41 @@ computeROCandAUC <- function(prediction, labels, allLabels=NULL)
     ind <- order(prediction, decreasing=TRUE)
     TPR <- rep(0, length(prediction) + 1)
     FPR <- rep(0, length(prediction) + 1)
-    result@AUC <- 0
-    
+    predOld <- -Inf
+    FPOld<- 0
+    TPOld <- 0
+    TP <- 0
+    FP <- 0
+    AUC <- 0
+
     for (i in 1:numSamples)
     {
+        if (prediction[i] != predOld)
+        {
+            AUC <- AUC + (FP - FPOld) * (TP + TPOld) / 2
+            predOld <- prediction[i]
+            FPOld <- FP
+            TPOld <- TP
+        }
+
         if (labels[ind[i]] == allLabels[1])
         {
+            TP <- TP + 1
             FPR[i+1] <- FPR[i]
             TPR[i+1] <- TPR[i] + TPC
         }
         else
         {
+            FP <- FP + 1
             TPR[i+1] <- TPR[i]
             FPR[i+1] <- FPR[i] + FPC
         }
-        
-        result@AUC <- result@AUC + TPR[i+1] * (FPR[i+1] - FPR[i])
     }
-    
-    result@TPR <- TPR
-    result@FPR <- FPR
-    return(result)
+
+    AUC <- (AUC + (negSamples - FPOld) * (posSamples + TPOld) / 2) /
+           (posSamples * negSamples)
+
+    return(new("ROCData", AUC=AUC, TPR=TPR, FPR=FPR))
 }
 
 #' @rdname evaluatePrediction
@@ -753,7 +767,11 @@ computeROCandAUC <- function(prediction, labels, allLabels=NULL)
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords prediction performance
 #' @keywords methods
 #' @export
@@ -781,10 +799,10 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL,
     }
 
     if (length(allLabels) > 2)
-        allLabels <- sort(allLabels)
+        allLabels <- sortWith_LC_Collate_C(allLabels)
     else
     {
-        allLabels <- sort(allLabels, decreasing=TRUE)
+        allLabels <- sortWith_LC_Collate_C(allLabels, decreasing=TRUE)
         
         ## AUC currently only for binary classification
         if (!is.null(decValues) && !(is.na(decValues)))

@@ -125,15 +125,19 @@
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' (Leslie, 2002) -- C. Leslie, E. Eskin and W. S. Noble. The Spectrum Kernel:
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' (Leslie, 2002) -- C. Leslie, E. Eskin and W.S. Noble. The Spectrum Kernel:
 #' A String Kernel for SVM Protein Classification. \cr\cr
 #' (Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M. Ionescu and
 #' S. Hochreiter. Modelling position specificity in sequence kernels by fuzzy
-#' equivalence relations. \cr
-#' (Mahrenholz, 2011) -- C. Mahrenholz, I. Abfalter, U. Bodenhofer, R. Volkmer
+#' equivalence relations. \cr\cr
+#' (Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer
 #' and S. Hochreiter. Complex networks govern coiled-coil oligomerizations -
 #' predicting and profiling by means of a machine learning approach.\cr\cr
-#' \url{http://www.bioinf.jku.at/software/kebabs}
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics} (accepted).
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kernel
 #' @keywords spectrum, spectrumKernel
 #' @keywords methods
@@ -192,9 +196,15 @@ spectrumKernel <- function(k=3, r=1, annSpec=FALSE, distWeight=numeric(0),
              "       spectrum kernel\n")
     }
 
-    if ((length(mixCoef) > 0) && (!is.numeric(mixCoef) ||
-                                  length(mixCoef) != k))
-        stop("'mixCoef' must be a numeric vector of length k\n")
+    if (length(mixCoef) > 0)
+    {
+        if (!is.numeric(mixCoef) ||
+            length(mixCoef) != k)
+            stop("'mixCoef' must be a numeric vector of length k\n")
+
+        if (any(mixCoef < 0))
+            stop("mixing coefficients must be non-negative\n")
+    }
 
     if (length(k) == 1)
     {
@@ -209,8 +219,8 @@ spectrumKernel <- function(k=3, r=1, annSpec=FALSE, distWeight=numeric(0),
                         self=self))
         }
 
-        return(new("SpectrumKernel", .Data=rval, k=k, r=r,
-                   normalized=normalized, annSpec=annSpec,
+        return(new("SpectrumKernel", .Data=rval, .userDefKernel=FALSE,
+                   k=k, r=r, normalized=normalized, annSpec=annSpec,
                    distWeight=distWeight, exact=exact,
                    ignoreLower=ignoreLower, presence=presence,
                    revComplement=revComplement, mixCoef=mixCoef))
@@ -232,8 +242,9 @@ spectrumKernel <- function(k=3, r=1, annSpec=FALSE, distWeight=numeric(0),
                         self=self))
             }
 
-            kernels[[i]] <- new("SpectrumKernel", .Data=rval, k=k[i],
-                                r=r, normalized=normalized, annSpec=annSpec,
+            kernels[[i]] <- new("SpectrumKernel", .Data=rval,
+                                .userDefKernel=FALSE, k=k[i], r=r,
+                                normalized=normalized, annSpec=annSpec,
                                 distWeight=distWeight, exact=exact,
                                 ignoreLower=ignoreLower, presence=presence,
                                 revComplement=revComplement, mixCoef=mixCoef)
