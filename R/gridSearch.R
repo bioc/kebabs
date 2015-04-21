@@ -312,7 +312,10 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
     ## preload SparseM to avoid loading message to interfere with
     ## progress messages
     if (explicitType %in% c("auto","sparse"))
-        library(SparseM, warn.conflicts=FALSE)
+    {
+        if (!requireNamespace("SparseM", quietly=TRUE))
+            stop("package SparseM could not be loaded\n")
+    }
 
     if (explicit == "auto")
     {

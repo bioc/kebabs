@@ -1,94 +1,13 @@
 Change history of package kebabs:
 ====================================
 
-Version 1.1.9
-- inclusion of dense LIBSVM 3.20 for dense kernel matrix support
-  to provide a reliable way for training with kernel matrices
-- new accessors folds and performance for CrossValidationResult
-- removed fold performance from show of CV result
-- adaptions for user defined sequence kernel with new export
-  isUserDefined, example in inst/examples/UserDefinedKernel
-- correction of errors with position offset for position specific
-  kernels
-- computation of AUC via trapezoidal rule
-- changes for auto mode in CV, grid search, model selection
-- check for non-negative mixing coefficients in spectrum and
-  gappy pair kernel
-- build warnings on Windows removed
-- added definition of performance parameters for binary
-  and multiclass classification to vignette
-- update of citation file and reference section in help pages
+Version 1.3.1
+- correction of error in model selection for processing
+  via dense LIBSVM
+- remove problem in check for loading of SparseM
 
-Version 1.1.8
-- new accessors selGridRow, selGridCol and fullModel for class
-  ModelSelectionResult
-- change of naming of feature weights because of change in
-  LiblineaR 1.94-2
-- GCC warnings in Linux removed
-
-Version 1.1.7
-- change in LiblineaR - upgrade to LIBLINEAR 1.94
-  in function LiblineaR the parameter labels was renamed to target
-- correction in model selection for performance parameters
-- error correction of vector length overflow in sparse explicit
-  representation for very large number of sequences in spectrum,
-  gappy pair and motif kernel
-- error correction for AUC in cross validation
-- minor changes in help pages
-- minor changes in vignette
-
-Version 1.1.6
-- error correction for training with position specific kernel and
-  computation of feature weights
-- error correction in coercion of kernel to character for distance
-  weighting
-- error correction in spectrum, gappy pair and motif kernel
-  for kernel matrix - last feature was missing in kernel value
-  in rare situations
-- correction of Windows build problem in linearKernel
-- build warnings on Windows removed
-- minor changes in help pages
-- minor changes in vignette
-
-Version 1.1.5
-- new method heatmap to display heatmap of prediction profiles
-- extension of function linearKernel to optionally return
-  a sparse kernel matrix
-- correction of computation of feature weights for
-  LiblineaR with more than 3 classes
-- new accessor SVindex for class KBModel
-- correction in subsetting of sparse explicit representation for
-  head / tail
-- error correction in subsetting of prediction profile
-- error correction in mismatch kernel
-- check uniqueness of motifs in motif kernel
-- minor changes in help pages
-- change name of vignette Rnw to lowercase
-- minor changes in vignette
-
-Version 1.1.4:
-- added two help pages
-
-Version 1.1.3
-- fix to adapt for changed Biostrings/S4Vectors API
-
-Version 1.1.2
-- minor C code changes for mismatch kernel
-- correction of MCC
-- new class ROCData and new function computeROCandAUC for
-  binary classification added
-- new plot function for ROCData to plot ROC for binary classes
-- AUC as additional performance parameter in cross validation
-  and as performance objective in grid search
-
-Version 1.1.1
-- correction for cross validation with factor label
-- correction for storing prob model in kebabs model for kernlab
-- removal of clang warnings for unused functions
-
-Version 1.1.0:
-- first devel version created from first official release
-  with version 1.0.0
+Version 1.3.0:
+- first devel version created from release version 1.2.0
 
 
 

@@ -183,7 +183,8 @@ trainSVM.explicitRep <- function(x, y=NULL, svmInfo, verbose, ...)
             ## $$$ Remove conversion when e1071 is supporting dgRMatrix
             if (is(x, "ExplicitRepresentationSparse"))
             {
-                library(SparseM, warn.conflicts=FALSE)
+                if (!requireNamespace("SparseM", quietly=TRUE))
+                    stop("package SparseM could not be loaded\n")
                 x <- as(x, "matrix.csr")
             }
 
@@ -204,7 +205,8 @@ trainSVM.explicitRep <- function(x, y=NULL, svmInfo, verbose, ...)
             ## $$$ Remove conversion when e1071 is supporting dgRMatrix
             if (is(x, "ExplicitRepresentationSparse"))
             {
-                library(SparseM, warn.conflicts=FALSE)
+                if (!requireNamespace("SparseM", quietly=TRUE))
+                    stop("package SparseM could not be loaded\n")
                 x <- as(x, "matrix.csr")
             }
 
@@ -231,7 +233,8 @@ trainSVM.explicitRep <- function(x, y=NULL, svmInfo, verbose, ...)
         if (is(x, "ExplicitRepresentationSparse"))
         {
             featureNames <- colnames(x)
-            library(SparseM, warn.conflicts=FALSE)
+            if (!requireNamespace("SparseM", quietly=TRUE))
+                stop("package SparseM could not be loaded\n")
             x <- as(x, "matrix.csr")
         }
         
