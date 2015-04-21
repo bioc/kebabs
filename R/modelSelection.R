@@ -251,7 +251,10 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
     ## preload SparseM to avoid loading message to interfere with
     ## progress messages
     if (explicitType %in% c("auto","sparse"))
-        library(SparseM, warn.conflicts=FALSE)
+    {
+        if (!requireNamespace("SparseM", quietly=TRUE))
+            stop("package SparseM could not be loaded\n")
+    }
 
     if ((explicit != "no") && is(object, "KernelMatrix"))
         stop("processing via explicit representation is not possible\n")
@@ -480,8 +483,22 @@ performModelSelection <- function(object, model, y, explicit, featureWeights,
                         stop("model selection via kernel matrix is not\n",
                              "        supported\n")
 
-                    testData <- precompTestdata[folds[[j]],
-                                                modelSelIndices[svInd]]
+                    if (model@svmInfo@selPackage == "e1071")
+                    {
+                        testData <- new("KernelMatrix", .Data=
+                                        matrix(0, nrow=length(folds[[j]]),
+                                               ncol=length(modelSelIndices)))
+                        testData@.Data[,svInd] <-
+                            precompTestdata[folds[[j]],
+                                            modelSelIndices[svInd],
+                                            drop=FALSE]
+                    }
+                    else
+                    {
+                        testData <- precompTestdata[folds[[j]],
+                                                    modelSelIndices[svInd],
+                                                    drop=FALSE]
+                    }
                 }
                 else
                     testData <- precompTestdata[folds[[j]],]

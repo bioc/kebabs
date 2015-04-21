@@ -1649,7 +1649,7 @@ BACC = \frac{1}{m} \sum_{j=1}^m \frac{M_{jj}}{\sum_{i=1}^m M_{ij}}
 Matthews Correlation Coefficient (MCC) according to \cite{Gorodkin2004}
 \begin{align}
 \label{eq:MCC}
-MCC = \frac{\sum_{i,j,k=1}^m M_{ii} M_{jk} - M_{ij} M_{ki}}{\sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ij})(\sum_{\substack{k,l=1\\k!=i}}^m M_{kl})} \sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ji})(\sum_{\substack{k,l=1\\k!=i}}^m M_{lk})}}
+MCC = \frac{\sum_{i,j,k=1}^m M_{ii} M_{jk} - M_{ij} M_{ki}}{\sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ij})(\sum_{\substack{k,l=1\\k \ne i}}^m M_{kl})} \sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ji})(\sum_{\substack{k,l=1\\k \ne i}}^m M_{lk})}}
 \end{align}\\
 
 In the multi class scenario sensitivity, specificity and precision are defined as class specific measures.\\
@@ -1664,7 +1664,7 @@ SENS_i = \frac{M_{ii}}{\sum_{j=1}^m M_{ji}}
 Specificity (SPEC)
 \begin{align}
 \label{eq:SPEC}
-SPEC_i = \frac{\sum_{\substack{j=1\\j!=i}}^m M_{jj}}{\sum_{\substack{j,k=1\\k!=i}}^m M_{jk}}
+SPEC_i = \frac{\sum_{\substack{j=1\\j \ne i}}^m M_{jj}}{\sum_{\substack{j,k=1\\k \ne i}}^m M_{jk}}
 \end{align}
 
 Precision (PREC)
@@ -1711,6 +1711,15 @@ Additional sequence kernels like the local alignment kernel, Fisher kernel and T
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.2.1:] \hfill
+\begin{itemize}
+\item correction of error in model selection for processing via dense LIBSVM
+\item remove problem in check for loading of SparseM
+\end{itemize}
+\item[Version 1.2.0:] \hfill
+\begin{itemize}
+\item first release version for Bioc 3.1 created from kebabs 1.1.9
+\end{itemize}
 \item[Version 1.1.9:] \hfill
 \begin{itemize}
 \item inclusion of dense LIBSVM 3.20 for dense kernel matrix support to provide a reliable way for training with kernel matrix

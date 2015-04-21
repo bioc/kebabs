@@ -79,7 +79,8 @@ function (x,
         if (inherits(x, "Matrix"))
             x <- as.matrix(x)
         if (inherits(x, "matrix.csr")) {
-            library("SparseM")
+            if (!requireNamespace("SparseM", quietly=TRUE))
+                stop("package SparseM could not be loaded\n")
             x <- as.matrix(x)
         }
         if (!is.matrix(x))
@@ -92,11 +93,13 @@ function (x,
     else
     {
         if(inherits(x, "Matrix")) {
-            library("SparseM")
+            if (!requireNamespace("SparseM", quietly=TRUE))
+                stop("package SparseM could not be loaded\n")
             x <- as(x, "matrix.csr")
         }
         if(inherits(x, "simple_triplet_matrix")) {
-            library("SparseM")
+            if (!requireNamespace("SparseM", quietly=TRUE))
+                stop("package SparseM could not be loaded\n")
             ind <- order(x$i, x$j)
             x <- new("matrix.csr",
             ra = x$v[ind],
@@ -105,7 +108,10 @@ function (x,
             dimension = c(x$nrow, x$ncol))
         }
         if (sparse <- inherits(x, "matrix.csr"))
-            library("SparseM")
+        {
+            if (!requireNamespace("SparseM", quietly=TRUE))
+                stop("package SparseM could not be loaded\n")
+        }
         else
             x <- as.matrix(x)
     }
@@ -411,7 +417,8 @@ function (object, newdata,
         if (inherits(newdata, "Matrix"))
             newdata <- as.matrix(newdata)
         if (inherits(newdata, "matrix.csr")) {
-            library("SparseM")
+            if (!requireNamespace("SparseM", quietly=TRUE))
+                stop("package SparseM could not be loaded\n")
             newdata <- as.matrix(newdata)
         }
         if (!is.matrix(newdata))
@@ -426,11 +433,13 @@ function (object, newdata,
             stop ("test data does not match model !")
     } else {
         if(inherits(newdata, "Matrix")) {
-            library("SparseM")
+            if (!requireNamespace("SparseM", quietly=TRUE))
+                stop("package SparseM could not be loaded\n")
             newdata <- as(newdata, "matrix.csr")
         }
         if(inherits(newdata, "simple_triplet_matrix")) {
-            library("SparseM")
+            if (!requireNamespace("SparseM", quietly=TRUE))
+                stop("package SparseM could not be loaded\n")
             ind <- order(newdata$i, newdata$j)
             newdata <- new("matrix.csr",
                 ra = newdata$v[ind],
@@ -445,8 +454,11 @@ function (object, newdata,
     }
     
     if (object$sparse || sparse)
-        library("SparseM")
-    
+    {
+        if (!requireNamespace("SparseM", quietly=TRUE))
+            stop("package SparseM could not be loaded\n")
+    }
+
     act <- NULL
     preprocessed <- !is.null(attr(newdata, "na.action"))
     rowns <- if (!is.null(rownames(newdata)))

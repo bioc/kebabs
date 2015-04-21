@@ -474,7 +474,7 @@ predict.NonFeatureWeights <- function(model, x, predictionType, sel, raw,
     if (is(x, "KernelMatrix"))
     {
         if (length(sel) > 0)
-            x <- x[sel,]
+            x <- x[sel, , drop=FALSE]
 
         pred <- predictSVM(x=x, model=model, predictionType=predictionType,
                            verbose=verbose, ...)
