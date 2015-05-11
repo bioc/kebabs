@@ -1688,7 +1688,7 @@ The \KeBABS\ SVM framework gives the users the possibility to work with user-def
 \item[kernel parameter getter] the getter reads the kernel parameters of a given kernel object and returns them as list
 \end{description}
 
-An example for a user-defined sequence kernel containing all of these elements can be found in the directory inst/example/UserDefinedSequenceKernel of the \kebabs\ package source tar ball. This example makes the spectrum kernel in package \texttt{kernlab} available as user-defined sequence kernel. The file SpectrumKernlabKernel.R contains the R definitions for the new sequence kernel which internally in the kernel matrix processing routine invokes the kernlab kernel matrix generation using the string dot spectrum kernel. The file RunKernel.R shows an example analysis with the user-defined sequence kernel. The new kernel can be used in the analysis like any \kebabs\ sequence kernel. In this example no additional C/C++ code is necessary. If the new sequence kernel requires code parts in C/C++ a shared library must be prebuilt and loaded. Building of the shared library is done on the command line with R CMD SHLIB, the loading of the shared library in the R session through \texttt{dyn.load()}.
+An example for a user-defined sequence kernel containing all of these elements can be found in the directory inst/example/UserDefinedSequenceKernel/SpectrumKernlabKernel of the \kebabs\ package source tar ball. This example makes the spectrum kernel in package \texttt{kernlab} available as user-defined sequence kernel. The file SpectrumKernlabKernel.R contains the R definitions for the new sequence kernel which internally in the kernel matrix processing routine invokes the kernlab kernel matrix generation using the string dot spectrum kernel. The file RunKernel.R shows an example analysis with the user-defined sequence kernel. The new kernel can be used in the analysis like any \kebabs\ sequence kernel. In this example no additional C/C++ code is necessary. If the new sequence kernel requires code parts in C/C++ a shared library must be prebuilt and loaded. Building of the shared library is done on the command line with R CMD SHLIB, the loading of the shared library in the R session through \texttt{dyn.load()}.
 
 For user-defined sequence kernels an explicit representation, feature weights and prediction profiles are not supported. The new kernel cannot be used as single instance kernel in the symmetric pair kernel.
 
@@ -1711,6 +1711,11 @@ Additional sequence kernels like the local alignment kernel, Fisher kernel and T
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.2.2:] \hfill
+\begin{itemize}
+\item correction of error in kernel lists
+\item user defined sequence kernel example SpectrumKernlabKernel moved to separate directory
+\end{itemize}
 \item[Version 1.2.1:] \hfill
 \begin{itemize}
 \item correction of error in model selection for processing via dense LIBSVM

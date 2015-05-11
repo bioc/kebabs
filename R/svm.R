@@ -75,6 +75,8 @@ function (x,
     ## dense precomputed kernel matrix or dense or sparse data matrix
     if (is(kernel, "character") && kernel == "precomputed")
     {
+        if (!missing(scale) && any(scale))
+            stop("please scale data before computing the kernel matrix")
         scale <- FALSE
         if (inherits(x, "Matrix"))
             x <- as.matrix(x)
@@ -87,8 +89,6 @@ function (x,
             stop(sQuote("x"), "is not a precomputed kernel matrix")
         if (nrow(x) != ncol(x))
             stop("precomputed kernel matrix must be symmetric")
-        if (any(scale))
-            stop("please scale data before computing the kernel matrix")
     }
     else
     {
