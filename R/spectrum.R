@@ -228,27 +228,10 @@ spectrumKernel <- function(k=3, r=1, annSpec=FALSE, distWeight=numeric(0),
     else
     {
         ## return list of kernel objects
-        kernels <- vector("list", length(k))
-
-        for (i in 1:length(k))
-        {
-            rval<- function(x, y = NULL, selx = NULL, sely = NULL, self=NULL)
-            {
-                return(spectrumProcessing(x=x, y=y, selx=selx, sely=sely,
-                        k=k[i], r=r, annSpec=annSpec, distWeight=distWeight,
-                        normalized=normalized, exact=exact,
-                        ignoreLower=ignoreLower, presence=presence,
-                        mixCoef=mixCoef, revComplement=revComplement,
-                        self=self))
-            }
-
-            kernels[[i]] <- new("SpectrumKernel", .Data=rval,
-                                .userDefKernel=FALSE, k=k[i], r=r,
-                                normalized=normalized, annSpec=annSpec,
-                                distWeight=distWeight, exact=exact,
-                                ignoreLower=ignoreLower, presence=presence,
-                                revComplement=revComplement, mixCoef=mixCoef)
-        }
+        kernels <- lapply(k, function(kVal) {
+            spectrumKernel(k=kVal,r=r, annSpec=annSpec, distWeight=distWeight,
+            normalized=normalized, exact=exact, ignoreLower=ignoreLower,
+            presence=presence, revComplement=revComplement, mixCoef=mixCoef)})
 
         return(kernels)
     }

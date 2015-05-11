@@ -71,20 +71,8 @@ spectrumKernlabKernel <- function(k=3, r=1, normalized=TRUE)
     else
     {
         ## return list of kernel objects
-        kernels <- vector("list", length(k))
-
-        for (i in 1:length(k))
-        {
-            rval<- function(x, y = NULL, selx = NULL, sely = NULL, self=NULL)
-            {
-                return(spectrumKernlabProcessing(x=x, y=y, selx=selx,
-                       sely=sely, k=k[i], r=r, normalized=normalized,
-                       self=self))
-            }
-
-            kernels[[i]] <- new("SpectrumKernlabKernel", .Data=rval, k=k[i],
-                                r=r, normalized=normalized)
-        }
+        kernels <- lapply(k, function(kVal) {
+            spectrumKernlabKernel(k=kVal,r=r, normalized=normalized)})
 
         return(kernels)
     }

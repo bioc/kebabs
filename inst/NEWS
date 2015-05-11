@@ -1,6 +1,11 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.3.2:
+- correction of error in kernel lists
+- user defined sequence kernel example SpectrumKernlabKernel
+  moved to separate directory
+
 Version 1.3.1
 - correction of error in model selection for processing
   via dense LIBSVM

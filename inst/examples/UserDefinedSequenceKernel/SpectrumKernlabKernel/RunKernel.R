@@ -2,7 +2,7 @@ library(kebabs)
 
 ## load user defined sequence kernel
 source(paste(path.package("kebabs"),
-             "/examples/UserDefinedSequenceKernel/SpectrumKernlabKernel.R",
+             "/examples/UserDefinedSequenceKernel/SpectrumKernlabKernel/SpectrumKernlabKernel.R",
              sep=""))
 
 ## load data

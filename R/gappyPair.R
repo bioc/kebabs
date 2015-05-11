@@ -251,33 +251,16 @@ gappyPairKernel <- function(k=1, m=1, r=1, annSpec=FALSE, distWeight=numeric(0),
     }
     else
     {
-        ## return list of kernel objects
-        kmPairs <- as.matrix(expand.grid(k,m))
+        kmPairs <- as.matrix(expand.grid(m,k))
         colnames(kmPairs) <- NULL
-        kernels <- vector("list", nrow(kmPairs))
 
-        for (i in 1:nrow(kmPairs))
-        {
-            rval<- function(x, y = NULL, selx = NULL, sely = NULL, self=NULL)
-            {
-                return(gappyPairProcessing(x=x, y=y, selx=selx, sely=sely,
-                                k=kmPairs[i,1], m=kmPairs[i,2], r=r,
-                                annSpec=annSpec, distWeight=distWeight,
-                                normalized=normalized, exact=exact,
-                                ignoreLower=ignoreLower, presence=presence,
-                                revComplement=revComplement,
-                                mixCoef=mixCoef, self=self))
-            }
-
-            kernels[[i]] <- new("GappyPairKernel", .Data=rval,
-                                .userDefKernel=FALSE, k=kmPairs[i,1],
-                                m=kmPairs[i,2], r=r, normalized=normalized,
-                                annSpec=annSpec, distWeight=distWeight,
-                                exact=exact, ignoreLower=ignoreLower,
-                                presence=presence, revComplement=revComplement,
-                                mixCoef=mixCoef)
-        }
-
+        ## return list of kernel objects
+        kernels <- mapply(gappyPairKernel, k=kmPairs[,2], m=kmPairs[,1],
+                          MoreArgs=list(r=r, annSpec=annSpec,
+                          distWeight=distWeight, normalized=normalized,
+                          exact=exact, ignoreLower=ignoreLower,
+                          presence=presence, revComplement=revComplement,
+                          mixCoef=mixCoef))
         return(kernels)
     }
 }

@@ -110,10 +110,10 @@ mismatchKernel <- function(k=3, m=1, r=1, normalized=TRUE, exact=TRUE,
 {
     ## check data independent kernel parameters and create closure
 
-    if (!isSingleNumber(k) || k < 1)
+    if (!is.numeric(k) || any(k < 1))
         stop("k must be an integer larger than 0\n")
 
-    if (!isSingleNumber(m) || m < 1 || m >= k)
+    if (!is.numeric(m) || any(m < 1) || any(sapply(k, function(ki) any(m >= ki))))
         stop("m must be an integer larger than 0 and smaller than k\n")
 
     if (!isSingleNumber(r) || r <= 0)
@@ -148,28 +148,14 @@ mismatchKernel <- function(k=3, m=1, r=1, normalized=TRUE, exact=TRUE,
     }
     else
     {
-        kmPairs <- as.matrix(expand.grid(k,m))
+        kmPairs <- as.matrix(expand.grid(m,k))
         colnames(kmPairs) <- NULL
-        kernels <- vector("list", nrow(kmPairs))
 
-        for (i in 1:nrow(kmPairs))
-        {
-            rval<- function(x, y = NULL, selx = NULL, sely = NULL, self=NULL)
-            {
-                return(mismatchProcessing(x=x, y=y, selx=selx, sely=sely,
-                                          k=kmPairs[i,1], m=kmPairs[i,2], r=r,
-                                          normalized=normalized, exact=exact,
-                                          ignoreLower=ignoreLower,
-                                          presence=presence, self=self))
-            }
-
-            kernels[[i]] <- new("MismatchKernel", .Data=rval,
-                              .userDefKernel=FALSE, k=kmPairs[i,1],
-                              m=kmPairs[i,2], r=r, normalized=normalized,
-                              annSpec=FALSE, distWeight=numeric(0), exact=exact,
-                              ignoreLower=ignoreLower, presence=presence)
-        }
-
+        ## return list of kernel objects
+        kernels <- mapply(mismatchKernel, k=kmPairs[,2], m=kmPairs[,1],
+                          MoreArgs=list(r=r, normalized=normalized,
+                          exact=exact, ignoreLower=ignoreLower,
+                          presence=presence))
         return(kernels)
     }
 }
