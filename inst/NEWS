@@ -1,6 +1,12 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.2.3:
+- new export kebabsCollectInfo for collection of package info
+- update of version dependency to Biostrings, XVector, S4Vector
+- correction for leading + or - in factor label
+- change of bibtex style sheet in vignette to plainnat.bst
+
 Version 1.2.2:
 - correction of error in kernel lists
 - user defined sequence kernel example SpectrumKernlabKernel

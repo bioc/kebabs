@@ -20,6 +20,72 @@ isSingleString <- function(x)
     !is.null(x) && !is.na(x) && is.character(x) && length(x) == 1L
 }
 
+isPkgInstalled <- function(pkg)
+{
+    is.element(pkg, installed.packages()[,1])
+}
+
+#' @rdname kebabsCollectInfo
+#' @title Collect KeBABS Package Information
+#' @aliases
+#' kebabsCollectInfo
+#'
+#' @description Collects and prints general R and package version information.
+#' If you have a question related to some KeBABS functionality or observe
+#' some unexpected behavior please call this function and send its output
+#' together with your information to the contact address specified on the
+#' title page of the package vignette. The function by default only outputs
+#' the package version of those packages which are directly related to the
+#' KeBABS functionality.
+#'
+#' @param onlyKebabsRelated if set to \code{TRUE} only the packages related
+#' to KeBABS are shown, if set to \code{FALSE} all attached packages and
+#' all packages loaded via namespace are shown. Default=TRUE
+#' @return
+#' see above
+#' @examples
+#'
+#' ## collect KeBABS related package information
+#' kebabsCollectInfo()
+#'
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @export
+
+kebabsCollectInfo <- function(onlyKebabsRelated=TRUE)
+{
+    sInfo <- sessionInfo()
+
+    if (onlyKebabsRelated == TRUE)
+    {
+        attachedSubset <- intersect(names(sInfo$otherPkgs),
+                          c("kebabs", "Biostrings", "XVector", "IRanges",
+                            "S4Vectors", "BiocGenerics", "kernlab", "SparseM"))
+        ldViaNamespace <- intersect(names(sInfo$loadedOnly),
+                          c("Rcpp","Matrix","e1071","LiblineaR","lattice"))
+        
+        sInfo$otherPkgs <- sInfo$otherPkgs[attachedSubset]
+        sInfo$loadedOnly <- sInfo$loadedOnly[ldViaNamespace]
+    }
+
+    print(sInfo)
+
+    if (!isPkgInstalled("SparseM"))
+    {
+        cat("\nnot installed:\n")
+        cat("SparseM\n")
+    }
+    else
+    {
+        if(!(("SparseM" %in% names(sInfo$otherPkgs)) ||
+             ("SparseM" %in% names(sInfo$loadedOnly))))
+        {
+            cat("\nnot loaded:\n")
+            versionSparseM <- as.character(packageVersion("SparseM"))
+            cat("SparseM_", c(versionSparseM), "\n", sep="")
+        }
+    }
+    cat("\n")
+}
 
 #' @rdname LinearKernel
 #' @title Linear Kernel

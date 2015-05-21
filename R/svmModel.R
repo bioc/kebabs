@@ -2,6 +2,13 @@
 
 sortWith_LC_Collate_C <- function(x, decreasing=FALSE, ...)
 {
+    if (is.character(x) && length(x) == 2 && any(width(x) > 0))
+    {
+        if ((substr(x[1],1,1) == "-" && substr(x[2],1,1) == "+") ||
+            (substr(x[1],1,1) == "+" && substr(x[2],1,1) == "-"))
+            decreasing <- !decreasing
+    }
+
     orig_LC_COLLATE <- Sys.getlocale(category="LC_COLLATE")
     Sys.setlocale(category="LC_COLLATE", locale="C")
     res <- base::sort(x=x, decreasing=decreasing, ...)
