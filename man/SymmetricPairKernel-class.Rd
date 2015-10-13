@@ -10,10 +10,9 @@
 Symmetric Pair Kernel Class
 }
 \details{
-Instances of this class represent a kernel object for the
-symmetric pair kernel. The kernel does not compute
-similarity between single samples but between two pairs of
-samples based on a regular sequence kernel for single
+Instances of this class represent a kernel object for the symmetric pair
+kernel. The kernel does not compute similarity between single samples but
+between two pairs of samples based on a regular sequence kernel for single
 samples. The class is derived from \link{SequenceKernel}.
 }
 \section{Slots}{
@@ -29,10 +28,10 @@ samples. The class is derived from \link{SequenceKernel}.
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

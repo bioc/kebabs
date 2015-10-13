@@ -34,7 +34,7 @@ static const R_CallMethodDef callMethods[] =
     /* PredictionC.cpp */
     {".getPosDepPredOrProfC", (DL_FUNC) & getPosDepPredOrProfC, 29},
     /* FeatureWeightsPosDepC.cpp */
-    {".getFeatureWeightsPosDepC", (DL_FUNC) & getFeatureWeightsPosDepC, 24},
+    {".getFeatureWeightsPosDepC", (DL_FUNC) & getFeatureWeightsPosDepC, 25},
     {".freeHeapFeatureWeightsC", (DL_FUNC) & freeHeapFeatureWeightsC, 0},
     /* PredictionProfileC.cpp */
     {".generatePredictionProfilesC", (DL_FUNC) & 

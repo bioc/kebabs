@@ -580,7 +580,7 @@ template<typename T>
 void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, ByteStringVector y,
                      int sizeX, int sizeY, IntegerVector selX, IntegerVector selY,
                      ByteStringVector annCharset, ByteStringVector annX, ByteStringVector annY,
-                     bool unmapped, int k, bool normalized,  bool symmetric, bool presence,
+                     int k, bool normalized,  bool symmetric, bool presence,
                      bool reverseComplement, int maxSeqLength, uint64_t dimFeatureSpace,
                      struct alphaInfo *alphaInf)
 {
@@ -967,9 +967,9 @@ void getKMStdAnnSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, B
 template<typename T>
 void getKMPosDistSpec(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, ByteStringVector y,
                       int sizeX, int sizeY, IntegerVector selX, IntegerVector selY,
-                      IntegerVector offsetX, IntegerVector offsetY, bool unmapped, int k,
-                      bool normalized,  bool symmetric, bool reverseComplement, bool posSpec,
-                      NumericVector distWeight, int maxSeqLength, struct alphaInfo *alphaInf)
+                      IntegerVector offsetX, IntegerVector offsetY, int k, bool normalized,
+                      bool symmetric, bool reverseComplement, bool posSpec, NumericVector distWeight,
+                      int maxSeqLength, struct alphaInfo *alphaInf)
 {
     T prevIndex, featureIndex, tempIndex, fIndex;
     uint64_t elemIndex, fDimArray, *featVectorsStart;
@@ -2005,7 +2005,7 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
 }
 
 void getERDSpectrum(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector selX,
-                    ByteStringVector annCharset, ByteStringVector annX, bool unmapped, int k,
+                    ByteStringVector annCharset, ByteStringVector annX, int k,
                     bool normalized, bool presence, bool reverseComplement, struct alphaInfo *alphaInf,
                     ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures,
                     bool useHash, bool mapIndex, void *indexMap, uint64_t numOfUsedFeatures,
@@ -2404,7 +2404,7 @@ void getERDSpectrum(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVec
 }
 
 bool getERSSpectrum(ByteStringVector x, int sizeX, IntegerVector selX, ByteStringVector annCharset,
-                    ByteStringVector annX, int maxSeqLength, bool unmapped, int k, bool normalized,
+                    ByteStringVector annX, int maxSeqLength, int k, bool normalized,
                     bool presence,bool reverseComplement, struct alphaInfo *alphaInf,
                     ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures,
                     bool useHash, bool mapIndex, void *indexMap, uint64_t numUsedFeatures, SEXP slot_p,
@@ -3001,7 +3001,7 @@ RcppExport SEXP genExplRepSpectrum(ByteStringVector x, int sizeX, IntegerVector 
                                annCharset, reverseAnnotationMap, mapIndex, useHash);
         }
 
-        getERDSpectrum(erd, x, sizeX, selX, annCharset, annX, unmapped, k, normalized, presence,
+        getERDSpectrum(erd, x, sizeX, selX, annCharset, annX, k, normalized, presence,
                        reverseComplement, &alphaInf, features, dimFeatureSpace, zeroFeatures,
                        useHash, mapIndex, indexMap, numUsedFeatures, normValues);
 
@@ -3111,7 +3111,7 @@ RcppExport SEXP genExplRepSpectrum(ByteStringVector x, int sizeX, IntegerVector 
             assignFeatureNames(colnames, indexMap, k, &alphaInf, dimFeatureSpace, annX,
                                annCharset, reverseAnnotationMap, mapIndex, useHash);
 
-        getERSSpectrum(x, sizeX, selX, annCharset, annX, maxSeqLength, unmapped, k,
+        getERSSpectrum(x, sizeX, selX, annCharset, annX, maxSeqLength, k,
                        normalized, presence, reverseComplement, &alphaInf, features,
                        dimFeatureSpace, zeroFeatures, useHash, mapIndex, indexMap,
                        numUsedFeatures, slot_p, slot_j, slot_x, normValues);
@@ -3218,13 +3218,13 @@ RcppExport SEXP spectrumKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
             if (posSpec || distWeight.length() > 0)
             {
                 getKMPosDistSpec(maxUIndex8, km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY,
-                                 unmapped, k, normalized, symmetric, reverseComplement, posSpec, distWeight,
+                                 k, normalized, symmetric, reverseComplement, posSpec, distWeight,
                                  maxSeqLength, &alphaInf);
             }
             else
             {
                 getKMStdAnnSpec(maxUIndex8, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
-                                unmapped, k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
+                                k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
                                 dimFeatureSpace, &alphaInf);
             }
 
@@ -3236,13 +3236,13 @@ RcppExport SEXP spectrumKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
             if (posSpec || distWeight.length() > 0)
             {
                 getKMPosDistSpec(maxUIndex16, km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY,
-                                 unmapped, k, normalized, symmetric, reverseComplement, posSpec, distWeight,
+                                 k, normalized, symmetric, reverseComplement, posSpec, distWeight,
                                  maxSeqLength, &alphaInf);
             }
             else
             {
                 getKMStdAnnSpec(maxUIndex16, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
-                                unmapped, k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
+                                k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
                                 dimFeatureSpace, &alphaInf);
             }
 
@@ -3255,13 +3255,13 @@ RcppExport SEXP spectrumKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
             if (posSpec || distWeight.length() > 0)
             {
                 getKMPosDistSpec(maxUIndex32, km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY,
-                                 unmapped, k, normalized, symmetric, reverseComplement, posSpec, distWeight,
+                                 k, normalized, symmetric, reverseComplement, posSpec, distWeight,
                                  maxSeqLength, &alphaInf);
             }
             else
             {
                 getKMStdAnnSpec(maxUIndex32, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
-                                unmapped, k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
+                                k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
                                 dimFeatureSpace, &alphaInf);
             }
 
@@ -3273,13 +3273,13 @@ RcppExport SEXP spectrumKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, 
             if (posSpec || distWeight.length() > 0)
             {
                 getKMPosDistSpec(maxUIndex64, km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY,
-                                 unmapped, k, normalized, symmetric, reverseComplement, posSpec, distWeight,
+                                 k, normalized, symmetric, reverseComplement, posSpec, distWeight,
                                  maxSeqLength, &alphaInf);
             }
             else
             {
                 getKMStdAnnSpec(maxUIndex64, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
-                                unmapped, k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
+                                k, normalized, symmetric, presence, reverseComplement, maxSeqLength,
                                 dimFeatureSpace, &alphaInf);
             }
 
@@ -3404,22 +3404,26 @@ template<typename T>
 void genFeatVectorsPosDepSpectrumT(T maxUnSignedIndex, ByteStringVector x, int sizeX, IntegerVector selx,
                                    IntegerVector offsetX, ByteStringVector annX, ByteStringVector annCharset,
                                    int maxSeqLength, int k, struct alphaInfo *alphaInf, bool presence,
-                                   bool normalized, bool unmapped, bool reverseComplement, bool posSpecific,
-                                   int sortType, uint64_t **startIndex, T **featVectorIndex,
-                                   int32_t **featVectorValue, uint32_t **kernelValue)
+                                   bool normalized, bool reverseComplement, bool posSpecific,
+                                   NumericVector distWeight, int sortType, uint64_t **startIndex,
+                                   T **featVectorIndex, int32_t **featVectorValue, double **kernelValue)
 {
     T prevIndex, featureIndex, tempIndex, fIndex;
     int i, j, l, index, iold, patternLength, offset;
     uint64_t elemIndex;
     uint32_t kv;
     char *seqptr;
-
+    IntegerVector selCurr(1), selY(0), offsetY(0);
+    NumericMatrix kmOne(1,1);
+    ByteStringVector y;
+    
+    y.length = 0;
     *featVectorIndex = (T *) R_alloc(sizeX * maxSeqLength, sizeof(T));
     *featVectorValue = (int32_t *) R_alloc(sizeX * maxSeqLength, sizeof(int32_t));
     *startIndex = (uint64_t *) R_alloc(sizeX + 1, sizeof(uint64_t));
 
     if (normalized)
-        *kernelValue = (uint32_t *) R_alloc(sizeX, sizeof(uint32_t));
+        *kernelValue = (double *) R_alloc(sizeX, sizeof(double));
 
     T *oldIndex = (T *) R_alloc(k, sizeof(uint64_t));
     uint64_t numAlphaPowK_1 = ipow64(alphaInf->numAlphabetChars, k - 1);
@@ -3530,7 +3534,21 @@ void genFeatVectorsPosDepSpectrumT(T maxUnSignedIndex, ByteStringVector x, int s
         }
 
         if (normalized)
-            (*kernelValue)[i] = kv;
+        {
+            if (distWeight.length() == 0)
+                (*kernelValue)[i] = kv;
+            else
+            {
+                selCurr[0] = selx[i];
+                int currSeqLength = x.nchar[selx[i]];
+                
+                getKMPosDistSpec(maxUnSignedIndex, kmOne, x, y, 1, 1, selCurr, selY, offsetX, offsetY,
+                                 k, FALSE, TRUE, reverseComplement, posSpecific, distWeight,
+                                 currSeqLength, alphaInf);
+                (*kernelValue)[i] = kmOne(0,0);
+                
+            }
+        }
     }
 
     (*startIndex)[sizeX] = elemIndex;
@@ -3541,9 +3559,9 @@ void genFeatVectorsPosDepSpectrumT(T maxUnSignedIndex, ByteStringVector x, int s
 void genFeatVectorsPosDepSpectrum(ByteStringVector x, int sizeX, IntegerVector selX, IntegerVector offsetX,
                                   ByteStringVector annX, ByteStringVector annCharset, int maxSeqLength,
                                   int k, struct alphaInfo *alphaInf, uint64_t dimFeatureSpace,
-                                  bool presence, bool normalized, bool unmapped, bool reverseComplement,
-                                  bool posSpecific, int sortType, int numPositions, uint64_t **startIndex,
-                                  void **featVectorIndex, int32_t **featVectorValue, uint32_t **kernelValue,
+                                  bool presence, bool normalized, bool reverseComplement, bool posSpecific,
+                                  NumericVector distWeight, int sortType, int numPositions, uint64_t **startIndex,
+                                  void **featVectorIndex, int32_t **featVectorValue, double **kernelValue,
                                   int *indexSize)
 {
     uint8_t maxUIndex8 = MAXUINT8;
@@ -3567,8 +3585,8 @@ void genFeatVectorsPosDepSpectrum(ByteStringVector x, int sizeX, IntegerVector s
         case 1:
         {
             genFeatVectorsPosDepSpectrumT(maxUIndex8, x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength,
-                                          k, alphaInf, presence, normalized, unmapped, reverseComplement,
-                                          posSpecific, sortType, startIndex, (uint8_t **) featVectorIndex,
+                                          k, alphaInf, presence, normalized, reverseComplement, posSpecific,
+                                          distWeight, sortType, startIndex, (uint8_t **) featVectorIndex,
                                           featVectorValue, kernelValue);
             return;
         }
@@ -3576,8 +3594,8 @@ void genFeatVectorsPosDepSpectrum(ByteStringVector x, int sizeX, IntegerVector s
         case 2:
         {
             genFeatVectorsPosDepSpectrumT(maxUIndex16, x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength,
-                                          k, alphaInf, presence, normalized, unmapped, reverseComplement,
-                                          posSpecific, sortType, startIndex, (uint16_t **) featVectorIndex,
+                                          k, alphaInf, presence, normalized, reverseComplement, posSpecific,
+                                          distWeight, sortType, startIndex, (uint16_t **) featVectorIndex,
                                           featVectorValue, kernelValue);
             return;
         }
@@ -3586,8 +3604,8 @@ void genFeatVectorsPosDepSpectrum(ByteStringVector x, int sizeX, IntegerVector s
         case 4:
         {
             genFeatVectorsPosDepSpectrumT(maxUIndex32, x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength,
-                                          k, alphaInf, presence, normalized, unmapped, reverseComplement,
-                                          posSpecific, sortType, startIndex, (uint32_t **) featVectorIndex,
+                                          k, alphaInf, presence, normalized, reverseComplement, posSpecific,
+                                          distWeight, sortType, startIndex, (uint32_t **) featVectorIndex,
                                           featVectorValue, kernelValue);
             return;
         }
@@ -3595,8 +3613,8 @@ void genFeatVectorsPosDepSpectrum(ByteStringVector x, int sizeX, IntegerVector s
         default:
         {
             genFeatVectorsPosDepSpectrumT(maxUIndex64, x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength,
-                                          k, alphaInf, presence, normalized, unmapped, reverseComplement,
-                                          posSpecific, sortType, startIndex, (uint64_t **) featVectorIndex,
+                                          k, alphaInf, presence, normalized, reverseComplement, posSpecific,
+                                          distWeight, sortType, startIndex, (uint64_t **) featVectorIndex,
                                           featVectorValue, kernelValue);
             return;
         }
@@ -3606,19 +3624,23 @@ void genFeatVectorsPosDepSpectrum(ByteStringVector x, int sizeX, IntegerVector s
 template<typename T>
 bool getSVWeightsFeatSpectrum(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap, ByteStringVector x,
                               int sizeX, IntegerVector selX, IntegerVector offsetX, int maxSeqLength, NumericVector coefs,
-                              bool reverseComplement, bool posSpecific, double weightLimit, int k, int minPos, int maxPos,
-                              struct alphaInfo *alphaInf, bool normalized, uint64_t *numKeys, T **keys)
+                              bool reverseComplement, bool posSpecific, NumericVector distWeight, double weightLimit, int k,
+                              int minPos, int maxPos, struct alphaInfo *alphaInf, bool normalized, uint64_t *numKeys, T **keys)
 {
     T prevIndex, featureIndex, *oldIndex, tempIndex, fIndex;
-    int i, j, l, iX, index, iold, offset, result, patternLength;
+    int i, j, l, iX, index, iold, offset, result, patternLength, currSeqLength;
     uint64_t numAlphaPowK_1, numAlphaPowK, numEntries, key;
     double kv, limit, normFactor;
     khiter_t iter;
+    IntegerVector selCurr(1), selY(0), offsetY(0);
+    NumericMatrix kmOne(1,1);
+    ByteStringVector y;
     numAlphaPowK_1 = ipow64(alphaInf->numAlphabetChars, k - 1);
     numAlphaPowK = numAlphaPowK_1 * alphaInf->numAlphabetChars;
     oldIndex = (T *) R_alloc(k, sizeof(uint64_t));
 
     normFactor = 1;
+    y.length = 0;
 
     for (i = 0; i < sizeX; i++)
     {
@@ -3639,29 +3661,40 @@ bool getSVWeightsFeatSpectrum(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_
         // get kernel value
         if (normalized)
         {
-            for (j = 0; j < x.nchar[iX]; j++)
+            if (distWeight.length() == 0)
             {
-                index = alphaInf->seqIndexMap[(int)x.ptr[iX][j]];
-
-                if (index > -1)
+                for (j = 0; j < x.nchar[iX]; j++)
                 {
-                    if (patternLength < k)
-                    {
-                        patternLength++;
+                    index = alphaInf->seqIndexMap[(int)x.ptr[iX][j]];
 
-                        if (patternLength == k)
+                    if (index > -1)
+                    {
+                        if (patternLength < k)
+                        {
+                            patternLength++;
+
+                            if (patternLength == k)
+                                kv++;
+                        }
+                        else
                             kv++;
                     }
                     else
-                        kv++;
+                        patternLength = 0;
                 }
-                else
-                    patternLength = 0;
             }
-        }
+            else
+            {
+                selCurr[0] = iX;
+                currSeqLength = x.nchar[iX];
 
-        if (normalized)
+                getKMPosDistSpec(maxUnSignedIndex, kmOne, x, y, 1, 1, selCurr, selY, offsetX, offsetY, k, FALSE,
+                                 TRUE, reverseComplement, posSpecific, distWeight, currSeqLength, alphaInf);
+                kv = kmOne(0,0);
+            }
+
             normFactor = 1.0 / sqrt(kv);
+        }
 
         patternLength = 0;
         featureIndex = 0;
@@ -3814,8 +3847,8 @@ template<typename T>
 void getWeightedFeatOfSVSpectrum(T maxUnSignedIndex, SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap,
                                  khash_t(pdfi) *pdfimap, ByteStringVector x, int sizeX, IntegerVector selX,
                                  IntegerVector offsetX, int maxSeqLength, NumericVector coefs,
-                                 bool reverseComplement, bool posSpecific, double weightLimit, int k,
-                                 int minPos, int maxPos, struct alphaInfo *alphaInf, bool normalized,
+                                 bool reverseComplement, bool posSpecific, NumericVector distWeight, double weightLimit,
+                                 int k, int minPos, int maxPos, struct alphaInfo *alphaInf, bool normalized,
                                  uint64_t *numKeys, T **keys)
 {
     int i, j, row, numProtect;
@@ -3825,8 +3858,8 @@ void getWeightedFeatOfSVSpectrum(T maxUnSignedIndex, SEXP **pdFeatWeights, khash
     SEXP rownames, colnames, dimnames, slot_p, slot_i, slot_x, dims;
 
     if (!getSVWeightsFeatSpectrum(maxUnSignedIndex, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength, coefs,
-                                  reverseComplement, posSpecific, weightLimit, k, minPos, maxPos, alphaInf, normalized,
-                                  numKeys, keys))
+                                  reverseComplement, posSpecific, distWeight, weightLimit, k, minPos, maxPos, alphaInf,
+                                  normalized, numKeys, keys))
     {
         pdFeatWeights = NULL;
         return;
@@ -3896,9 +3929,9 @@ void getWeightedFeatOfSVSpectrum(T maxUnSignedIndex, SEXP **pdFeatWeights, khash
 
 void getFeaturesOfSVSpectrum(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap, ByteStringVector x,
                              int sizeX, IntegerVector selX, IntegerVector offsetX, int maxSeqLength, NumericVector coefs,
-                             bool reverseComplement, bool posSpecific, double weightLimit, int k, int minPos, int maxPos,
-                             uint64_t dimFeatureSpace, struct alphaInfo *alphaInf, bool normalized, int featIndexSize,
-                             uint64_t *numKeys, void **keys)
+                             bool reverseComplement, bool posSpecific, NumericVector distWeight, double weightLimit, int k,
+                             int minPos, int maxPos, uint64_t dimFeatureSpace, struct alphaInfo *alphaInf, bool normalized,
+                             int featIndexSize, uint64_t *numKeys, void **keys)
 {
     uint8_t maxUIndex8 = MAXUINT8;
     uint16_t maxUIndex16 = MAXUINT16;
@@ -3911,16 +3944,16 @@ void getFeaturesOfSVSpectrum(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash
         case 1:
         {
             getWeightedFeatOfSVSpectrum(maxUIndex8, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                        coefs, reverseComplement, posSpecific, weightLimit, k, minPos, maxPos, alphaInf,
-                                        normalized, numKeys, (uint8_t **) keys);
+                                        coefs, reverseComplement, posSpecific, distWeight, weightLimit, k, minPos, maxPos,
+                                        alphaInf, normalized, numKeys, (uint8_t **) keys);
             break;
         }
 
         case 2:
         {
             getWeightedFeatOfSVSpectrum(maxUIndex16, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                        coefs, reverseComplement, posSpecific, weightLimit, k, minPos, maxPos, alphaInf,
-                                        normalized, numKeys, (uint16_t **) keys);
+                                        coefs, reverseComplement, posSpecific, distWeight, weightLimit, k, minPos, maxPos,
+                                        alphaInf, normalized, numKeys, (uint16_t **) keys);
             break;
         }
 
@@ -3928,16 +3961,16 @@ void getFeaturesOfSVSpectrum(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash
         case 4:
         {
             getWeightedFeatOfSVSpectrum(maxUIndex32, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                        coefs, reverseComplement, posSpecific, weightLimit, k, minPos, maxPos, alphaInf,
-                                        normalized, numKeys, (uint32_t **) keys);
+                                        coefs, reverseComplement, posSpecific, distWeight, weightLimit, k, minPos, maxPos,
+                                        alphaInf, normalized, numKeys, (uint32_t **) keys);
             break;
         }
 
         default:
         {
             getWeightedFeatOfSVSpectrum(maxUIndex64, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                        coefs, reverseComplement, posSpecific, weightLimit, k, minPos, maxPos, alphaInf,
-                                        normalized, numKeys, (uint64_t **) keys);
+                                        coefs, reverseComplement, posSpecific, distWeight, weightLimit, k, minPos, maxPos,
+                                        alphaInf, normalized, numKeys, (uint64_t **) keys);
             break;
         }
     }

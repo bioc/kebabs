@@ -13,64 +13,53 @@
   verbose = getOption("verbose"), ...)
 }
 \arguments{
-  \item{object}{model object of class
-  \code{\linkS4class{KBModel}} created by
-  \code{\link{kbsvm}}.}
+\item{object}{model object of class \code{\linkS4class{KBModel}}
+created by \code{\link{kbsvm}}.}
 
-  \item{x}{multiple biological sequences in the form of a
-  \code{\linkS4class{DNAStringSet}},
-  \code{\linkS4class{RNAStringSet}},
-  \code{\linkS4class{AAStringSet}} (or as
-  \code{\linkS4class{BioVector}}). Also a precomputed
-  kernel matrix (see \code{\link{getKernelMatrix}} or a
-  precomputed explicit representation (see
-  \code{\link{getExRep}} can be used instead. The same type
-  of input that was used for training the model should also
-  be used for prediction. If the parameter \code{x} is
-  missing the response is computed for the sequences used
-  for SVM training.}
+\item{x}{multiple biological sequences in the form of a
+\code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+\code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}}). Also
+a precomputed kernel matrix (see \code{\link{getKernelMatrix}} or a
+precomputed explicit representation (see \code{\link{getExRep}} can be used
+instead. The same type of input that was used for training the model should
+also be used for prediction. If the parameter \code{x} is missing the
+response is computed for the sequences used for SVM training.}
 
-  \item{predictionType}{one character string of either
-  "response", "probabilities" or "decision" which indicates
-  the type of data returned by prediction: predicted
-  response, class probabilities or decision values. Class
-  probabilities can only be computed if a probability model
-  was generated during the training (for details see
-  parameter \code{probModel} in \link{kbsvm}).
-  Default=\code{"response"}}
+\item{predictionType}{one character string of either "response",
+"probabilities" or "decision" which indicates the type of data returned by
+prediction: predicted response, class probabilities or decision values. Class
+probabilities can only be computed if a probability model was generated
+during the training (for details see parameter \code{probModel} in
+\link{kbsvm}). Default=\code{"response"}}
 
-  \item{sel}{subset of indices into \code{x}. When this
-  parameter is present the training is performed for the
-  specified subset of samples only.
-  Default=\code{integer(0)}}
+\item{sel}{subset of indices into \code{x}. When this parameter is present
+the training is performed for the specified subset of samples only.
+Default=\code{integer(0)}}
 
-  \item{raw}{when setting this boolean parameter to TRUE
-  the prediction result is returned in raw form, i.e. in
-  the SVM specific format. Default=FALSE}
+\item{raw}{when setting this boolean parameter to TRUE the prediction result
+is returned in raw form, i.e. in the SVM specific format. Default=FALSE}
 
-  \item{native}{when setting this boolean parameter to TRUE
-  the prediction is not preformed via feature weights in
-  the KeBABS model but native in the SVM. Default=FALSE}
+\item{native}{when setting this boolean parameter to TRUE the prediction is
+not preformed via feature weights in the KeBABS model but native in the SVM.
+Default=FALSE}
 
-  \item{predProfiles}{when this boolean parameter is set to
-  TRUE the prediction profiles are computed for the samples
-  passed to \code{predict}. Default=FALSE}
+\item{predProfiles}{when this boolean parameter is set to TRUE the
+prediction profiles are computed for the samples passed to \code{predict}.
+Default=FALSE}
 
-  \item{verbose}{boolean value that indicates whether
-  KeBABS should print additional messages showing the
-  internal processing logic in a verbose manner. The
-  default value depends on the R session verbosity option.
-  Default=getOption("verbose")}
+\item{verbose}{boolean value that indicates whether KeBABS should print
+additional messages showing the internal processing logic in a verbose
+manner. The default value depends on the R session verbosity option.
+Default=getOption("verbose")}
 
-  \item{...}{additional parameters which are passed to SVM
-  prediction transparently.}
+\item{...}{additional parameters which are passed to SVM prediction
+transparently.}
 }
 \value{
-predict.kbsvm: upon successful completion, dependent on the
-parameter \code{predictionType} the function returns either
-response values, decision values or probability values for
-class membership. When prediction profiles are also
-generated a list containing predictions and prediction
+predict.kbsvm: upon successful completion, dependent on the parameter
+\code{predictionType} the function returns either response values,
+decision values or probability values for class membership. When prediction
+profiles are also generated a list containing predictions and prediction
 profiles is passed back to the user.
 }
 \description{
@@ -80,58 +69,49 @@ model trained with \code{kbsvm}
 \details{
 Prediction for KeBABS models\cr
 
-For the samples passed to the \code{predict} method the
-response (which corresponds to the predicted label in case
-of classification or the predicted target value in case of
-regression), the decision value (which is the value of
-decision function separating the classes in classification)
-or the class probability (probability for class membership
-in classification) is computed for the given model of class
-\code{\linkS4class{KBModel}}. (see also parameter
-\code{predictionType}). For sequence data this includes the
-generation of an explicit representation or kernel matrix
-dependent on the processing variant that was chosen for the
-training of the model. When feature weights were computed
-during training (see parameter \code{featureWeights} in
-\code{\link{kbsvm}}) the response is computed entirely in
-KeBABS via the feature weights in the model object. The
+For the samples passed to the \code{predict} method the response (which
+corresponds to the predicted label in case of classification or the predicted
+target value in case of regression), the decision value (which is the value
+of decision function separating the classes in classification) or the
+class probability (probability for class membership in classification) is
+computed for the given model of class \code{\linkS4class{KBModel}}. (see
+also parameter \code{predictionType}). For sequence data this includes the
+generation of an explicit representation or kernel matrix dependent on the
+processing variant that was chosen for the training of the model. When
+feature weights  were computed during training (see parameter
+\code{featureWeights} in \code{\link{kbsvm}}) the response is computed
+entirely in KeBABS via the feature weights in the model object. The
 prediction performance can be evaluated with the function
-\code{\link{evaluatePrediction}}.\cr\cr If feature weights
-are not available in the model then native prediction is
-performed via the SVM which was used for training. The
-parameter \code{native} enforces native prediction even
-when feature weights are available. Instead of sequence
-data also a precomputed kernel matrix or a precomputed
-explicit representation can be passed to \code{predict}.
-Prediction via feature weights is not supported for kernel
-variants which do not support the generation of an explicit
-representation, e.g. the position dependent kernel
-variants.\cr\cr
+\code{\link{evaluatePrediction}}.\cr\cr
+If feature weights are not available in the model then native prediction
+is performed via the SVM which was used for training. The parameter
+\code{native} enforces native prediction even when feature weights are
+available. Instead of sequence data also a precomputed kernel matrix or a
+precomputed explicit representation can be passed to \code{predict}.
+Prediction via feature weights is not supported for kernel variants which
+do not support the generation of an explicit representation, e.g. the
+position dependent kernel variants.\cr\cr
 
 Prediction with precomputed kernel matrix
 
-When training was performed with a precomputed kernel
-matrix also in prediction a precomputed kernel matrix must
-be passed to the \code{predict} method. In contrast to the
-quadratic and symmetric kernel matrix used in training the
-kernel matrix for prediction is rectangular and contains
-the similarities of test samples (rows) against support
-vectors (columns). support vector indices can be read from
-the model with the accessor SVindex. Please not that these
-indices refer to the sample subset used in training. An
-example for training and prediction via precomputed kernel
-matrix is shown below.
+When training was performed with a precomputed kernel matrix also in
+prediction a precomputed kernel matrix must be passed to the \code{predict}
+method. In contrast to the quadratic and symmetric kernel matrix used
+in training the kernel matrix for prediction is rectangular and contains
+the similarities of test samples (rows) against support vectors (columns).
+support vector indices can be read from the model with the accessor SVindex.
+Please not that these indices refer to the sample subset used in training.
+An example for training and prediction via precomputed kernel matrix is
+shown below.
 
 Generation of prediction profiles
 
-The parameter \code{predProfiles} controls whether
-prediction profiles (for details see
-\code{\link{getPredictionProfile}}) are generated during
-the prediction process for all predicted samples. They show
-the contribution of the individual sequence positions to
-the response value. For a subset of sequences prediction
-profiles can also be computed independent from predicition
-via the function \code{\link{getPredictionProfile}}.
+The parameter \code{predProfiles} controls whether prediction profiles
+(for details see \code{\link{getPredictionProfile}}) are generated during
+the prediction process for all predicted samples. They show the contribution
+of the individual sequence positions to the response value. For a subset of
+sequences prediction profiles can also be computed independent from
+predicition via the function \code{\link{getPredictionProfile}}.
 }
 \examples{
 ## load transcription factor binding site data
@@ -201,16 +181,15 @@ prob[1:10]
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
-\code{\linkS4class{KBModel}},
-\code{\link{evaluatePrediction}}, \code{\link{kbsvm}},
-\code{\link{getPredictionProfile}},
+\code{\linkS4class{KBModel}}, \code{\link{evaluatePrediction}},
+\code{\link{kbsvm}}, \code{\link{getPredictionProfile}},
 \code{\linkS4class{PredictionProfile}}
 }
 \keyword{feature}

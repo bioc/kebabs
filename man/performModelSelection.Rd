@@ -14,70 +14,57 @@
 ## performed, the other parameters are handled identical to grid search.
 }
 \arguments{
-  \item{nestedCross}{for this and other parameters see
-  \code{\link{kbsvm}}}
+\item{nestedCross}{for this and other parameters see \code{\link{kbsvm}}}
 }
 \value{
-model selection stores the results in the KeBABS model.
-They can be retrieved with the accessor
-\code{\link{modelSelResult}{KBModel}}. Results from the
-outer cross validation are extracted from the model with
-the accessor\code{\link{cvResult}}.
+model selection stores the results in the KeBABS model. They can be
+retrieved with the accessor \code{\link{modelSelResult}{KBModel}}. Results
+from the outer cross validation are extracted from the model with the
+accessor\code{\link{cvResult}}.
 }
 \description{
-Perform model selection with one or multiple sequence
-kernels on one or multiple SVMs with one or multiple SVM
-parameter sets.
+Perform model selection with one or multiple sequence kernels
+on one or multiple SVMs with one or multiple SVM parameter sets.
 }
 \details{
 Overview\cr
 
-Model selection in KeBABS is based on nested k-fold cross
-validation (CV) (for details see
-\link{performCrossValidation}). The inner cross validation
-is used to determine the best parameters settings (kernel
-parameters and SVM parameters) and the outer cross
-validation to verify the performance on data that was not
-included in the selection of the best model. The training
-folds of the outer CV are used to run a grid search with
-the inner cross validation running for each point of the
-grid (see \code{\link{performGridSearch}} to find the best
-performing model. Once this model is selected the
-performance of this model on the held out fold of the outer
-CV is determined. Different model parameters settings could
-occur for different held out folds of the outer CV. This
-means that model selection does not deliver a performance
-estimate for a single best model but for the complete model
-selection process.\cr
+Model selection in KeBABS is based on nested k-fold cross validation (CV)
+(for details see \link{performCrossValidation}). The inner cross
+validation is used to determine the best parameters settings (kernel
+parameters and SVM parameters) and the outer cross validation to verify
+the performance on data that was not included in the selection of the
+best model. The training folds of the outer CV are used to run a grid
+search with the inner cross validation running for each point of the
+grid (see \code{\link{performGridSearch}} to find the best performing model.
+Once this model is selected the performance of this model on the held out
+fold of the outer CV is determined. Different model parameters settings
+could occur for different held out folds of the outer CV. This means that
+model selection does not deliver a performance estimate for a single
+best model but for the complete model selection process.\cr
 
-For each run of the outer CV KeBABS stores the selected
-parameter setting for the best performing model. The
-default performance objective for selecting the best
-parameters setting is based on minimizing the CV error on
-the inner CV. With the parameter \code{perfObjective} in
-\code{\link{kbsvm}} the balanced accuracy or the Matthews
-correlation coefficient can be used instead for which the
-parameter setting with the maximal value is selected. The
-parameter setting of the best performing model for each
-fold in the outer CV can be retrieved from the KeBABS model
-with the accessor \code{\link{modelSelResult}}. The
-performance values on the outer CV are retrieved from the
-model with the accessor \code{\link{cvResult}}.\cr
+For each run of the outer CV KeBABS stores the selected parameter setting
+for the best performing model. The default performance objective for
+selecting the best parameters setting is based on minimizing the CV error
+on the inner CV. With the parameter \code{perfObjective} in
+\code{\link{kbsvm}} the balanced accuracy or the Matthews correlation
+coefficient can be used instead for which the parameter setting with the
+maximal value is selected. The parameter setting of the best performing
+model for each fold in the outer CV can be retrieved from the KeBABS model
+with the accessor \code{\link{modelSelResult}}. The performance values on
+the outer CV are retrieved from the model with the accessor
+\code{\link{cvResult}}.\cr
 
-Model selection is invoked through the method
-\code{\link{kbsvm}} through setting parameter
-\code{nestedCross} > 1. For the parameters \code{kernel,
-pkg, svm} and SVM hyperparameters the handling is identical
-to grid search (see \code{\link{performGridSearch}}). The
-parameter cost in the usage section above is just one
-representative of SVM hyperparameters to indicate their
-relevance for model selection. The complete model selection
-process can be repeated multiple times through setting
-\code{noNestedCross} to the number of desired repetitions.
-Nested cross validation used in model selection is
-dynamically more demanding than grid search. Concerning
-runtime please see the runtime hints for
-\code{\link{performGridSearch}}.\cr
+Model selection is invoked through the method \code{\link{kbsvm}} through
+setting parameter \code{nestedCross} > 1. For the parameters \code{kernel,
+pkg, svm} and SVM hyperparameters the handling is identical to grid search
+(see \code{\link{performGridSearch}}). The parameter cost in the usage
+section above is just one representative of SVM hyperparameters to indicate
+their relevance for model selection. The complete model selection process
+can be repeated multiple times through setting \code{noNestedCross} to the
+number of desired repetitions. Nested cross validation used in model
+selection is dynamically more demanding than grid search. Concerning runtime
+please see the runtime hints for \code{\link{performGridSearch}}.\cr
 }
 \examples{
 ## load transcription factor binding site data
@@ -132,15 +119,16 @@ plot(cvResult(model))
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{kbsvm}}, \code{\link{performGridSearch}},
-\code{\link{modelSelResult}}, \code{\link{cvResult}}
+\code{\link{modelSelResult}},
+\code{\link{cvResult}}
 }
 \keyword{grid}
 \keyword{kbsvm}

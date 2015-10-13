@@ -16,22 +16,19 @@
 Explicit Representation Dense and Sparse Classes
 }
 \details{
-In KeBABS this class is the virtual parent class for
-explicit representations generated from a set of biological
-sequences for a given kernel. The derived classes
-\code{\linkS4class{ExplicitRepresentationDense}} and
-\code{\linkS4class{ExplicitRepresentationSparse}} are meant
-to hold explicit representations in dense or sparse format.
-The kernel used to generate the explicit representation is
-stored together with the data.
+In KeBABS this class is the virtual parent class for explicit representations
+generated from a set of biological sequences for a given kernel. The derived
+classes \code{\linkS4class{ExplicitRepresentationDense}} and
+\code{\linkS4class{ExplicitRepresentationSparse}} are meant to hold explicit
+representations in dense or sparse format. The kernel used to generate the
+explicit representation is stored together with the data.
 
-Instances of this class are used for storing explicit
-representations in dense matrix format. This class is
-derived from \code{\linkS4class{ExplicitRepresentation}}.
+Instances of this class are used for storing explicit representations
+in dense matrix format. This class is derived from
+\code{\linkS4class{ExplicitRepresentation}}.
 
-Instances of this class are used for storing explicit
-representations in sparse \code{\linkS4class{dgRMatrix}}
-format. This class is derived from
+Instances of this class are used for storing explicit representations
+in sparse \code{\linkS4class{dgRMatrix}} format. This class is derived from
 \code{\linkS4class{ExplicitRepresentation}}.
 }
 \section{Slots}{
@@ -45,10 +42,10 @@ format. This class is derived from
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

@@ -49,24 +49,21 @@ show.BioVector(object)
 \S4method{show}{ROCData}(object)
 }
 \arguments{
-  \item{object}{object of class BioVector,
-  PredictionProfile, SpectrumKernel, MismatchKernel,
-  GappyPairKernel, MotifKernel, SymmetricPairKernel,
-  ExplicitRepresentation, ExplicitRepresentationSparse,
-  PredictionProfile, CrossValidationResult,
-  ModelSelectionResult, SVMInformation or KBModel to be
-  displayed}
+\item{object}{object of class BioVector, PredictionProfile,
+SpectrumKernel, MismatchKernel, GappyPairKernel,
+MotifKernel, SymmetricPairKernel, ExplicitRepresentation,
+ExplicitRepresentationSparse, PredictionProfile, CrossValidationResult,
+ModelSelectionResult, SVMInformation or KBModel to be displayed}
 }
 \value{
 \code{show}: show returns an invisible \code{NULL}
 }
 \description{
-Display methods for BioVector, SpectrumKernel,
-MismatchKernel, GappyPairKernel, MotifKernel,
-SymmetricPairKernel, ExplicitRepresentationDense,
-ExplicitRepresentationSparse, PredictionProfile,
-CrossValidationResult, ModelSelectionResult, SVMInformation
-and KBModel objects
+Display methods for BioVector, SpectrumKernel, MismatchKernel,
+GappyPairKernel, MotifKernel, SymmetricPairKernel,
+ExplicitRepresentationDense, ExplicitRepresentationSparse,
+PredictionProfile, CrossValidationResult, ModelSelectionResult,
+SVMInformation and KBModel objects
 }
 \details{
 \code{show} displays on overview of the selected object.
@@ -95,10 +92,10 @@ show(er)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

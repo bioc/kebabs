@@ -19,149 +19,120 @@
   model, cross, noCross, groupBy, perfParameters, verbose)
 }
 \arguments{
-  \item{object}{a kernel matrix or an explicit
-  representation}
+\item{object}{a kernel matrix or an explicit representation}
 
-  \item{x}{an optional set of sequences}
+\item{x}{an optional set of sequences}
 
-  \item{y}{a response vector}
+\item{y}{a response vector}
 
-  \item{sel}{sample subset for which cross validation
-  should be performed}
+\item{sel}{sample subset for which cross validation should be performed}
 
-  \item{model}{KeBABS model}
+\item{model}{KeBABS model}
 
-  \item{cross}{an integer value K > 0 indicates that k-fold
-  cross validation should be performed. A value -1 is used
-  for Leave-One-Out (LOO) cross validation. (see above)
-  Default=0}
+\item{cross}{an integer value K > 0 indicates that k-fold cross validation
+should be performed. A value -1 is used for Leave-One-Out (LOO) cross
+validation. (see above) Default=0}
 
-  \item{noCross}{an integer value larger than 0 is used to
-  specify the number of repetitions for cross validation.
-  This parameter is only relevant if 'cross' is different
-  from 0. Default=1}
+\item{noCross}{an integer value larger than 0 is used to specify the number
+of repetitions for cross validation. This parameter is only relevant if
+'cross' is different from 0. Default=1}
 
-  \item{groupBy}{allows a grouping of samples during cross
-  validation. The parameter is only relevant when 'cross'
-  is larger than 1. It is an integer vector or factor with
-  the same length as the number of samples used for
-  training and specifies for each sample to which group it
-  belongs. Samples from the same group are never spread
-  over more than one fold. Grouped cross validation can
-  also be used in grid search for each grid point.
-  Default=NULL}
+\item{groupBy}{allows a grouping of samples during cross validation. The
+parameter is only relevant when 'cross' is larger than 1. It is an integer
+vector or factor with the same length as the number of samples used for
+training and specifies for each sample to which group it belongs. Samples
+from the same group are never spread over more than one fold. Grouped
+cross validation can also be used in grid search for each grid point.
+Default=NULL}
 
-  \item{perfParameters}{a character vector with one or
-  several values from the set "ACC" , "BACC", "MCC", "AUC"
-  and "ALL". "ACC" stands for accuracy, "BACC" for balanced
-  accuracy, "MCC" for Matthews Correlation Coefficient,
-  "AUC" for area under the ROC curve and "ALL" for all
-  four. This parameter defines which performance parameters
-  are collected in cross validation for display purpose.
-  The summary values are computed as mean of the fold
-  values. AUC computation from pooled decision values
-  requires a calibrated classifier output and is currently
-  not supported. Default=NULL}
+\item{perfParameters}{a character vector with one or several values from
+the set "ACC" , "BACC", "MCC", "AUC" and "ALL". "ACC" stands for accuracy,
+"BACC" for balanced accuracy, "MCC" for Matthews Correlation Coefficient,
+"AUC" for area under the ROC curve and "ALL" for all four. This parameter
+defines which performance parameters are collected in cross validation
+for display purpose. The summary values are computed as mean of the
+fold values. AUC computation from pooled decision values requires a
+calibrated classifier output and is currently not supported. Default=NULL}
 
-  \item{verbose}{boolean value that indicates whether
-  KeBABS should print additional messages showing the
-  internal processing logic in a verbose manner. The
-  default value depends on the R session verbosity option.
-  Default=getOption("verbose")
+\item{verbose}{boolean value that indicates whether KeBABS should print
+additional messages showing the internal processing logic in a verbose
+manner. The default value depends on the R session verbosity option.
+Default=getOption("verbose")
 
-  this parameter is not relevant for cross validation
-  because the method \code{performCrossValidation} should
-  not be called directly. Cross validation is performed
-  with the method \code{\link{kbsvm}} and the parameters
-  \code{cross} and \code{numCross} are described there}
+this parameter is not relevant for cross validation because
+the method \code{performCrossValidation} should not be called directly.
+Cross validation is performed with the method \code{\link{kbsvm}} and the
+parameters \code{cross} and \code{numCross} are described there}
 }
 \value{
 cross validation stores the cross validation results in the
-KeBABS model object returned by . They can be retrieved
-with the accessor \code{\link{cvResult}} returned by
-\code{\link{kbsvm}}.
+KeBABS model object returned by . They can be retrieved with the accessor
+\code{\link{cvResult}} returned by \code{\link{kbsvm}}.
 }
 \description{
 Perform cross validation as k-fold cross validation,
-Leave-One-Out cross validation(LOOCV) or grouped cross
-validation (GCV).
+Leave-One-Out cross validation(LOOCV) or grouped cross validation (GCV).
 }
 \details{
 Overview\cr
 
-Cross validation (CV) provides an estimate for the
-generalization performance of a model based on repeated
-training on different subsets of the data and evaluating
-the prediction performance on the remaining data not used
-for training. Dependent on the strategy of splitting the
-data different variants of cross validation exist. KeBABS
-implements k-fold cross validation, Leave-One-Out cross
-validation and Leave-Group-Out cross validation which is a
-specific variant of k-fold cross validation. Cross
-validation is invoked with \code{\link{kbsvm}} through
-setting the parameters \code{cross} and \code{noCross}. It
-can either be used for a given kernel and specific values
-of the SVM hyperparameters to compute the cross validation
-error of a single model or in conjuction with grid search
-(see \link{gridSearch}) and model selection (see
-\link{modelSelection}) to determine the performance of
-multiple models.\cr\cr
+Cross validation (CV) provides an estimate for the generalization
+performance of a model based on repeated training on different subsets of
+the data and evaluating the prediction performance on the remaining data
+not used for training. Dependent on the strategy of splitting the data
+different variants of cross validation exist. KeBABS implements k-fold cross
+validation, Leave-One-Out cross validation and Leave-Group-Out cross
+validation which is a specific variant of k-fold cross validation. Cross
+validation is invoked with \code{\link{kbsvm}} through setting the
+parameters \code{cross} and \code{noCross}. It can either
+be used for a given kernel and specific values of the SVM hyperparameters to
+compute the cross validation error of a single model or in conjuction with
+grid search (see \link{gridSearch}) and model selection (see
+\link{modelSelection}) to determine the performance of multiple models.\cr\cr
 
-k-fold Cross Validation and Leave-One-Out Cross
-Validation(LOOCV)\cr
+k-fold Cross Validation and Leave-One-Out Cross Validation(LOOCV)\cr
 
-For k-fold cross validation the data is split into k
-roughly equal sized subsets called folds. Samples are
-assigned to the folds randomly. In k successive training
-runs one of the folds is kept in round-robin manner for
-predicting the performance while using the other k-1 folds
-together as training data. Typical values for the number of
-folds k are 5 or 10 dependent on the number of samples used
-for CV. For LOOCV the fold size decreases to 1 and only a
-single sample is kept as hold out fold for performance
-prediction requiring the same number of training runs in
-one cross validation run as the number of sequences used
-for CV.\cr\cr
+For k-fold cross validation the data is split into k roughly equal sized
+subsets called folds. Samples are assigned to the folds randomly. In k
+successive training runs one of the folds is kept in round-robin manner
+for predicting the performance while using the other k-1 folds together as
+training data. Typical values for the number of folds k are 5 or 10
+dependent on the number of samples used for CV. For LOOCV the fold size
+decreases to 1 and only a single sample is kept as hold out fold for
+performance prediction requiring the same number of training runs in one
+cross validation run as the number of sequences used for CV.\cr\cr
 
 Grouped Cross Validation (GCV)\cr
 
-For grouped cross validation samples are assigned to groups
-by the user before running cross validation, e.g. via
-clustering the sequences. The predefined group assignment
-is passed to CV with the parameter \code{groupBy} in
-\code{\link{kbsvm}}. GCV is a special version of k-fold
-cross validation which respects group boundaries by
-avoiding to distribute samples of one group over multiple
-folds. In this way the group(s) in the test fold do not
-occur during training and learning is forced to concentrate
-on more complex features instead of the simple features
-splitting the groups. For GCV the parameter cross must be
-smaller than or equal to the number of groups.\cr\cr
+For grouped cross validation samples are assigned to groups by the
+user before running cross validation, e.g. via clustering the sequences.
+The predefined group assignment is passed to CV with the parameter
+\code{groupBy} in \code{\link{kbsvm}}. GCV is a special version of k-fold
+cross validation which respects group boundaries by avoiding to distribute
+samples of one group over multiple folds. In this way the group(s) in the
+test fold do not occur during training and learning is forced to concentrate
+on more complex features instead of the simple features splitting the
+groups. For GCV the parameter cross must be smaller than or equal to the
+number of groups.\cr\cr
 
 Cross Validation Result\cr
 
-The cross validation error, which is the average of the
-predicition errors in all held out folds, is used as an
-estimate for the generalization error of the model
-assiciated with the cross validation run. For
-classification the fraction of incorrectly classified
-samples and for regression the mean squared error (MSE) is
-used as prediction error. Multiple cross validation runs
-can be performed through setting the parameter
-\code{noCross}. The cross validation result can be
-extracted from the model object returned by cross
-validation with the \code{\link{cvResult}} accessor. It
-contains the mean CV error over all runs, the CV errors of
-the single runs and the CV error for each fold. The CV
-result object can be plotted with the method
-\code{\link{plot}} showing the variation of the CV error
-for the different runs as barplot. With the parameter
-\code{perfParameters} in \code{\link{kbsvm}} the accuracy,
-the balanced accuracy and the Matthews correlation
-coefficient can be requested as additional performance
-parameters to be recorded in the CV result object which
-might be of interest especially for unbalanced
-datasets.\cr\cr
+The cross validation error, which is the average of the predicition errors
+in all held out folds, is used as an estimate for the generalization error
+of the model assiciated with the cross validation run. For classification
+the fraction of incorrectly classified samples and for regression the mean
+squared error (MSE) is used as prediction error. Multiple cross validation
+runs can be performed through setting the parameter \code{noCross}. The
+cross validation result can be extracted from the model object returned by
+cross validation with the \code{\link{cvResult}} accessor. It contains the
+mean CV error over all runs, the CV errors of the single runs and the
+CV error for each fold. The CV result object can be plotted with the method
+\code{\link{plot}} showing the variation of the CV error for the different
+runs as barplot. With the parameter \code{perfParameters} in
+\code{\link{kbsvm}} the accuracy, the balanced accuracy and the Matthews
+correlation coefficient can be requested as additional performance
+parameters to be recorded in the CV result object which might be of interest
+especially for unbalanced datasets.\cr\cr
 }
 \examples{
 ## load transcription factor binding site data
@@ -249,11 +220,11 @@ cvResult(model)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{kbsvm}}, \code{\link{cvResult}},

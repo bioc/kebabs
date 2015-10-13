@@ -15,73 +15,64 @@
   labels = NULL, windowSize = 1, ...)
 }
 \arguments{
-  \item{x}{prediction profile of class
-  \code{\linkS4class{PredictionProfile}}.}
+\item{x}{prediction profile of class
+\code{\linkS4class{PredictionProfile}}.}
 
-  \item{Rowv}{determines the row order of the plot. When
-  set to \code{TRUE} the profile rows are clustered via
-  hierarchical clustering and a row dendrogram is plotted.
-  When set to \code{FALSE, NA or NULL} the order is
-  corresponds to the order of the sequences in the profile.
-  If this parameter has a value of \code{random} rows are
-  ordered randomly, for \code{decision} the ordering is
-  according to decreasing decision values. A user-defined
-  order can be specified through a numeric vector of
-  indices. Default=TRUE}
+\item{Rowv}{determines the row order of the plot. When set to \code{TRUE}
+the profile rows are clustered via hierarchical clustering and a row
+dendrogram is plotted. When set to \code{FALSE, NA or NULL} the order is
+corresponds to the order of the sequences in the profile. If this parameter
+has a value of \code{random} rows are ordered randomly, for \code{decision}
+the ordering is according to decreasing decision values. A user-defined
+order can be specified through a numeric vector of indices. Default=TRUE}
 
-  \item{add.expr}{largely analogous to the standard
-  \code{\link[stats:heatmap]{heatmap}} function.}
+\item{add.expr}{largely analogous to the standard
+\code{\link[stats:heatmap]{heatmap}} function.}
 
-  \item{margins}{largely analogous to the standard
-  \code{\link[stats:heatmap]{heatmap}} function.
-  Default=c(5,5)}
+\item{margins}{largely analogous to the standard
+\code{\link[stats:heatmap]{heatmap}} function. Default=c(5,5)}
 
-  \item{RowSideColors}{a vector of color values specifying
-  the colors for the side bar. Default=NULL}
+\item{RowSideColors}{a vector of color values specifying the colors for
+the side bar. Default=NULL}
 
-  \item{cexRow}{largely analogous to the standard
-  \code{\link[stats:heatmap]{heatmap}} function. When set
-  to 0 the row labels are suppressed. Default=defined
-  dependent on number of profile rows}
+\item{cexRow}{largely analogous to the standard
+\code{\link[stats:heatmap]{heatmap}} function. When set to 0 the row
+labels are suppressed. Default=defined dependent on number of
+profile rows}
 
-  \item{cexCol}{largely analogous to the standard
-  \code{\link[stats:heatmap]{heatmap}} function. When set
-  to 0 the column labels are suppressed. Default=defined
-  dependent on number of profile columns}
+\item{cexCol}{largely analogous to the standard
+\code{\link[stats:heatmap]{heatmap}} function. When set to 0 the column
+labels are suppressed. Default=defined dependent on number of profile
+columns}
 
-  \item{main}{largely analogous to the standard
-  \code{\link[stats:heatmap]{heatmap}} function.}
+\item{main}{largely analogous to the standard
+\code{\link[stats:heatmap]{heatmap}} function.}
 
-  \item{dendScale}{factor scaling the width of the row
-  dendrogram; values have to be larger than 0 and not
-  larger than 2. Default=1}
+\item{dendScale}{factor scaling the width of the row dendrogram; values
+have to be larger than 0 and not larger than 2. Default=1}
 
-  \item{barScale}{factor scaling the width of the label
-  color bar. Values have to be larger than 0 and not larger
-  than 4. Default=1}
+\item{barScale}{factor scaling the width of the label color bar. Values
+have to be larger than 0 and not larger than 4. Default=1}
 
-  \item{startPos}{start sequence position. Together with
-  the parameter \code{endPos} a subset of sequence
-  positions can be selected for the heatmap. Default=1}
+\item{startPos}{start sequence position. Together with the
+parameter \code{endPos} a subset of sequence positions can be selected
+for the heatmap. Default=1}
 
-  \item{endPos}{end sequence position (see also
-  \code{startPos}). Default=maximum sequence length in the
-  profile.}
+\item{endPos}{end sequence position (see also \code{startPos}).
+Default=maximum sequence length in the profile.}
 
-  \item{labels}{a numeric vector, character vector or
-  factor specifying the labels for the sequences in the
-  profile. If this parameter is different from NULL the
-  labels are plotted as side bar using the colors specified
-  in the parameter \code{RowSideColors}. Default=NULL}
+\item{labels}{a numeric vector, character vector or factor specifying
+the labels for the sequences in the profile. If this parameter is
+different from NULL the labels are plotted as side bar using the
+colors specified in the parameter \code{RowSideColors}. Default=NULL}
 
-  \item{windowSize}{numerical value specifying the window
-  size of an optional sliding window averaging of the
-  prediction profiles. The value must be larger than 0.
-  Even values are changed internally to odd values by
-  adding 1. Default=1}
+\item{windowSize}{numerical value specifying the window size of an optional
+sliding window averaging of the prediction profiles. The value must be
+larger than 0. Even values are changed internally to odd values by adding
+1. Default=1}
 
-  \item{...}{additional parameters which are passed to the
-  \code{image} method transparently.}
+\item{...}{additional parameters which are passed to the \code{image}
+method transparently.}
 }
 \value{
 Invisibly, a cluster dendrogram.
@@ -90,17 +81,14 @@ Invisibly, a cluster dendrogram.
 Create a heat map of prediction profiles
 }
 \details{
-The \code{heatmap} function provides plotting of heatmaps
-from prediction profiles with various possibilities for
-sample (=row) ordering (see parameter \code{Rowv}). The
-heatmap is shown together with an optional color sidebar
-showing the labels and an optional row cluster dendrogram
-when hierarchical clustering defines the row order. For
-long sequences the heatmap can be restricted to a subset of
-positions. Additionally smoothing can be applied to the
-prediction profiles through sliding window averaging.
-Through smoothing important regions can become better
-visible.
+The \code{heatmap} function provides plotting of heatmaps from prediction
+profiles with various possibilities for sample (=row) ordering (see
+parameter \code{Rowv}). The heatmap is shown together with an optional
+color sidebar showing the labels and an optional row cluster dendrogram
+when hierarchical clustering defines the row order. For long sequences the
+heatmap can be restricted to a subset of positions. Additionally smoothing
+can be applied to the prediction profiles through sliding window averaging.
+Through smoothing important regions can become better visible.
 }
 \examples{
 ## load coiled coil data
@@ -139,17 +127,16 @@ Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
 \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
-(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M.
-Ionescu and S. Hochreiter. Modelling position specificity
-in sequence kernels by fuzzy equivalence relations. \cr\cr
-(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U.
-Bodenhofer, R. Volkmer and S. Hochreiter. Complex networks
-govern coiled-coil oligomerizations - predicting and
-profiling by means of a machine learning approach.\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M. Ionescu and
+S. Hochreiter. Modelling position specificity in sequence kernels by fuzzy
+equivalence relations. \cr\cr
+(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer
+and S. Hochreiter. Complex networks govern coiled-coil oligomerizations -
+predicting and profiling by means of a machine learning approach.\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{getPredictionProfile}}

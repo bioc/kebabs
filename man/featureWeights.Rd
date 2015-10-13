@@ -8,85 +8,71 @@ getFeatureWeights(model, exrep = NULL, features = NULL,
   weightLimit = .Machine$double.eps)
 }
 \arguments{
-  \item{model}{model object of class
-  \code{\linkS4class{KBModel}} created by
-  \code{\link{kbsvm}}.}
+\item{model}{model object of class \code{\linkS4class{KBModel}} created
+by \code{\link{kbsvm}}.}
 
-  \item{exrep}{optional explicit representation of the
-  support vectors from which the feature weights should be
-  computed. If no explicit representation is passed to the
-  function the explicit representation is generated
-  internally from the support vectors stored in the model.
-  default=\code{NULL}}
+\item{exrep}{optional explicit representation of the support vectors from
+which the feature weights should be computed. If no explicit representation
+is passed to the function the explicit representation is generated internally
+from the support vectors stored in the model. default=\code{NULL}}
 
-  \item{features}{feature subset of the specified kernel in
-  the form of a character vector. When a feature subset is
-  passed to the function all other features in the feature
-  space are not considered for the explicit representation.
-  (see below) default=\code{NULL}}
+\item{features}{feature subset of the specified kernel in the form of a
+character vector. When a feature subset is passed to the function all other
+features in the feature space are not considered for the explicit
+representation. (see below) default=\code{NULL}}
 
-  \item{weightLimit}{the feature weight limit is a single
-  numeric value and allows pruning of feature weights. All
-  feature weights with an absolute value below this limit
-  are set to 0 and are not considered in the feature
-  weights. Default=.Machine$double.eps}
+\item{weightLimit}{the feature weight limit is a single numeric value and
+allows pruning of feature weights. All feature weights with an absolute
+value below this limit are set to 0 and are not considered in the feature
+weights. Default=.Machine$double.eps}
 }
 \value{
-Upon successful completion, the function returns the
-feature weights as numeric vector. For quadratic kernels a
-matrix of feature weights is returned giving the feature
-weights for pairs of features. In case of multiclass the
-function returns the feature weights for the pairwise SVMs
-as list of numeric vectors (or matrices for quadratic
-kernels).
+Upon successful completion, the function returns the feature weights as
+numeric vector. For quadratic kernels a matrix of feature weights is returned
+giving the feature weights for pairs of features. In case of multiclass
+the function returns the feature weights for the pairwise SVMs as list of
+numeric vectors (or matrices for quadratic kernels).
 }
 \description{
 Compute Feature Weights for KeBABS Model
 }
 \details{
-Overview\cr\cr Feature weights represent the contribution
-to the decision value for a single occurance of the feature
-in the sequence. In this way they give a hint concerning
-the importance of the individual features for a given
-classification or regression task. Please consider that for
-a pattern length larger than 1 patterns at neighboring
-sequence positions overlap and are no longer independent
-from each other. Apart from the obvious overlapping
-possibility of patterns for e.g. gappy pair kernel, motif
-kernel or mixture kernels multiple patterns can be relevant
-for a single position. Therefore feature weights do not
-describe the relevance for individual features
-exactly.\cr\cr Computation of feature weights\cr\cr Feature
-weights can be computed automatically as part of the
-training (see parameter \code{featureWeights} in method
-\code{\link{kbsvm}}. In this case the function
-getFeatureWeights is called during training automatically.
-When this parameter is not set during training computation
-of feature weights after training is possible with the
-function getFeatureWeights. The function also supports
-pruning of feature weights (see parameter
-\code{weightLimit} allowing to test different prunings
-without retraining.\cr\cr Usage of feature weights\cr\cr
-Feature weights are used during prediction to speed up the
-prediction process. Prediction via feature weights is
-performed in KeBABS when feature weights are available in
-the model (see \code{\link{featureWeights}}). When feature
-weights are not available or for multiclass prediction
-KeBABS defaults to the native prediction in the SVM used
-during training.\cr\cr Feature weights are also used during
-generation of prediction profiles (see
-\code{\link{getPredictionProfile}}). In the feature weights
-the general relevance of features is reflected. When
-generating prediction profiles for a given set of sequences
-from the feature weights the relevance of single sequence
-positions is shown for the individual sequences according
-to the given learning task.\cr\cr Feature weights for
-position dependent kernels\cr\cr For position dependent
-kernels the generation of feature weights is not possible
-during training. In this case the featureWeights slot in
-the model contains a data representation that allows simple
-computation of feature weights during prediction or during
-generation of prediction profiles.
+Overview\cr\cr
+Feature weights represent the contribution to the decision value for a
+single occurance of the feature in the sequence. In this way they give a
+hint concerning the importance of the individual features for a given
+classification or regression task. Please consider that for a pattern length
+larger than 1 patterns at neighboring sequence positions overlap and are no
+longer independent from each other. Apart from the obvious overlapping
+possibility of patterns for e.g. gappy pair kernel, motif kernel or mixture
+kernels multiple patterns can be relevant for a single position. Therefore
+feature weights do not describe the relevance for individual features
+exactly.\cr\cr
+Computation of feature weights\cr\cr
+Feature weights can be computed automatically as part of the training (see
+parameter \code{featureWeights} in method \code{\link{kbsvm}}. In this case
+the function getFeatureWeights is called during training automatically.
+When this parameter is not set during training computation of feature weights
+after training is possible with the function getFeatureWeights. The function
+also supports pruning of feature weights (see parameter \code{weightLimit}
+allowing to test different prunings without retraining.\cr\cr
+Usage of feature weights\cr\cr
+Feature weights are used during prediction to speed up the prediction
+process. Prediction via feature weights is performed in KeBABS when feature
+weights are available in the model (see \code{\link{featureWeights}}).
+When feature weights are not available or for multiclass prediction KeBABS
+defaults to the native prediction in the SVM used during training.\cr\cr
+Feature weights are also used during generation of prediction profiles
+(see \code{\link{getPredictionProfile}}). In the feature weights the general
+relevance of features is reflected. When generating prediction profiles
+for a given set of sequences from the feature weights the relevance of
+single sequence positions is shown for the individual sequences according
+to the given learning task.\cr\cr
+Feature weights for position dependent kernels\cr\cr
+For position dependent kernels the generation of feature weights is not
+possible during training. In this case the featureWeights slot in the model
+contains a data representation that allows simple computation of feature
+weights during prediction or during generation of prediction profiles.
 }
 \examples{
 ## standard method to create feature weights automatically during training
@@ -165,16 +151,16 @@ evaluatePrediction(pred, yFB[test], allLabels=allLables)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{kbsvm}}, \code{\link{predict}},
-\code{\link{getPredictionProfile}}
-\code{\link{featureWeights}}, \code{\linkS4class{KBModel}}
+\code{\link{getPredictionProfile}} \code{\link{featureWeights}},
+\code{\linkS4class{KBModel}}
 }
 \keyword{feature}
 \keyword{methods}

@@ -93,8 +93,9 @@ predict.PositionDependent <- function(model, x, predictionType, sel,
               classifierType, list(...))
     }
 
-    offsetX <- mcols(x)[["offset"]][sel]
+    offsetX <- mcols(x)[["offset"]]
 
+    ## independent of kernel - including last positions
     if (is.null(offsetX))
     {
         minPos <- 1
@@ -103,11 +104,9 @@ predict.PositionDependent <- function(model, x, predictionType, sel,
     }
     else
     {
-        startPosX <- -offsetX
-        startPosX[which(startPosX > 0)] <- 0
-        startPosX <- startPosX + 1
+        startPosX <- -offsetX[sel] + 1
         minPos <- min(startPosX)
-        maxPos <- max(startPosX + width(x)[sel])
+        maxPos <- max(startPosX + width(x)[sel]) - 1
     }
 
     if (!is(model@svmInfo@selKernel, "MotifKernel"))
@@ -149,20 +148,42 @@ predict.PositionDependent <- function(model, x, predictionType, sel,
                            "WeightedDegreeKernel",
                            "GappyPairKernel")
 
+    if (length(model@ctlInfo@multiclassType) > 0 &&
+        model@ctlInfo@multiclassType == "pairwise")
+    {
+        posNames <- lapply(model@featureWeights, colnames)
+        minPosSV <- min(unlist(lapply(posNames, "[", 1)))
+        maxPosSV <- max(unlist(lapply(posNames, "[",
+                                      unlist(lapply(posNames, length)))))
+    }
+    else
+    {
+        posNames <- colnames(model@featureWeights)
+        minPosSV <- as.numeric(posNames[1])
+        maxPosSV <- as.numeric(posNames[length(posNames)])
+    }
+
     distWeight <- kernelParameters(model@svmInfo@selKernel)$distWeight
-    maxDist <- maxPos - minPos
+    maxDist <- max(maxPos, maxPosSV) - min(minPos, minPosSV)
 
     if (is.function(distWeight))
     {
+        if (is(model@svmInfo@selKernel, "SpectrumKernel"))
+            minFeatureLength <- k
+        else if (is(model@svmInfo@selKernel, "GappyPairKernel"))
+            minFeatureLength <- k
+        else if (is(model@svmInfo@selKernel, "MotifKernel"))
+            minFeatureLength <- min(motifLengths)
+
         ## precompute distance weight vector
         ## terminate on stop and warning
         ## assuming that all distances are partially overlapping
-        distWeight <- tryCatch(distWeight(0:(maxDist - k + 1)),
+        distWeight <- tryCatch(distWeight(0:(maxDist - minFeatureLength + 1)),
                                warning=function(w) {stop(w)},
                                error=function(e) {stop(e)})
 
         if (!(is.numeric(distWeight) && length(distWeight) ==
-              maxDist - k + 2))
+              maxDist - minFeatureLength + 2))
         {
             stop("distWeight function did not return a numeric vector\n",
                  "       of correct length\n")
@@ -170,13 +191,13 @@ predict.PositionDependent <- function(model, x, predictionType, sel,
 
         ## limit to values larger than .Machine$double.eps
         ## for non-monotonic decreasing functions search from end
-        for (i in (maxDist - k + 1):0)
+        for (i in (maxDist - minFeatureLength + 2):1)
         {
             if (distWeight[i] > .Machine$double.eps)
                 break
         }
 
-        distWeight <- distWeight[0:i]
+        distWeight <- distWeight[1:i]
     }
 
     if (isTRUE(all.equal(distWeight, c(1, rep(0, length(distWeight)-1)))))
@@ -868,7 +889,7 @@ predict.KBModel <- function(object, x, predictionType="response", sel=NULL,
 #' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
-#' \emph{Bioinformatics} (accepted).
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
 #' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords predict
 #' @keywords prediction

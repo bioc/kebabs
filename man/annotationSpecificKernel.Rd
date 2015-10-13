@@ -38,151 +38,123 @@ showAnnotatedSeq(x, sel = 1, ann = TRUE, pos = TRUE, start = 1,
 \S4method{annotationCharset}{BioVector}(x)
 }
 \arguments{
-  \item{x}{biological sequences in the form of a
-  \code{\linkS4class{DNAStringSet}},
-  \code{\linkS4class{RNAStringSet}},
-  \code{\linkS4class{AAStringSet}} (or as
-  \code{\linkS4class{BioVector}})}
+\item{x}{biological sequences in the form of a
+\code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+\code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}})}
 
-  \item{sel}{single index into x for displaying a specific
-  sequence. Default=1}
+\item{sel}{single index into x for displaying a specific sequence. Default=1}
 
-  \item{ann}{show annotation information along with the
-  sequence}
+\item{ann}{show annotation information along with the sequence}
 
-  \item{pos}{show position information}
+\item{pos}{show position information}
 
-  \item{start}{first postion to be displayed, by default
-  the full sequence is shown}
+\item{start}{first postion to be displayed, by default the full sequence is
+shown}
 
-  \item{end}{last position to be displayed or use parameter
-  'width'}
+\item{end}{last position to be displayed or use parameter 'width'}
 
-  \item{width}{number of positions to be displayed or use
-  parameter 'end'}
+\item{width}{number of positions to be displayed or use parameter 'end'}
 
-  \item{...}{additional parameters which are passed
-  transparently.}
+\item{...}{additional parameters which are passed transparently.}
 
-  \item{value}{character vector with annotation strings
-  with same length as the number of sequences. Each
-  anntation string must have the same number of characters
-  as the corresponding sequence. In addition to the
-  characters defined in the annotation character set the
-  character "-" can be used in the annotation strings for
-  masking sequence parts.}
+\item{value}{character vector with annotation strings with same length
+as the number of sequences. Each anntation string must have the same number
+of characters as the corresponding sequence. In addition to the characters
+defined in the annotation character set the character "-" can be used in
+the annotation strings for masking sequence parts.}
 
-  \item{annCharset}{character string listing all characters
-  used in annotation sorted ascending according to the C
-  locale, up to 32 characters are possible}
+\item{annCharset}{character string listing all characters used in annotation
+sorted ascending according to the C locale, up to 32 characters are possible}
 }
 \value{
-\code{annotationMetadata}: a character vector with the
-annotation strings
+\code{annotationMetadata}: a character vector with the annotation
+strings
 
-\code{annotationCharset}: a character vector with the
-annotation
+\code{annotationCharset}: a character vector with the annotation
 }
 \description{
 Assign annotation metadata to sequences and create a kernel
-object which evaluates annotation information\cr\cr Show
-biological sequence together with annotation\cr\cr
+object which evaluates annotation information\cr\cr
+Show biological sequence together with annotation\cr\cr
 }
 \details{
-Annotation information for sequences\cr\cr For the
-annotation specific kernel additional annotation
-information is added to the sequence data. The annotation
-for one sequence consist of a character string with a
-single annotation character per position, i.e. the
-annotation sequence has the same length as the sequence.
-The character set used for annotation is defined user
-specific on XStringSet level with up to 32 different
-characters. Each biological sequence needs an associated
-annotation sequence assigned consisting of characters from
-this character set. The evaluation of annotation
-information as part of the kernel processing during
-generation of a kernel matrix or an explict representation
-can be activated per kernel object. \cr\cr Assignment of
-annotation information\cr\cr The annotation characterset
-consists of a character string listing all allowed
-annotation characters in alphabetical order. Any single
-byte ASCII character from the decimal range between 32 and
-126, except 45, is allowed. The character '-' (ASCII dec.
-45) is used for masking sequence parts which should not be
-evaluated. As it has assigned this special masking function
-it must not be used in annotation charactersets.\cr\cr The
-annotation characterset is assigned to the sequence set
-with the \code{annotationMetadata} function (see below). It
-is stored in the metadata list as named element
-\code{annotationCharset} and can be stored along with other
-metadata assigned to the sequence set. The annotation
-strings for the individual sequences are represented as a
-character vector and can be assigned to the XStringSet
-together with the assignment of the annotation characterset
-as element related metadata. Element related metadata is
-stored in a DataFrame and the columns of this data frame
-represent the different types of metadata that can be
-assigned in parallel. The column name for the sequence
-related annotation information is "annotation". (see
-Example section for an example of annotation metadata
-assignment) Annotation metadata can be assigned together
-with position metadata (see \code{\link{positionMetadata}}
-to a sequence set. \cr\cr Annotation Specific Kernel
-Processing\cr\cr The annotation specific kernel variant of
-a kernel, e.g. the spectrum kernel appends the annotation
-characters corresponding to a specific kmer to this kmer
-and treats the resulting pattern as one feature - the basic
-unit for similarity determination. The full feature space
-of an annotation specific spectrum kernel is the cartesian
-product of the set of all possible sequence patterns with
-the set of all possible anntotions patterns. Dependent on
-the number of characters in the annotation character set
-the feature space increases drastically compared to the
-normal spectrum kernel. But through annotation the
-similarity consideration between two sequences can be split
-into independent parts considered separately, e.g.
-coding/non-coding, exon/intron, etc... . For amino acid
-sequences e.g. a heptad annotation (consisting of a usually
-periodic pattern of 7 characters (a to g) can be used as
-annotation like in prediction of coiled coil structures.
-(see reference Mahrenholz, 2011)\cr\cr The flag
-\code{annSpec} passed during creation of a kernel object
-controls whether annotation information is evaluated by the
-kernel. (see functions \code{\link{spectrumKernel},
-\link{gappyPairKernel}, \link{motifKernel}}) In this way
-sequences with annotation can be evaluated annotation
-specific and without annotation through using two different
-kernel objects. (see examples below) The annotation
-specific kernel variant is available for all kernels in
-this package except for the mismatch kernel.\cr\cr
-annotationMetadata function \cr\cr With this function
-annotation metadata can be assigned to sequences defined as
-XStringSet (or BioVector). The sequence annotation strings
-are stored as element related information and can be
-retrieved with the method \code{\link{mcols}}. The
-characters used for anntation are stored as annotation
-characterset for the sequence set and can be retrieved with
-the method \code{\link{metadata}}. For the assignment of
-annotation metadata to biological sequences this function
-should be used instead of the lower level functions
-metadata and mcols. The function \code{annotationMetadata}
-performs several checks and also takes care that other
-metadata or element metadata assigned to the object is
-kept. Annotation metadata are deleted if the parameters
-\code{annCharset} and \code{annotation} are set to
-NULL.\cr\cr showAnnotatedSeq function \cr\cr This function
-displays individual sequences aligned with the annotation
-string with 50 positions per line. The two header lines
-show the start postion for each bock of 10
-characters.\cr\cr
+Annotation information for sequences\cr\cr
+For the annotation specific kernel additional annotation information is
+added to the sequence data. The annotation for one sequence consist of a
+character string with a single annotation character per position, i.e.
+the annotation sequence has the same length as the sequence. The character
+set used for annotation is defined user specific on XStringSet level
+with up to 32 different characters. Each biological sequence needs
+an associated annotation sequence assigned consisting of characters from
+this character set. The evaluation of annotation information as part of
+the kernel processing during generation of a kernel matrix or an explict
+representation can be activated per kernel object. \cr\cr
+Assignment of annotation information\cr\cr
+The annotation characterset consists of a character string listing all
+allowed annotation characters in alphabetical order. Any single byte ASCII
+character from the decimal range between 32 and 126, except 45, is allowed.
+The character '-' (ASCII dec. 45) is used for masking sequence parts which
+should not be evaluated. As it has assigned this special masking function
+it must not be used in annotation charactersets.\cr\cr
+The annotation characterset is assigned to the sequence set with the
+\code{annotationMetadata} function (see below). It is stored in the
+metadata list as named element \code{annotationCharset} and can be stored
+along with other metadata assigned to the sequence set. The annotation
+strings for the individual sequences are represented as a character vector
+and can be assigned to the XStringSet together with the assignment of the
+annotation characterset as element related metadata. Element related
+metadata is stored in a DataFrame and the columns of this data frame
+represent the different types of metadata that can be assigned in parallel.
+The column name for the sequence related annotation information is
+"annotation". (see Example section for an example of annotation metadata
+assignment) Annotation metadata can be assigned together with position
+metadata (see \code{\link{positionMetadata}} to a sequence set. \cr\cr
+Annotation Specific Kernel Processing\cr\cr
+The annotation specific kernel variant of a kernel, e.g. the spectrum kernel
+appends the annotation characters corresponding to a specific kmer to this
+kmer and treats the resulting pattern as one feature - the basic unit for
+similarity determination. The full feature space of an annotation specific
+spectrum kernel is the cartesian product of the set of all possible sequence
+patterns with the set of all possible anntotions patterns. Dependent on the
+number of characters in the annotation character set the feature space
+increases drastically compared to the normal spectrum kernel. But through
+annotation the similarity consideration between two sequences can be split
+into independent parts considered separately, e.g. coding/non-coding,
+exon/intron, etc... . For amino acid sequences e.g. a heptad annotation
+(consisting of a usually periodic pattern of 7 characters (a to g) can be
+used as annotation like in prediction of coiled coil structures. (see
+reference Mahrenholz, 2011)\cr\cr
+The flag \code{annSpec} passed during creation of a kernel object controls
+whether annotation information is evaluated by the kernel. (see functions
+\code{\link{spectrumKernel}, \link{gappyPairKernel}, \link{motifKernel}})
+In this way sequences with annotation can be evaluated annotation specific
+and without annotation through using two different kernel objects. (see
+examples below) The annotation specific kernel variant is available for all
+kernels in this package except for the mismatch kernel.\cr\cr
+annotationMetadata function \cr\cr
+With this function annotation metadata can be assigned to sequences defined
+as XStringSet (or BioVector). The sequence annotation strings are stored
+as element related information and can be retrieved with the method
+\code{\link{mcols}}. The characters used for anntation are stored as
+annotation characterset for the sequence set and can be retrieved
+with the method \code{\link{metadata}}. For the assignment of annotation
+metadata to biological sequences this function should be used instead of the
+lower level functions metadata and mcols. The function
+\code{annotationMetadata} performs several checks and also takes care
+that other metadata or element metadata assigned to the object is kept.
+Annotation metadata are deleted if the parameters \code{annCharset} and
+\code{annotation} are set to NULL.\cr\cr
+showAnnotatedSeq function \cr\cr
+This function displays individual sequences aligned with the annotation
+string with 50 positions per line. The two header lines show the start
+postion for each bock of 10 characters.\cr\cr
 
-Accessor-like methods\cr\cr The method annotationMetadata<-
-assigns annotation metadata to a sequence set. In the
-assignment also the annotation characterset must be
-specified. Annotation characters which are not listed in
-the characterset are treated like invalid sequence
-characters. They interrupt open patterns and lead to a
-restart of the pattern search at this position.
+Accessor-like methods\cr\cr
+The method annotationMetadata<- assigns annotation metadata to a sequence
+set. In the assignment also the annotation characterset must be specified.
+Annotation characters which are not listed in the characterset are treated
+like invalid sequence characters. They interrupt open patterns and lead
+to a restart of the pattern search at this position.
 }
 \examples{
 ## create a set of annotated DNA sequences
@@ -245,22 +217,21 @@ annotationCharset(x)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr C.C.
-Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer and S.
-Hochreiter (2011) Complex networks govern coiled coil
-oligomerization - predicting and profiling by means of a
-machine learning approach. \emph{Mol. Cell. Proteomics}.
-DOI: 10.1074/mcp.M110.004994. \cr\cr J. Palme, S.
-Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer and
+S. Hochreiter (2011) Complex networks govern coiled coil
+oligomerization - predicting and profiling by means of a machine
+learning approach. \emph{Mol. Cell. Proteomics}.
+DOI: 10.1074/mcp.M110.004994. \cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
-\code{\link{spectrumKernel}},
-\code{\link{gappyPairKernel}}, \code{\link{motifKernel}},
-\code{\link{positionMetadata}}, \code{\link{metadata}},
-\code{\link{mcols}}
+\code{\link{spectrumKernel}}, \code{\link{gappyPairKernel}},
+\code{\link{motifKernel}}, \code{\link{positionMetadata}},
+\code{\link{metadata}}, \code{\link{mcols}}
 }
 \keyword{annotation}
 \keyword{kernel}

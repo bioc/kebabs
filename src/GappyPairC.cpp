@@ -899,7 +899,7 @@ template<typename T>
 void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, ByteStringVector y,
                       int sizeX, int sizeY, IntegerVector selX, IntegerVector selY,
                       ByteStringVector annCharset, ByteStringVector annX, ByteStringVector annY,
-                      bool unmapped, int k, int m, bool normalized, bool symmetric, bool presence,
+                      int k, int m, bool normalized, bool symmetric, bool presence,
                       bool reverseComplement, int maxSeqLength, uint64_t dimFeatureSpace,
                       struct alphaInfo *alphaInf)
 {
@@ -1302,7 +1302,7 @@ void getKMStdAnnGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, 
 template<typename T>
 void getKMPosDistGappy(T maxUnSignedIndex, NumericMatrix km, ByteStringVector x, ByteStringVector y,
                        int sizeX, int sizeY, IntegerVector selX, IntegerVector selY,
-                       IntegerVector offsetX, IntegerVector offsetY, bool unmapped, int k, int m,
+                       IntegerVector offsetX, IntegerVector offsetY, int k, int m,
                        bool normalized,  bool symmetric, bool reverseComplement, bool posSpec,
                        NumericVector distWeight, int maxSeqLength, struct alphaInfo *alphaInf)
 {
@@ -2304,7 +2304,7 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
 }
 
 void getERDGappy(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector selX,
-                 ByteStringVector annCharset, ByteStringVector annX, bool unmapped, int k, int m,
+                 ByteStringVector annCharset, ByteStringVector annX, int k, int m,
                  bool normalized, bool presence, bool reverseComplement, struct alphaInfo *alphaInf,
                  ByteStringVector features, uint64_t dimFeatureSpace, bool zeroFeatures, bool useHash,
                  bool mapIndex, void *indexMap, uint64_t numUsedFeatures, double *normValues)
@@ -2664,7 +2664,7 @@ void getERDGappy(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
 }
 
 bool getERSGappy(ByteStringVector x, int sizeX, IntegerVector selX, ByteStringVector annCharset,
-                 ByteStringVector annX, int maxSeqLength, bool unmapped, int k, int m, bool normalized,
+                 ByteStringVector annX, int maxSeqLength, int k, int m, bool normalized,
                  bool presence, bool reverseComplement, struct alphaInfo *alphaInf, ByteStringVector features,
                  uint64_t dimFeatureSpace, bool zeroFeatures, bool useHash, bool mapIndex, void *indexMap,
                  uint64_t numUsedFeatures,SEXP slot_p, SEXP slot_j, SEXP slot_x, double *normValues)
@@ -3251,7 +3251,7 @@ RcppExport SEXP genExplRepGappyPair(ByteStringVector x, int sizeX, IntegerVector
                                reverseAnnotationMap, mapIndex, useHash);
         }
 
-        getERDGappy(erd, x, sizeX, selX, annCharset, annX, unmapped, k, m, normalized, presence,
+        getERDGappy(erd, x, sizeX, selX, annCharset, annX, k, m, normalized, presence,
                     reverseComplement, &alphaInf, features, dimFeatureSpace, zeroFeatures, useHash,
                     mapIndex, indexMap, numUsedFeatures, normValues);
 
@@ -3362,7 +3362,7 @@ RcppExport SEXP genExplRepGappyPair(ByteStringVector x, int sizeX, IntegerVector
                                annCharset, reverseAnnotationMap, mapIndex, useHash);
         }
 
-        getERSGappy(x, sizeX, selX, annCharset, annX, maxSeqLength, unmapped, k, m, normalized,
+        getERSGappy(x, sizeX, selX, annCharset, annX, maxSeqLength, k, m, normalized,
                     presence, reverseComplement, &alphaInf, features, dimFeatureSpace, zeroFeatures,
                     useHash, mapIndex, indexMap, numUsedFeatures, slot_p, slot_j, slot_x,
                     normValues);
@@ -3470,13 +3470,13 @@ RcppExport SEXP gappyPairKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR,
             if (posSpec || distWeight.length() > 0)
             {
                 getKMPosDistGappy(maxUIndex8, km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY,
-                                  unmapped, k, m, normalized, symmetric, reverseComplement, posSpec,
+                                  k, m, normalized, symmetric, reverseComplement, posSpec,
                                   distWeight, maxSeqLength, &alphaInf);
             }
             else
             {
                 getKMStdAnnGappy(maxUIndex8, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
-                                 unmapped, k, m, normalized, symmetric, presence, reverseComplement,
+                                 k, m, normalized, symmetric, presence, reverseComplement,
                                  maxSeqLength, dimFeatureSpace, &alphaInf);
             }
 
@@ -3488,13 +3488,13 @@ RcppExport SEXP gappyPairKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR,
             if (posSpec || distWeight.length() > 0)
             {
                 getKMPosDistGappy(maxUIndex16, km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY,
-                                  unmapped, k, m, normalized, symmetric, reverseComplement, posSpec,
+                                  k, m, normalized, symmetric, reverseComplement, posSpec,
                                   distWeight, maxSeqLength, &alphaInf);
             }
             else
             {
                 getKMStdAnnGappy(maxUIndex16, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
-                                 unmapped, k, m, normalized, symmetric, presence, reverseComplement,
+                                 k, m, normalized, symmetric, presence, reverseComplement,
                                  maxSeqLength, dimFeatureSpace, &alphaInf);
             }
 
@@ -3507,13 +3507,13 @@ RcppExport SEXP gappyPairKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR,
             if (posSpec || distWeight.length() > 0)
             {
                 getKMPosDistGappy(maxUIndex32, km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY,
-                                  unmapped, k, m, normalized, symmetric, reverseComplement, posSpec,
+                                  k, m, normalized, symmetric, reverseComplement, posSpec,
                                   distWeight, maxSeqLength, &alphaInf);
             }
             else
             {
                 getKMStdAnnGappy(maxUIndex32, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
-                                 unmapped, k, m, normalized, symmetric, presence, reverseComplement,
+                                 k, m, normalized, symmetric, presence, reverseComplement,
                                  maxSeqLength, dimFeatureSpace, &alphaInf);
             }
 
@@ -3525,13 +3525,13 @@ RcppExport SEXP gappyPairKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR,
             if (posSpec || distWeight.length() > 0)
             {
                 getKMPosDistGappy(maxUIndex64, km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY,
-                                  unmapped, k, m, normalized, symmetric, reverseComplement, posSpec,
+                                  k, m, normalized, symmetric, reverseComplement, posSpec,
                                   distWeight, maxSeqLength, &alphaInf);
             }
             else
             {
                 getKMStdAnnGappy(maxUIndex64, km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY,
-                                 unmapped, k, m, normalized, symmetric, presence, reverseComplement,
+                                 k, m, normalized, symmetric, presence, reverseComplement,
                                  maxSeqLength, dimFeatureSpace, &alphaInf);
             }
 
@@ -3687,9 +3687,9 @@ template<typename T>
 void genFeatVectorsPosDepGappyPairT(T maxUnSignedIndex, ByteStringVector x, int sizeX, IntegerVector selX,
                                     IntegerVector offsetX, ByteStringVector annX, ByteStringVector annCharset,
                                     int maxSeqLength, int k, int m, struct alphaInfo *alphaInf, bool presence,
-                                    bool normalized, bool unmapped, bool reverseComplement, bool posSpecific,
+                                    bool normalized, bool reverseComplement, bool posSpecific, NumericVector distWeight,
                                     int sortType, uint64_t **startIndex, T **featVectorIndex,
-                                    int32_t **featVectorValue, uint32_t **kernelValue)
+                                    int32_t **featVectorValue, double **kernelValue)
 {
     T prevIndex, featureIndex, tempIndex1, tempIndex2, fIndex;
     int i, j, j1, l, index, indexAnn, iold, inew, patternLength, offset, km1, upper;
@@ -3699,14 +3699,17 @@ void genFeatVectorsPosDepGappyPairT(T maxUnSignedIndex, ByteStringVector x, int 
     char *seqptr, *annptr;
     IntegerVector annotationIndexMap(MAX_CHAR);
     IntegerVector reverseAnnotationMap(MAX_CHAR);
-
-
+    IntegerVector selCurr(1), selY(0), offsetY(0);
+    NumericMatrix kmOne(1,1);
+    ByteStringVector y;
+    
+    y.length = 0;
     *featVectorIndex = (T *) R_alloc(sizeX * maxSeqLength * (m + 1), sizeof(T));
     *featVectorValue = (int32_t *) R_alloc(sizeX * maxSeqLength * (m + 1), sizeof(int32_t));
     *startIndex = (uint64_t *) R_alloc(sizeX + 1, sizeof(uint64_t));
 
     if (normalized)
-        *kernelValue = (uint32_t *) R_alloc(sizeX, sizeof(uint32_t));
+        *kernelValue = (double *) R_alloc(sizeX, sizeof(double));
 
     if (annX.length > 0)
     {
@@ -3946,7 +3949,21 @@ void genFeatVectorsPosDepGappyPairT(T maxUnSignedIndex, ByteStringVector x, int 
         }
 
         if (normalized)
-            (*kernelValue)[i] = kv;
+        {
+            if (distWeight.length() == 0)
+                (*kernelValue)[i] = kv;
+            else
+            {
+                selCurr[0] = selX[i];
+                int currSeqLength = x.nchar[selX[i]];
+                
+                getKMPosDistGappy(maxUnSignedIndex, kmOne, x, y, 1, 1, selCurr, selY, offsetX, offsetY,
+                                  k, m, FALSE, TRUE, reverseComplement, posSpecific, distWeight,
+                                  currSeqLength, alphaInf);
+                (*kernelValue)[i] = kmOne(0,0);
+                
+            }
+        }
     }
 
     (*startIndex)[sizeX] = elemIndex;
@@ -3963,9 +3980,9 @@ void genFeatVectorsPosDepGappyPairT(T maxUnSignedIndex, ByteStringVector x, int 
 void genFeatVectorsGappyPair(ByteStringVector x, int sizeX, IntegerVector selX, IntegerVector offsetX,
                              ByteStringVector annX, ByteStringVector annCharset, int maxSeqLength,
                              int k, int m, struct alphaInfo *alphaInf, uint64_t dimFeatureSpace,
-                             bool presence, bool normalized, bool unmapped, bool reverseComplement,
-                             bool posSpecific, int sortType, int numPositions, uint64_t **startIndex,
-                             void **featVectorIndex, int32_t **featVectorValue, uint32_t **kernelValue,
+                             bool presence, bool normalized, bool reverseComplement, bool posSpecific,
+                             NumericVector distWeight, int sortType, int numPositions, uint64_t **startIndex,
+                             void **featVectorIndex, int32_t **featVectorValue, double **kernelValue,
                              int *indexSize)
 {
     uint8_t maxUIndex8 = MAXUINT8;
@@ -3989,8 +4006,8 @@ void genFeatVectorsGappyPair(ByteStringVector x, int sizeX, IntegerVector selX, 
         case 1:
         {
             genFeatVectorsPosDepGappyPairT(maxUIndex8, x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength,
-                                           k, m, alphaInf, presence, normalized, unmapped, reverseComplement,
-                                           posSpecific, sortType, startIndex, (uint8_t **) featVectorIndex,
+                                           k, m, alphaInf, presence, normalized, reverseComplement, posSpecific,
+                                           distWeight, sortType, startIndex, (uint8_t **) featVectorIndex,
                                            featVectorValue, kernelValue);
             return;
         }
@@ -3998,8 +4015,8 @@ void genFeatVectorsGappyPair(ByteStringVector x, int sizeX, IntegerVector selX, 
         case 2:
         {
             genFeatVectorsPosDepGappyPairT(maxUIndex16, x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength,
-                                           k, m, alphaInf, presence, normalized, unmapped, reverseComplement,
-                                           posSpecific, sortType, startIndex, (uint16_t **) featVectorIndex,
+                                           k, m, alphaInf, presence, normalized, reverseComplement, posSpecific,
+                                           distWeight, sortType, startIndex, (uint16_t **) featVectorIndex,
                                            featVectorValue, kernelValue);
             return;
         }
@@ -4008,8 +4025,8 @@ void genFeatVectorsGappyPair(ByteStringVector x, int sizeX, IntegerVector selX, 
         case 4:
         {
             genFeatVectorsPosDepGappyPairT(maxUIndex32, x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength,
-                                           k, m, alphaInf, presence, normalized, unmapped, reverseComplement,
-                                           posSpecific, sortType, startIndex, (uint32_t **) featVectorIndex,
+                                           k, m, alphaInf, presence, normalized, reverseComplement, posSpecific,
+                                           distWeight, sortType, startIndex, (uint32_t **) featVectorIndex,
                                            featVectorValue, kernelValue);
             return;
         }
@@ -4017,8 +4034,8 @@ void genFeatVectorsGappyPair(ByteStringVector x, int sizeX, IntegerVector selX, 
         default:
         {
             genFeatVectorsPosDepGappyPairT(maxUIndex64, x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength,
-                                           k, m, alphaInf, presence, normalized, unmapped, reverseComplement,
-                                           posSpecific, sortType, startIndex, (uint64_t **) featVectorIndex,
+                                           k, m, alphaInf, presence, normalized, reverseComplement, posSpecific,
+                                           distWeight, sortType, startIndex, (uint64_t **) featVectorIndex,
                                            featVectorValue, kernelValue);
             return;
         }
@@ -4028,15 +4045,19 @@ void genFeatVectorsGappyPair(ByteStringVector x, int sizeX, IntegerVector selX, 
 template<typename T>
 bool getSVWeightsFeatGappyPair(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap, ByteStringVector x,
                                int sizeX, IntegerVector selX, IntegerVector offsetX, int maxSeqLength, NumericVector coefs,
-                               bool reverseComplement, bool posSpecific, double weightLimit, int k, int m, int minPos, int maxPos, struct alphaInfo *alphaInf,
-                               bool normalized, uint64_t *numKeys, T **keys)
+                               bool reverseComplement, bool posSpecific, NumericVector distWeight, double weightLimit,
+                               int k, int m, int minPos, int maxPos, struct alphaInfo *alphaInf, bool normalized,
+                               uint64_t *numKeys, T **keys)
 {
     T prevIndex, featureIndex, tempIndex1, tempIndex2;
-    int i, j, j1, l, iX, index, iold, inew, offset, result, patternLength, upper, km1;
+    int i, j, j1, l, iX, index, iold, inew, offset, result, patternLength, upper, km1, currSeqLength;
     uint64_t numAlphaPowK_1, numAlphaPowK, numAlphaPow2K, numEntries, key, fIndex, *oldIndex, *newIndex;
     double kv, limit, normFactor;
     char *seqptr;
     khiter_t iter;
+    IntegerVector selCurr(1), selY(0), offsetY(0);
+    NumericMatrix kmOne(1,1);
+    ByteStringVector y;
     numAlphaPowK_1 = ipow64(alphaInf->numAlphabetChars, k - 1);
     numAlphaPowK = numAlphaPowK_1 * alphaInf->numAlphabetChars;
     numAlphaPow2K = numAlphaPowK * numAlphaPowK;
@@ -4045,6 +4066,7 @@ bool getSVWeightsFeatGappyPair(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash
 
     km1 = k + m + 1;
     normFactor = 1;
+    y.length = 0;
 
     for (i = 0; i < sizeX; i++)
     {
@@ -4065,32 +4087,43 @@ bool getSVWeightsFeatGappyPair(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash
         // get kernel value
         if (normalized)
         {
-            for (j = 0; j < x.nchar[iX]; j++)
+            if (distWeight.length() == 0)
             {
-                index = alphaInf->seqIndexMap[(int) seqptr[j]];
-
-                if (index > -1)
+                for (j = 0; j < x.nchar[iX]; j++)
                 {
-                    if (patternLength < 2*k + m)
-                        patternLength++;
-
-                    if (patternLength >= 2 * k)
+                    index = alphaInf->seqIndexMap[(int) seqptr[j]];
+                    
+                    if (index > -1)
                     {
-                        if (patternLength == 2 * k + m)
-                            upper = m;
-                        else
-                            upper = patternLength - 2 * k;
-
-                        kv += upper + 1;
+                        if (patternLength < 2*k + m)
+                            patternLength++;
+                        
+                        if (patternLength >= 2 * k)
+                        {
+                            if (patternLength == 2 * k + m)
+                                upper = m;
+                            else
+                                upper = patternLength - 2 * k;
+                            
+                            kv += upper + 1;
+                        }
                     }
+                    else
+                        patternLength = 0;
                 }
-                else
-                    patternLength = 0;
             }
-        }
-
-        if (normalized)
+            else
+            {
+                selCurr[0] = iX;
+                currSeqLength = x.nchar[iX];
+                
+                getKMPosDistGappy(maxUnSignedIndex, kmOne, x, y, 1, 1, selCurr, selY, offsetX, offsetY, k, m,
+                                  FALSE, TRUE, reverseComplement, posSpecific, distWeight, currSeqLength, alphaInf);
+                kv = kmOne(0,0);
+            }
+            
             normFactor = 1.0 / sqrt(kv);
+        }
 
         patternLength = 0;
         featureIndex = 0;
@@ -4253,8 +4286,9 @@ template<typename T>
 void getWeightedFeatOfSVGappyPair(T maxUnSignedIndex, SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap,
                                   khash_t(pdfi) *pdfimap, ByteStringVector x, int sizeX, IntegerVector selX,
                                   IntegerVector offsetX, int maxSeqLength, NumericVector coefs, bool posSpecific,
-                                  bool reverseComplement, double weightLimit, int k, int m, int minPos, int maxPos,
-                                  struct alphaInfo *alphaInf, bool normalized, uint64_t *numKeys, T **keys)
+                                  NumericVector distWeight, bool reverseComplement, double weightLimit, int k,
+                                  int m, int minPos, int maxPos, struct alphaInfo *alphaInf, bool normalized,
+                                  uint64_t *numKeys, T **keys)
 {
     int i, j, j1, index, row, numProtect, numDots;
     char kmer[k + 1], position[12];
@@ -4263,7 +4297,7 @@ void getWeightedFeatOfSVGappyPair(T maxUnSignedIndex, SEXP **pdFeatWeights, khas
     SEXP rownames, colnames, dimnames, slot_p, slot_i, slot_x, dims;
 
     if (!getSVWeightsFeatGappyPair(maxUnSignedIndex, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength, coefs,
-                                   reverseComplement, posSpecific, weightLimit, k, m, minPos, maxPos, alphaInf,
+                                   reverseComplement, posSpecific, distWeight, weightLimit, k, m, minPos, maxPos, alphaInf,
                                    normalized, numKeys, keys))
     {
         pdFeatWeights = NULL;
@@ -4344,8 +4378,9 @@ void getWeightedFeatOfSVGappyPair(T maxUnSignedIndex, SEXP **pdFeatWeights, khas
 
 void getFeaturesOfSVGappyPair(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap, ByteStringVector x,
                               int sizeX, IntegerVector selX, IntegerVector offsetX, int maxSeqLength, NumericVector coefs,
-                              bool reverseComplement, bool posSpecific, double weightLimit, int k, int m, int minPos, int maxPos, uint64_t dimFeatureSpace,
-                              struct alphaInfo *alphaInf, bool normalized, int featIndexSize, uint64_t *numKeys, void **keys)
+                              bool reverseComplement, bool posSpecific, NumericVector distWeight, double weightLimit, int k,
+                              int m, int minPos, int maxPos, uint64_t dimFeatureSpace, struct alphaInfo *alphaInf,
+                              bool normalized, int featIndexSize, uint64_t *numKeys, void **keys)
 {
     uint8_t maxUIndex8 = MAXUINT8;
     uint16_t maxUIndex16 = MAXUINT16;
@@ -4358,16 +4393,16 @@ void getFeaturesOfSVGappyPair(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khas
         case 1:
         {
             getWeightedFeatOfSVGappyPair(maxUIndex8, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                         coefs, reverseComplement, posSpecific, weightLimit, k, m, minPos, maxPos, alphaInf,
-                                         normalized, numKeys, (uint8_t **) keys);
+                                         coefs, posSpecific, distWeight, reverseComplement, weightLimit, k, m, minPos, maxPos,
+                                         alphaInf, normalized, numKeys, (uint8_t **) keys);
             break;
         }
 
         case 2:
         {
             getWeightedFeatOfSVGappyPair(maxUIndex16, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                         coefs, reverseComplement, posSpecific, weightLimit, k, m, minPos, maxPos, alphaInf,
-                                         normalized, numKeys, (uint16_t **) keys);
+                                         coefs, posSpecific, distWeight, reverseComplement, weightLimit, k, m, minPos, maxPos,
+                                         alphaInf, normalized, numKeys, (uint16_t **) keys);
             break;
         }
 
@@ -4375,16 +4410,16 @@ void getFeaturesOfSVGappyPair(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khas
         case 4:
         {
             getWeightedFeatOfSVGappyPair(maxUIndex32, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                         coefs, reverseComplement, posSpecific, weightLimit, k, m, minPos, maxPos, alphaInf,
-                                         normalized, numKeys, (uint32_t **) keys);
+                                         coefs, posSpecific, distWeight, reverseComplement, weightLimit, k, m, minPos, maxPos,
+                                         alphaInf, normalized, numKeys, (uint32_t **) keys);
             break;
         }
 
         default:
         {
             getWeightedFeatOfSVGappyPair(maxUIndex64, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                         coefs, reverseComplement, posSpecific, weightLimit, k, m, minPos, maxPos, alphaInf,
-                                         normalized, numKeys, (uint64_t **) keys);
+                                         coefs, posSpecific, distWeight, reverseComplement, weightLimit, k, m, minPos, maxPos,
+                                         alphaInf, normalized, numKeys, (uint64_t **) keys);
             break;
         }
     }

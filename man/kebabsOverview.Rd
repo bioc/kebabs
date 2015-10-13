@@ -13,44 +13,40 @@ kebabsDemo()
 see above
 }
 \description{
-KeBABS - An R package for kernel based analysis\cr of
-biological sequences\cr\cr
+KeBABS - An R package for kernel based analysis\cr
+of biological sequences\cr\cr
 }
 \details{
 Package Overview\cr\cr
 
-The package provides functionality for kernel based
-analysis of DNA-, RNA- and amino acid sequences via SVM
-based methods. As core functionality kebabs contains
-following sequence kernels: spectrum kernel, mismatch
-kernel, gappy pair kernel and motif kernel. Apart from an
-efficient implementation of position independent
-functionality the kernels are extended in a novel way to
-take the position of patterns into account for the
-similarity measure. Because of the flexibility of the
-kernel formulation other kernels like the weighted degree
-kernel or the shifted weighted degree kernel are included
-as special cases. An annotation specific variant of the
-kernels uses annotation information placed along the
-sequence together with the patterns in the sequence. The
+The package provides functionality for kernel based analysis of
+DNA-, RNA- and amino acid sequences via SVM based methods. As core
+functionality kebabs contains following sequence kernels: spectrum
+kernel, mismatch kernel, gappy pair kernel and motif kernel. Apart
+from an efficient implementation of position independent
+functionality the kernels are extended in a novel way to take the
+position of patterns into account for the similarity measure.
+Because of the flexibility of the kernel formulation other kernels
+like the weighted degree kernel or the shifted weighted degree
+kernel are included as special cases. An annotation specific
+variant of the kernels uses annotation information placed along
+the sequence together with the patterns in the sequence. The
 package allows generation of a kernel matrix or an explicit
-representation for all available kernels which can be used
-with methods implemented in other R packages. With focus on
-SVM based methods kebabs provides a framework which
-simplifies the usage of existing SVM implementations in
-kernlab, e1071 and LiblineaR. Binary and multiclass
-classification as well as regression tasks can be used in a
-unified way without having to deal with the different
-functions, parameters and formats of the selected SVM. As
-support for choosing hyperparameters the package provides
-cross validation, grid search and model selection
-functions.For easier biological interpretation of the
-results the package computes feature weights for all SVMs
-and prediction profiles, which show the contribution of
-individual sequence positions to the prediction result and
-give an indication about the relevance of sequence sections
-for the learning result and the underlying biological
-functions.
+representation for all available kernels which can be used with
+methods implemented in other R packages. With focus on SVM based
+methods kebabs provides a framework which simplifies the usage of
+existing SVM implementations in kernlab, e1071 and LiblineaR.
+Binary and multiclass classification as well as regression tasks
+can be used in a unified way without having to deal with the
+different functions, parameters and formats of the selected SVM.
+As support for choosing hyperparameters the package provides cross
+validation, grid search and model selection functions.For easier
+biological interpretation of the results the package computes
+feature weights for all SVMs and prediction profiles, which show
+the contribution of individual sequence positions to the
+prediction result and give an indication about the relevance of
+sequence sections for the learning result and the underlying
+biological functions.
 }
 \examples{
 ## load package provided sequence dataset
@@ -88,11 +84,11 @@ evaluatePrediction(pred, yFB[test], allLabels=unique(yFB))
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \keyword{kebabs}
 

@@ -8,37 +8,33 @@ genRandBioSeqs(seqType = c("DNA", "RNA", "AA"), numSequences, seqLength,
   biostring = TRUE, seed)
 }
 \arguments{
-  \item{seqType}{defines the type of sequence as DNA, RNA
-  or AA and the underlying alphabet. Default="DNA"}
+\item{seqType}{defines the type of sequence as DNA, RNA or AA and the
+underlying alphabet. Default="DNA"}
 
-  \item{numSequences}{single numeric value which specifies
-  the number of sequences that should be generated.}
+\item{numSequences}{single numeric value which specifies the number of
+sequences that should be generated.}
 
-  \item{seqLength}{either a single numeric value or a
-  numeric vector of length 'numSequences' which gives the
-  length of the sequences to be generated.}
+\item{seqLength}{either a single numeric value or a numeric vector of length
+'numSequences' which gives the length of the sequences to be generated.}
 
-  \item{biostring}{if \code{TRUE} the sequences will be
-  generated in XStringSet format otherwise as BioVector
-  derived class. Default=TRUE}
+\item{biostring}{if \code{TRUE} the sequences will be generated in XStringSet
+format otherwise as BioVector derived class. Default=TRUE}
 
-  \item{seed}{when present the random generator will be
-  seeded with the value passed in this parameter}
+\item{seed}{when present the random generator will be seeded with the
+value passed in this parameter}
 }
 \value{
-When the parameter 'biostring' is set to FALSE the function
-returns a XStringSet derived class otherwise a BioVector
-derived class.
+When the parameter 'biostring' is set to FALSE the function returns a
+XStringSet derived class otherwise a BioVector derived class.
 }
 \description{
-Generate biological sequences with uniform random
-distribution of alphabet characters.
+Generate biological sequences with uniform random distribution
+of alphabet characters.
 }
 \details{
-The function generates a set of sequences with uniform
-distribution of alphabet characters and returns it as
-XStringSet or BioVector dependent on the parameter
-\code{biostring}.
+The function generates a set of sequences with uniform distribution of
+alphabet characters and returns it as XStringSet or BioVector dependent on
+the parameter \code{biostring}.
 }
 \examples{
 ## generate a set of AA sequences of fixed length as AAStringSet
@@ -61,11 +57,11 @@ dnaseqs
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \keyword{methods}
 

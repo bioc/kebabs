@@ -15,27 +15,37 @@
 \S4method{sequences}{PredictionProfile}(object)
 }
 \arguments{
-  \item{object}{a prediction profile object}
+\item{object}{a prediction profile object}
 }
 \value{
-\code{sequences}: sequences for which profiles were
-generated\cr \code{profiles}: prediction profiles\cr
-\code{baselines}: baselines for the plot, this is the model
-offset\cr distributed to all sequence positions
+\code{sequences}: sequences for which profiles were generated\cr
+\code{profiles}: prediction profiles\cr
+\code{baselines}: baselines for the plot, this is the model offset\cr
+distributed to all sequence positions
 }
 \description{
 PredictionProfile Accessors
 }
 \section{Accessor-like methods}{
-  \describe{ \item{}{\code{sequences}: return the
-  sequences.  } \item{}{\code{profiles}: return the
-  prediction profiles.  } \item{}{\code{baselines}: return
-  the baselines.  } \item{}{\code{x[i]}: return a
-  \code{PredictionProfile} object that only contains the
-  prediction profiles selected with the subsetting
-  parameter \code{i}. This parameter can be a numeric
-  vector with indices or a character vector with sample
-  names.  } }
+
+
+\describe{
+  \item{}{\code{sequences}:
+  return the sequences.
+  }
+  \item{}{\code{profiles}:
+  return the prediction profiles.
+  }
+  \item{}{\code{baselines}:
+  return the baselines.
+  }
+  \item{}{\code{x[i]}:
+  return a \code{PredictionProfile} object that only contains the
+  prediction profiles selected with the subsetting parameter \code{i}. This
+  parameter can be a numeric vector with indices or a character vector with
+  sample names.
+  }
+}
 }
 \examples{
 ## create kernel object for gappy pair kernel
@@ -61,10 +71,10 @@ baselines(predProf15)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

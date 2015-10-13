@@ -9,73 +9,69 @@ evaluatePrediction(prediction, label, allLabels = NULL, decValues = NULL,
   numPosNegTrainSamples = numeric(0))
 }
 \arguments{
-  \item{prediction}{prediction results as returned by
-  \code{\link{predict}} for predictionType="response".}
+\item{prediction}{prediction results as returned by \code{\link{predict}}
+for predictionType="response".}
 
-  \item{label}{label vector of same length as parameter
-  'prediction'.}
+\item{label}{label vector of same length as parameter 'prediction'.}
 
-  \item{allLabels}{vector containing all occuring labels
-  once. This parameter is required only if the label vector
-  is numeric. Default=NULL}
+\item{allLabels}{vector containing all occuring labels once. This parameter
+is required only if the label vector is numeric. Default=NULL}
 
-  \item{decValues}{numeric vector containing decision
-  values for the predictions as returned by the
-  \code{\link{predict}} method with \code{predictionType}
-  set to \code{decision}. This parameter is needed for the
-  determination of the AUC value which is currently only
-  supported for binary classification. Default=NULL}
+\item{decValues}{numeric vector containing decision values for the
+predictions as returned by the \code{\link{predict}} method with
+\code{predictionType} set to \code{decision}. This parameter is needed for
+the determination of the AUC value which is currently only supported for
+binary classification. Default=NULL}
 
-  \item{print}{This parameter indicates whether performance
-  values should be printed or returned as data frame
-  without printing (for details see below). Default=TRUE}
+\item{print}{This parameter indicates whether performance values should be
+printed or returned as data frame without printing (for details see below).
+Default=TRUE}
 
-  \item{confmatrix}{When set to TRUE a confusion matrix is
-  printed. The rows correspond to predictions, the columns
-  to the true labels. Default=TRUE}
+\item{confmatrix}{When set to TRUE a confusion matrix is printed. The rows
+correspond to predictions, the columns to the true labels. Default=TRUE}
 
-  \item{numPrecision}{minimum number of digits to the right
-  of the decimal point. Values between 0 and 20 are
-  allowed. Default=3}
+\item{numPrecision}{minimum number of digits to the right of the decimal
+point. Values between 0 and 20 are allowed. Default=3}
 
-  \item{numPosNegTrainSamples}{optional integer vector with
-  two values giving the number of positive and negative
-  training samples. When this parameter is set the
-  balancedness of the training set is reported.
-  Default=numeric(0)}
+\item{numPosNegTrainSamples}{optional integer vector with two values giving
+the number of positive and negative training samples. When this parameter
+is set the balancedness of the training set is reported. Default=numeric(0)}
 }
 \value{
-When the parameter 'print' is set to FALSE the function
-returns a data frame containing the prediction performance
-values (for details see above).
+When the parameter 'print' is set to FALSE the function returns a data frame
+containing the prediction performance values (for details see above).
 }
 \description{
-Evaluate performance results of prediction on a testset
-based on given labels for binary classification
+Evaluate performance results of prediction on a testset based
+on given labels for binary classification
 }
 \details{
-For binary classfication this function computes the
-performance measures accuracy, balanced accuracy,
-sensitivity, specificity, precision and the Matthews
-Correlation Coefficient(MCC). If decision values are passed
-in the parameter \code{decValues} the function additionally
-determines the AUC. When the number of positive and
-negative training samples is passed to the function it also
-shows the balancedness of the training set. The performance
-results are either printed by the routine directly or
-returned in a data frame. The columns of the data frame
-are:
+For binary classfication this function computes the performance measures
+accuracy, balanced accuracy, sensitivity, specificity, precision and the
+Matthews Correlation Coefficient(MCC). If decision values are passed in the
+parameter \code{decValues} the function additionally determines the AUC.
+When the number of positive and negative training samples is passed to
+the function it also shows the balancedness of the training set. The
+performance results are either printed by the routine directly or returned
+in a data frame. The columns of the data frame are:
 
-\tabular{ll}{ column name \tab performance measure\cr
--------------------- \tab -------------- \cr TP \tab true
-positive\cr FP \tab false positive\cr FN \tab false
-negative\cr TN \tab true negative\cr ACC \tab accuracy \cr
-BAL_ACC \tab balanced accuracy\cr SENS \tab sensitivity\cr
-SPEC \tab specificity\cr PREC \tab precision\cr MAT_CC \tab
-Matthews correlation coefficient\cr AUC \tab area under ROC
-curve\cr PBAL \tab prediction balancedness (fraction of
-positive samples)\cr TBAL \tab training balancedness
-(fraction of positive samples)\cr }
+\tabular{ll}{
+  column name \tab performance measure\cr
+  -------------------- \tab -------------- \cr
+  TP          \tab true positive\cr
+  FP          \tab false positive\cr
+  FN          \tab false negative\cr
+  TN          \tab true negative\cr
+  ACC         \tab accuracy \cr
+  BAL_ACC     \tab balanced accuracy\cr
+  SENS        \tab sensitivity\cr
+  SPEC        \tab specificity\cr
+  PREC        \tab precision\cr
+  MAT_CC      \tab Matthews correlation coefficient\cr
+  AUC         \tab area under ROC curve\cr
+  PBAL        \tab prediction balancedness (fraction of positive samples)\cr
+  TBAL        \tab training balancedness (fraction of positive samples)\cr
+}
 }
 \examples{
 ## set seed for random generator, included here only to make results
@@ -128,11 +124,11 @@ perf
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{predict}}, \code{\link{kbsvm}}

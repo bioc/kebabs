@@ -35,8 +35,8 @@ RcppExport SEXP genExplRepSpectrum(ByteStringVector x, int sizeX, Rcpp::IntegerV
 void getFeaturesOfSVSpectrum(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap,
                              ByteStringVector x, int sizeX, Rcpp::IntegerVector selX,
                              Rcpp::IntegerVector offsetX, int maxSeqLength, Rcpp::NumericVector coefs,
-                             bool reverseComplement, bool posSpecific, double weightLimit,
-                             int k, int minPos, int maxPos, uint64_t dimFeatureSpace,
+                             bool reverseComplement, bool posSpecific, Rcpp::NumericVector distWeight,
+                             double weightLimit, int k, int minPos, int maxPos, uint64_t dimFeatureSpace,
                              struct alphaInfo *alphaInf, bool normalized, int featIndexSize,
                              uint64_t *numKeys, void **keys);
 
@@ -44,10 +44,10 @@ void genFeatVectorsPosDepSpectrum(ByteStringVector x, int sizeX, Rcpp::IntegerVe
                                   Rcpp::IntegerVector offsetX, ByteStringVector annX,
                                   ByteStringVector annCharset, int maxSeqLength, int k,
                                   struct alphaInfo *alphaInf, uint64_t dimFeatureSpace, bool presence,
-                                  bool normalized, bool unmapped, bool reverseComplement, bool posSpecific,
-                                  int sortType, int numPositions, uint64_t **startIndex,
-                                  void **featVectorIndex, int32_t **featVectorValue,
-                                  uint32_t **kernelValue, int *indexSize);
+                                  bool normalized, bool reverseComplement, bool posSpecific,
+                                  Rcpp::NumericVector distWeight, int sortType, int numPositions,
+                                  uint64_t **startIndex, void **featVectorIndex, int32_t **featVectorValue,
+                                  double **kernelValue, int *indexSize);
 
 uint64_t * featureNamesToIndexSpectrum(SEXP featureNames, int numFeatures, ByteStringVector annCharset,
                                        Rcpp::IntegerVector annotationIndexMap, int k, bool reverseComplement,

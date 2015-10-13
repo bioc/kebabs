@@ -139,7 +139,7 @@
 #' predicting and profiling by means of a machine learning approach.\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
-#' \emph{Bioinformatics} (accepted).
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
 #' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kernel
 #' @keywords motifKernel, motif
@@ -364,9 +364,10 @@ motifProcessing <- function(x, y, selx, sely, motifs, motifLengths, r,
 
     maxSeqLength <- max(seqLength)
     maxMotifLength <- max(motifLengths)
+    minMotifLength <- min(motifLengths)
     maxPatternLength <- max(nchar(motifs))
 
-    if (any(seqLength < min(motifLengths)))
+    if (any(seqLength < minMotifLength))
     {
         stop("motif kernel does not accept strings shorter\n",
              "       than the minimal motif length\n")
@@ -384,13 +385,14 @@ motifProcessing <- function(x, y, selx, sely, motifs, motifLengths, r,
         {
             if (!is.integer(offsetX))
                 stop("position metadata of 'x' must be an integer vector\n")
-
-            maxDist <- max(abs(offsetX), abs(width(x) - offsetX))
+            
+            maxDist <- max(width(x[selx]) - offsetX[selx]) -
+                       min(-offsetX[selx] + 1)
         }
         else
         {
             offsetX <- integer(0)
-            maxDist <- maxSeqLength
+            maxDist <- maxSeqLength - 1
         }
 
         if (!is.null(y))
@@ -402,11 +404,32 @@ motifProcessing <- function(x, y, selx, sely, motifs, motifLengths, r,
                 if (!is.integer(offsetY))
                     stop("position metadata of 'y' must be an integer vector\n")
 
-                maxDistY <- max(abs(offsetY), abs(width(y) - offsetY))
-                maxDist <- max(maxDist, maxDistY)
+                if (length(offsetX) > 0)
+                {
+                    maxDist <- max(c(width(x)[selx] - offsetX[selx],
+                                     width(y)[sely] - offsetY[sely])) -
+                               min(c(-offsetX[selx] + 1, -offsetY[sely] + 1))
+                }
+                else
+                {
+                    maxDist <- max(c(width(x)[selx],
+                                     width(y)[sely] - offsetY[sely])) -
+                               min(c(1, -offsetY[sely] + 1))
+                }
             }
             else
+            {
                 offsetY <- integer(0)
+
+                if (length(offsetX) > 0)
+                {
+                    maxDist <- max(c(width(x)[selx] - offsetX[selx],
+                                     width(y)[sely])) -
+                               min(c(-offsetX[selx] + 1, 1))
+                }
+                else
+                    maxDist <- max(c(width(x)[selx], width(y)[sely])) - 1
+            }
         }
 
         if (is.function(distWeight))
@@ -414,12 +437,12 @@ motifProcessing <- function(x, y, selx, sely, motifs, motifLengths, r,
             ## precompute distance weight vector
             ## terminate on stop and warning
             ## assuming that all distances are partially overlapping
-            distWeight <- tryCatch(distWeight(0:(2 * maxDist)),
+            distWeight <- tryCatch(distWeight(0:(maxDist - minMotifLength + 1)),
                                    warning=function(w) {stop(w)},
                                    error=function(e) {stop(e)})
 
             if (!(is.numeric(distWeight) && length(distWeight) ==
-                  2 * maxDist + 1))
+                  (maxDist - minMotifLength + 2)))
             {
                 stop("distWeight function did not return a numeric vector\n",
                      "       of correct length\n")
@@ -427,13 +450,13 @@ motifProcessing <- function(x, y, selx, sely, motifs, motifLengths, r,
 
             ## limit to values larger than .Machine$double.eps
             ## for non-monotonic decreasing functions search from end
-            for (i in (2 * maxDist):0)
+            for (i in (maxDist - minMotifLength + 2):1)
             {
                 if (distWeight[i] > .Machine$double.eps)
                     break
             }
 
-            distWeight <- distWeight[0:i]
+            distWeight <- distWeight[1:i]
         }
 
         if (length(distWeight) == 0)

@@ -31,6 +31,7 @@
 #define MAX_MOTIF_LENGTH      1000
 #define INIT_POOL_SIZE        67108864    // 64MB
 #define USER_INTERRUPT_LIMIT  100000
+#define MAX_FEAT_VEC_LENGTH   1073741823
 
 using namespace Rcpp;
 
@@ -1944,10 +1945,9 @@ void getNonzeroMotifsERS(bool annSpec, struct prefTreeMotif *pTree, khash_t(fim)
 
 void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, int sizeX, int sizeY,
                       IntegerVector selX, IntegerVector selY, ByteStringVector annCharset,
-                      ByteStringVector annX, ByteStringVector annY, bool unmapped, ByteStringVector motifs,
+                      ByteStringVector annX, ByteStringVector annY, ByteStringVector motifs,
                       IntegerVector motifLengths, int nodeLimit, int maxMotifLength, int maxPatternLength,
-                      bool normalized, bool symmetric, bool presence, int maxSeqLength, struct alphaInfo *alphaInf,
-                      struct allIndMaps *allIndexMaps)
+                      bool normalized, bool symmetric, bool presence, int maxSeqLength, struct alphaInfo *alphaInf)
 {
     int i, freeNode, maxNoOfNodes, iX, iY, numSamples, fDim;
     int32_t *featVectorValue;
@@ -2037,7 +2037,6 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
     intf.alphaInf = alphaInf;
     intf.maxMotifLength = maxMotifLength;
     intf.motifLengths = &motifLengths;
-    intf.allIndexMaps = allIndexMaps;
 
     if (annX.length > 0)
     {
@@ -2166,11 +2165,10 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
 }
 
 void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, int sizeX, int sizeY,
-                       IntegerVector selX, IntegerVector selY, NumericVector offsetX, NumericVector offsetY,
-                       bool unmapped, ByteStringVector motifs, IntegerVector motifLengths, int nodeLimit,
-                       int maxMotifLength, int maxPatternLength, bool normalized,  bool symmetric, bool posSpec,
-                       NumericVector distWeight, int maxSeqLength, struct alphaInfo *alphaInf,
-                       struct allIndMaps *allIndexMaps)
+                       IntegerVector selX, IntegerVector selY, IntegerVector offsetX, IntegerVector offsetY,
+                       ByteStringVector motifs, IntegerVector motifLengths, int nodeLimit, int maxMotifLength,
+                       int maxPatternLength, bool normalized,  bool symmetric, bool posSpec,
+                       NumericVector distWeight, int maxSeqLength, struct alphaInfo *alphaInf)
 {
     uint32_t fDim, *featVectorIndex;
     int32_t *featVectorValue;
@@ -2195,7 +2193,11 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     // allocate arrays for sparse feature vectors with 32 or 64 bit index
     // store only unnormalized k-mer counts to avoid double space usage
     // add one for the sentinel
-    fDim = 2 * maxSeqLength + 1;
+    if (sizeX == 1)
+        fDim = 30 * maxSeqLength + 1;
+    else
+        fDim = 15 * maxSeqLength + 1;
+    
     featVectorValue = (int32_t *) R_alloc(numSamples * fDim, sizeof(int32_t));
     featVectorIndex = (uint32_t *) R_alloc(numSamples * fDim, sizeof(uint32_t));
     featVectorsStart = (uint64_t *) R_alloc(numSamples + 1, sizeof(uint64_t));
@@ -2238,7 +2240,6 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     intf.pFeatVecValue = featVectorValue;
     intf.pFeatVecIndex = featVectorIndex;
     intf.fDim = fDim;
-    intf.allIndexMaps = allIndexMaps;
 
     featVectorsStart[0] = 0;
     maxFeaturesPerSample = 0;
@@ -2297,7 +2298,7 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
 }
 
 void getERDMotif(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector selX, ByteStringVector annCharset,
-                 ByteStringVector annX, bool unmapped, struct intfFindMotifs *intf, ByteStringVector motifs,
+                 ByteStringVector annX, struct intfFindMotifs *intf, ByteStringVector motifs,
                  IntegerVector *motifLengths, int maxPatternLength, bool normalized, uint64_t *dimFeatureSpace,
                  bool useHash, bool useRowNames, bool useColNames)
 {
@@ -2370,7 +2371,7 @@ void getERDMotif(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
 }
 
 void getERSMotif(SEXP **pErs, ByteStringVector x, int sizeX, IntegerVector selX, ByteStringVector annCharset,
-                 ByteStringVector annX, bool unmapped, struct intfFindMotifs *intf, ByteStringVector motifs,
+                 ByteStringVector annX, struct intfFindMotifs *intf, ByteStringVector motifs,
                  IntegerVector *motifLengths, int maxPatternLength, bool normalized, uint64_t *dimFeatureSpace,
                  bool useHash, bool useRowNames, bool useColNames)
 {
@@ -2661,14 +2662,14 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
     {
         NumericMatrix erd(sizeX, intf.numUsedMotifs);
 
-        getERDMotif(erd, x, sizeX, selX, annCharset, annX, unmapped, &intf, motifs, &motifLengths,
+        getERDMotif(erd, x, sizeX, selX, annCharset, annX, &intf, motifs, &motifLengths,
                     maxPatternLength, normalized, &dimFeatureSpace, useHash, useRowNames, useColNames);
 
         return(erd);
     }
     else
     {
-        getERSMotif(&explicitRepSparse, x, sizeX, selX, annCharset, annX, unmapped, &intf, motifs, &motifLengths,
+        getERSMotif(&explicitRepSparse, x, sizeX, selX, annCharset, annX, &intf, motifs, &motifLengths,
                     maxPatternLength, normalized, &dimFeatureSpace, useHash, useRowNames, useColNames);
 
         return(*explicitRepSparse);
@@ -2833,8 +2834,8 @@ RcppExport SEXP motifKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, SEX
     IntegerVector selX(selXR);
     IntegerVector selY(selYR);
     IntegerVector motifLengths(motifLengthsR);
-    NumericVector offsetX(offsetXR);
-    NumericVector offsetY(offsetYR);
+    IntegerVector offsetX(offsetXR);
+    IntegerVector offsetY(offsetYR);
     NumericVector distWeight(distWeightR);
 
     if (isXStringSet)
@@ -2890,15 +2891,15 @@ RcppExport SEXP motifKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, SEX
 
     if (posSpec || distWeight.length() > 0)
     {
-        getKMPosDistMotif(km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY, unmapped, motifs,
+        getKMPosDistMotif(km, x, y, sizeX, sizeY, selX, selY, offsetX, offsetY, motifs,
                           motifLengths, nodeLimit, maxMotifLength, maxPatternLength, normalized,
-                          symmetric, posSpec, distWeight, maxSeqLength, &alphaInf,&allIndexMaps);
+                          symmetric, posSpec, distWeight, maxSeqLength, &alphaInf);
     }
     else
     {
-        getKMStdAnnMotif(km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY, unmapped, motifs,
+        getKMStdAnnMotif(km, x, y, sizeX, sizeY, selX, selY, annCharset, annX, annY, motifs,
                          motifLengths, nodeLimit, maxMotifLength, maxPatternLength, normalized,
-                         symmetric, presence, maxSeqLength, &alphaInf, &allIndexMaps);
+                         symmetric, presence, maxSeqLength, &alphaInf);
     }
 
     vmaxset(vmax);
@@ -2981,11 +2982,12 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
                          int maxSeqLength, void **pMotifTree, int *freeNode, ByteStringVector motifs,
                          IntegerVector motifLengths, int maxMotifLength, int maxPatternLength,
                          int nodeLimit, struct alphaInfo *alphaInf, bool presence, bool normalized,
-                         bool posSpecific, int sortType, uint64_t **startIndex, uint32_t **featVectorIndex,
-                         int32_t **featVectorValue, uint32_t **kernelValue)
+                         bool posSpecific, NumericVector distWeight, int sortType, uint64_t **startIndex,
+                         uint32_t **featVectorIndex, int32_t **featVectorValue, double **kernelValue)
 {
     int i, maxNoOfNodes;
     uint32_t maxNoElements;
+    uint64_t featVecLength;
     bool printWarning = TRUE;
     const void *vmax;
     struct indexBlock nullBlock;
@@ -2993,7 +2995,11 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
     struct intfFindMotifs intf;
     IntegerVector annotationIndexMap(MAX_CHAR);
     IntegerVector reverseAnnotationMap(MAX_CHAR);
-
+    IntegerVector selCurr(1), selY(0), offsetY(0);
+    NumericMatrix kmOne(1,1);
+    ByteStringVector y;
+    
+    y.length = 0;
     pTree = (struct prefTreeMotif *) *pMotifTree;
     memset(nullBlock.idx, 0, sizeof(indexBlock));
 
@@ -3021,12 +3027,17 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
         }
     }
 
-    *featVectorIndex = (uint32_t *) R_alloc(sizeX * maxSeqLength * motifs.length, sizeof(uint32_t));
-    *featVectorValue = (int32_t *) R_alloc(sizeX * maxSeqLength * motifs.length, sizeof(int32_t));
+    featVecLength = sizeX * maxSeqLength * motifs.length;
+
+    if (featVecLength > MAX_FEAT_VEC_LENGTH)
+        featVecLength = MAX_FEAT_VEC_LENGTH;
+
+    *featVectorIndex = (uint32_t *) R_alloc(featVecLength, sizeof(uint32_t));
+    *featVectorValue = (int32_t *) R_alloc(featVecLength, sizeof(int32_t));
     *startIndex = (uint64_t *) R_alloc(sizeX + 1, sizeof(uint64_t));
 
     if (normalized)
-        *kernelValue = (uint32_t *) R_alloc(sizeX, sizeof(uint32_t));
+        *kernelValue = (double *) R_alloc(sizeX, sizeof(double));
 
     intf.markUsedOnly = FALSE;
     intf.markMotifsInSample = FALSE;
@@ -3069,7 +3080,21 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
         }
 
         if (normalized)
-            (*kernelValue)[i] =intf.kernelValue;
+        {
+            if (distWeight.length() == 0)
+                (*kernelValue)[i] = intf.kernelValue;
+            else
+            {
+                selCurr[0] = selX[i];
+                int currSeqLength = intf.seqnchar;
+                
+                getKMPosDistMotif(kmOne, x, y, 1, 1, selCurr, selY, offsetX, offsetY, motifs,
+                                  motifLengths, nodeLimit, maxMotifLength, maxPatternLength, FALSE,
+                                  TRUE, FALSE, distWeight, currSeqLength, alphaInf);
+                (*kernelValue)[i] = kmOne(0,0);
+
+            }
+        }
     }
 
     (*startIndex)[sizeX] = intf.elemIndex;
@@ -3089,15 +3114,16 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
 template<typename T>
 bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap, ByteStringVector x,
                            int sizeX, IntegerVector selX, IntegerVector offsetX, int maxSeqLength, NumericVector coefs,
-                           bool posSpecific, double weightLimit, ByteStringVector motifs, IntegerVector motifLengths,
-                           int maxMotifLength, int maxPatternLength, int nodeLimit, int minPos, int maxPos,
-                           struct alphaInfo *alphaInf, bool normalized, uint64_t *numKeys, T **keys)
+                           bool posSpecific, NumericVector distWeight, double weightLimit, ByteStringVector motifs,
+                           IntegerVector motifLengths, int maxMotifLength, int maxPatternLength, int nodeLimit,
+                           int minPos, int maxPos, struct alphaInfo *alphaInf, bool normalized, uint64_t *numKeys,
+                           T **keys)
 {
     int i, j, freeNode, result;
-    uint32_t *featVectorIndex, *kernelValue;
+    uint32_t *featVectorIndex;
     int32_t *featVectorValue;
     uint64_t *startIndex, numEntries, key;
-    double normFactor, limit;
+    double normFactor, limit, *kernelValue;
     void *pMotifTree;
     khiter_t iter;
     IntegerVector sel(1);
@@ -3114,7 +3140,7 @@ bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(p
 
         genFeatVectorsMotif(x, 1, sel, offsetX, maxSeqLength, &pMotifTree, &freeNode, motifs, motifLengths,
                             maxMotifLength, maxPatternLength, nodeLimit, alphaInf, FALSE, normalized,
-                            posSpecific, KBS_UNSORTED, &startIndex, &featVectorIndex, &featVectorValue,
+                            posSpecific, distWeight, KBS_UNSORTED, &startIndex, &featVectorIndex, &featVectorValue,
                             &kernelValue);
 
         if (normalized)
@@ -3122,9 +3148,8 @@ bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(p
 
         for (j = 0; j < (int) startIndex[1]; j++)
         {
-
             iter = kh_put(pdfi, pdfimap, featVectorIndex[j], &result);
-            key = featVectorValue[j] * motifs.length + featVectorIndex[j];
+            key = (featVectorValue[j] - minPos) * motifs.length + featVectorIndex[j];
             iter = kh_put(pdfw, pdfwmap, key, &result);
 
             if (result)
@@ -3132,7 +3157,6 @@ bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(p
             else
                 kh_value(pdfwmap, iter) = kh_value(pdfwmap, iter) + normFactor * coefs[sel[0]];
         }
-
     }
 
     *numKeys = kh_size(pdfwmap);
@@ -3195,9 +3219,10 @@ template<typename T>
 void getWeightedFeatOfSVMotif(T maxUnSignedIndex, SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap,
                               khash_t(pdfi) *pdfimap, ByteStringVector x, int sizeX, IntegerVector selX,
                               IntegerVector offsetX, int maxSeqLength, NumericVector coefs, bool posSpecific,
-                              double weightLimit, ByteStringVector motifs, IntegerVector motifLengths,
-                              int maxMotifLength, int maxPatternLength, int nodeLimit, int minPos, int maxPos,
-                              struct alphaInfo *alphaInf, bool normalized, uint64_t *numKeys, T **keys)
+                              NumericVector distWeight, double weightLimit, ByteStringVector motifs,
+                              IntegerVector motifLengths, int maxMotifLength, int maxPatternLength,
+                              int nodeLimit, int minPos, int maxPos, struct alphaInfo *alphaInf,
+                              bool normalized, uint64_t *numKeys, T **keys)
 {
     int i, j, row, numProtect;
     char kmer[maxPatternLength + 1], position[12];
@@ -3206,8 +3231,8 @@ void getWeightedFeatOfSVMotif(T maxUnSignedIndex, SEXP **pdFeatWeights, khash_t(
     SEXP rownames, colnames, dimnames, slot_p, slot_i, slot_x, dims;
 
     if (!getSVWeightsFeatMotif(maxUnSignedIndex, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength, coefs,
-                               posSpecific, weightLimit, motifs, motifLengths, maxMotifLength, maxPatternLength,
-                               nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys, keys))
+                               posSpecific, distWeight, weightLimit, motifs, motifLengths, maxMotifLength,
+                               maxPatternLength, nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys, keys))
     {
         pdFeatWeights = NULL;
         return;
@@ -3267,10 +3292,10 @@ void getWeightedFeatOfSVMotif(T maxUnSignedIndex, SEXP **pdFeatWeights, khash_t(
 
 void getFeaturesOfSVMotif(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap, ByteStringVector x,
                           int sizeX, IntegerVector selX, IntegerVector offsetX, int maxSeqLength, NumericVector coefs,
-                          bool posSpecific, double weightLimit, ByteStringVector motifs, IntegerVector motifLengths,
-                          int maxMotifLength, int maxPatternLength, int nodeLimit, int minPos, int maxPos,
-                          uint64_t dimFeatureSpace, struct alphaInfo *alphaInf, bool normalized, int featIndexSize,
-                          uint64_t *numKeys, void **keys)
+                          bool posSpecific, NumericVector distWeight, double weightLimit, ByteStringVector motifs,
+                          IntegerVector motifLengths, int maxMotifLength, int maxPatternLength, int nodeLimit,
+                          int minPos, int maxPos, uint64_t dimFeatureSpace, struct alphaInfo *alphaInf,
+                          bool normalized, int featIndexSize, uint64_t *numKeys, void **keys)
 {
     uint8_t maxUIndex8 = MAXUINT8;
     uint16_t maxUIndex16 = MAXUINT16;
@@ -3283,16 +3308,18 @@ void getFeaturesOfSVMotif(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(
         case 1:
         {
             getWeightedFeatOfSVMotif(maxUIndex8, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                     coefs, posSpecific, weightLimit, motifs, motifLengths, maxMotifLength, maxPatternLength,
-                                     nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys, (uint8_t **) keys);
+                                     coefs, posSpecific, distWeight, weightLimit, motifs, motifLengths, maxMotifLength,
+                                     maxPatternLength, nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys,
+                                     (uint8_t **) keys);
             break;
         }
 
         case 2:
         {
             getWeightedFeatOfSVMotif(maxUIndex16, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                     coefs, posSpecific, weightLimit, motifs, motifLengths, maxMotifLength, maxPatternLength,
-                                     nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys, (uint16_t **) keys);
+                                     coefs, posSpecific, distWeight, weightLimit, motifs, motifLengths, maxMotifLength,
+                                     maxPatternLength, nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys,
+                                     (uint16_t **) keys);
             break;
         }
 
@@ -3300,16 +3327,18 @@ void getFeaturesOfSVMotif(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(
         case 4:
         {
             getWeightedFeatOfSVMotif(maxUIndex32, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                     coefs, posSpecific, weightLimit, motifs, motifLengths, maxMotifLength, maxPatternLength,
-                                     nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys, (uint32_t **) keys);
+                                     coefs, posSpecific, distWeight, weightLimit, motifs, motifLengths, maxMotifLength,
+                                     maxPatternLength, nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys,
+                                     (uint32_t **) keys);
             break;
         }
 
         default:
         {
             getWeightedFeatOfSVMotif(maxUIndex64, pdFeatWeights, pdfwmap, pdfimap, x, sizeX, selX, offsetX, maxSeqLength,
-                                     coefs, posSpecific, weightLimit, motifs, motifLengths, maxMotifLength, maxPatternLength,
-                                     nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys, (uint64_t **) keys);
+                                     coefs, posSpecific, distWeight, weightLimit, motifs, motifLengths, maxMotifLength,
+                                     maxPatternLength, nodeLimit, minPos, maxPos, alphaInf, normalized, numKeys,
+                                     (uint64_t **) keys);
             break;
         }
     }
@@ -3356,7 +3385,7 @@ RcppExport void findUnweightedPositions(ByteStringVector motifs, IntegerVector *
                         if (currIndex >=  arraySize)
                         {
                             arraySize = arraySize * 2;
-                            pUnweightedPos = Realloc(unweightedPos, arraySize, uint32_t);
+                            pUnweightedPos = Realloc(pUnweightedPos, arraySize, uint32_t);
                             *unweightedPos = pUnweightedPos;
                         }
 

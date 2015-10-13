@@ -26,20 +26,19 @@ predictSVM.KernelMatrix(x, model, predictionType, verbose, ...)
   ...)
 }
 \arguments{
-  \item{x}{kernel matrix or explicit representation}
+\item{x}{kernel matrix or explicit representation}
 
-  \item{model}{KeBABS model}
+\item{model}{KeBABS model}
 
-  \item{predictionType}{type of prediction}
+\item{predictionType}{type of prediction}
 
-  \item{verbose}{controlling verbosity}
+\item{verbose}{controlling verbosity}
 
-  \item{...}{additional arguments to be passed to the
-  selected SVM}
+\item{...}{additional arguments to be passed to the selected SVM}
 
-  \item{y}{label vector}
+\item{y}{label vector}
 
-  \item{svmInfo}{SVM related info}
+\item{svmInfo}{SVM related info}
 }
 \value{
 \code{trainSVM:} returns the SVM specific model\cr\cr
@@ -49,8 +48,8 @@ predictSVM.KernelMatrix(x, model, predictionType, verbose, ...)
 Functions for SVM access (used only for testing purpose)
 }
 \details{
-These methods are exported only for test purpose and are
-not meant to be generally used.
+These methods are exported only for test purpose and are not meant
+to be generally used.
 }
 \examples{
 ## this function is exported only for testing purpose

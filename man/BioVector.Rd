@@ -33,111 +33,111 @@ AAVector(x = character())
 \S4method{as.character}{BioVector}(x, use.names = TRUE)
 }
 \arguments{
-  \item{x}{character vector containing a set of sequences
-  as uppercase characters or in mixed uppercase/lowercase
-  form.}
+\item{x}{character vector containing a set of sequences as uppercase
+characters or in mixed uppercase/lowercase form.}
 
-  \item{i}{numeric vector with indicies or character with
-  element names}
+\item{i}{numeric vector with indicies or character with element names}
 
-  \item{use.names}{when set to \code{TRUE} the names are
-  preserved}
+\item{use.names}{when set to \code{TRUE} the names are preserved}
 }
 \value{
 constructors \code{DNAVector, RNAVector, AAVector} return a
 sequence set of identical class name
 }
 \description{
-Create an object containing a set of DNA-, RNA- or amino
-acid sequences
+Create an object containing a set of DNA-, RNA- or amino acid sequences
 }
 \details{
-The class \code{DNAVector} is used for storing DNA
-sequences, \code{RNAVector} for RNA sequences and
-\code{AAVector} for amino acid sequences. The class
-\code{BioVector} is derived from the R base type
-\code{character} representing a vector of character
-strings. It is an abstract class which can not be
-instantiated. \code{BioVector} is the parent class for
-\code{DNAVector}, \code{RNAVector} and \code{AAVector}. For
-the three derived classes identically named functions exist
-which are constructors. It should be noted that the
-constructors only wrap the sequence data into a class
-without copying or recoding the data. \cr\cr The functions
-provided for \code{DNAVector}, \code{RNAVector} and
-\code{AAVector} classes are only a very small subset
-compared to those of \code{\link{XStringSet}} but are
-designed along their counterparts from the Biostrings
-package. Assignment of \code{\link{metadata}} and element
-metadata via \code{\link{mcols}} is supported for the
-\code{DNAVector}, \code{RNAVector} and \code{AAVector}
-objects similar to objects of \code{\link{XStringSet}}
-derived classes (for details on metadata assignment see
-\code{\link{annotationMetadata}} and
-\code{\link{positionMetadata}}).\cr\cr In contrast to
-\code{\link{XStringSet}} the \code{BioVector} derived
-classes also support the storage of lowercase characters.
-This can be relevant for repeat regions which are often
-coded in lowercase characters. During the creation of
-\code{\link{XStringSet}} derived classes the lowercase
-characters are converted to uppercase automatically and the
-information about repeat regions is lost. For
-\code{BioVector} derived classes the user can specify
-during creation of a sequence kernel object whether
-lowercase characters should be included as uppercase
-characters or whether repeat regions should be ignored
-during sequence analysis. In this way it is possible to
-perform both types of analysis on the same set of sequences
-through defining one kernel object which accepts lowercase
+The class \code{DNAVector} is used for storing DNA sequences,
+\code{RNAVector} for RNA sequences and \code{AAVector} for
+amino acid sequences. The class \code{BioVector} is derived from
+the R base type \code{character} representing a vector of character
+strings. It is an abstract class which can not be instantiated.
+\code{BioVector} is the parent class for \code{DNAVector}, \code{RNAVector}
+and \code{AAVector}. For the three derived classes identically named
+functions exist which are constructors. It should be noted that the
+constructors only wrap the sequence data into a class without copying or
+recoding the data.
+\cr\cr
+The functions provided for \code{DNAVector}, \code{RNAVector} and
+\code{AAVector} classes are only a very small subset compared to those
+of \code{\link{XStringSet}} but are designed along their counterparts
+from the Biostrings package. Assignment of \code{\link{metadata}}
+and element metadata via \code{\link{mcols}} is supported for the
+\code{DNAVector}, \code{RNAVector} and \code{AAVector} objects similar to
+objects of \code{\link{XStringSet}} derived classes (for details on metadata
+assignment see \code{\link{annotationMetadata}} and
+\code{\link{positionMetadata}}).\cr\cr
+In contrast to \code{\link{XStringSet}} the \code{BioVector} derived classes
+also support the storage of lowercase characters. This can be relevant
+for repeat regions which are often coded in lowercase characters. During
+the creation of \code{\link{XStringSet}} derived classes the lowercase
+characters are converted to uppercase automatically and the information
+about repeat regions is lost. For \code{BioVector} derived classes the
+user can specify during creation of a sequence kernel object whether
+lowercase characters should be included as uppercase characters or
+whether repeat regions should be ignored during sequence analysis.
+In this way it is possible to perform both types of analysis on the same
+set of sequences through defining one kernel object which accepts lowercase
 characters and another one which ignores them.\cr\cr
 }
 \note{
-Sequence data can be processed by KeBABS in XStringSet and
-BioVector based format. Within KeBABS except for treatment
-of lowercase characters both formats are equivalent. It is
-recommended to use \code{\link{XStringSet}} based formats
-whenever the support of lowercase characters is not of
-interest because these classes provide in general much
-richer functionality than the \code{BioVector} classes.
-String kernels provided in the \code{kernlab} package (see
-\link[kernlab:stringdot]{stringdot}) do not support
-\code{\link{XStringSet}} derived objects. The usage of
-these kernels is possible in KeBABS with sequence data in
-\code{BioVector} based format.
+Sequence data can be processed by KeBABS in XStringSet and BioVector based
+format. Within KeBABS except for treatment of lowercase characters both
+formats are equivalent. It is recommended to use \code{\link{XStringSet}}
+based formats whenever the support of lowercase characters is not of
+interest because these classes provide in general much richer functionality
+than the \code{BioVector} classes. String kernels provided in the
+\code{kernlab} package (see \link[kernlab:stringdot]{stringdot}) do not
+support \code{\link{XStringSet}} derived objects. The usage of these kernels
+is possible in KeBABS with sequence data in \code{BioVector} based format.
 }
 \section{Accessor-like methods}{
-  In the code snippets below, \code{x} is a
-  \code{BioVector}.
 
-  \describe{ \item{}{\code{length(x)}: the number of
-  sequences in \code{x}.  } \item{}{\code{width(x)}: vector
-  of integer values with the number of bases/amino acids
-  for each sequence in the set.  } \item{}{\code{names(x)}:
-  character vector of sample names.  } }
+In the code snippets below, \code{x} is a \code{BioVector}.
+
+\describe{
+  \item{}{\code{length(x)}:
+  the number of sequences in \code{x}.
+  }
+  \item{}{\code{width(x)}:
+  vector of integer values with the number of bases/amino
+  acids for each sequence in the set.
+  }
+  \item{}{\code{names(x)}:
+  character vector of sample names.
+  }
+}
 }
 
 \section{Subsetting and concatination}{
-  In the code snippets below, \code{x} is a
-  \code{BioVector}.
 
-  \describe{ \item{}{\code{x[i]}: return a \code{BioVector}
-  object that only contains the samples selected with the
-  subsetting parameter \code{i}. This parameter can be a
-  numeric vector with indices or a character vector which
-  is matched against the names of \code{x}. Element related
-  metadata is subsetted accordingly if available.  }
-  \item{}{\code{c(x, ...)}: return a sequence set that is a
-  concatination of the given sequence sets.  } }
+In the code snippets below, \code{x} is a \code{BioVector}.
+
+\describe{
+  \item{}{\code{x[i]}:
+  return a \code{BioVector} object that only contains the samples selected
+  with the subsetting parameter \code{i}. This parameter can be a numeric
+  vector with indices or a character vector which is matched against the
+  names of \code{x}. Element related metadata is subsetted accordingly if
+  available.
+  }
+  \item{}{\code{c(x, ...)}:
+  return a sequence set that is a concatination of the given sequence sets.
+  }
+}
 }
 
 \section{Coercion methods}{
-  In the code snippets below, \code{x} is a
-  \code{BioVector}.
 
-  \describe{ \item{}{\code{as.character(x,
-  use.names=TRUE)}: return the sequence set as named or
-  unnamed character vector dependent on the use.names
-  parameter.  } }
+In the code snippets below, \code{x} is a \code{BioVector}.
+
+\describe{
+  \item{}{\code{as.character(x, use.names=TRUE)}:
+  return the sequence set as named or unnamed character vector dependent on
+  the use.names parameter.
+  }
+}
 }
 \examples{
 ## in general DNAStringSet should be prefered as described above
@@ -168,11 +168,11 @@ nchar(xv)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{metadata}}, \code{\link{elementMetadata}},

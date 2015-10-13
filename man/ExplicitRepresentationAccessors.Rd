@@ -30,18 +30,17 @@
 \S4method{\%*\%}{dgRMatrix,numeric}(x, y)
 }
 \arguments{
-  \item{x}{an explicit representation in dense or sparse
-  format}
+\item{x}{an explicit representation in dense or sparse format}
 
-  \item{i}{integer vector or character vector with a subset
-  of the sample indices or names}
+\item{i}{integer vector or character vector with a subset of the sample
+indices or names}
 
-  \item{y}{in the first case and explicit representation
-  and \code{x} is a \code{matrix}, for the second case a
-  numeric matrix and x is an explicit representation}
+\item{y}{in the first case and explicit representation and \code{x} is a
+\code{matrix}, for the second case a numeric matrix and x is an explicit
+representation}
 
-  \item{j}{integer vector or character vector with a subset
-  of the feature indices or names}
+\item{j}{integer vector or character vector with a subset of the feature
+indices or names}
 }
 \value{
 see details above
@@ -50,40 +49,49 @@ see details above
 ExplicitRepresentation Accessors
 }
 \section{Accessor-like methods}{
-  \describe{ \item{}{\code{x[i,]}: return a
-  \code{KernelMatrix} object that only contains the rows
-  selected with the subsetting parameter \code{i}. This
-  parameter can be a numeric vector with indices or a
-  character vector which is matched against the names of
-  \code{x}.  } \item{}{\code{x[,j]}: return a
-  \code{KernelMatrix} object that only contains the columns
-  selected with the subsetting parameter \code{j}. This
-  parameter can be a numeric vector with indices or a
-  character vector which is matched against the names of
-  \code{x}.  } \item{}{\code{x[i,j]}: return a
-  \code{KernelMatrix} object that only contains the rows
-  selected with the subsetting parameter \code{i} and
-  columns selected by \code{j}.  Both parameters can be a
-  numeric vector with indices or a character vector which
-  is matched against the names of \code{x}.  } }
+
+
+\describe{
+  \item{}{\code{x[i,]}:
+  return a \code{KernelMatrix} object that only contains the rows selected
+  with the subsetting parameter \code{i}. This parameter can be a numeric
+  vector with indices or a character vector which is matched against the
+  names of \code{x}.
+  }
+  \item{}{\code{x[,j]}:
+  return a \code{KernelMatrix} object that only contains the columns
+  selected with the subsetting parameter \code{j}. This parameter can be a
+  numeric vector with indices or a character vector which is matched against
+  the names of \code{x}.
+  }
+  \item{}{\code{x[i,j]}:
+  return a \code{KernelMatrix} object that only contains the rows selected
+  with the subsetting parameter \code{i} and columns selected by \code{j}.
+  Both parameters can be a numeric vector with indices or a character vector
+  which is matched against the names of \code{x}.
+  }
+}
 }
 
 \section{Accessor-like methods}{
-  \describe{ \item{}{\code{\%*\%}: this function provides
-  the multiplication of a \code{dgRMatrix} or a sparse
-  explicit representation (which is derived from
-  \code{dgRMatrix}) with a matrix or a vector. This
-  functionality is not available in package \bold{Matrix}
-  for a \code{dgRMatrix}.  } }
+
+\describe{
+  \item{}{\code{\%*\%}:
+  this function provides the multiplication of a \code{dgRMatrix} or
+  a sparse explicit representation (which is derived from \code{dgRMatrix})
+  with a matrix or a vector. This functionality is not available in package
+  \bold{Matrix} for a \code{dgRMatrix}.
+  }
+}
 }
 \author{
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

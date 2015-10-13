@@ -169,7 +169,7 @@ kebabsCollectInfo <- function(onlyKebabsRelated=TRUE)
 #' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
-#' \emph{Bioinformatics} (accepted).
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
 #' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords kernel, linearKernel
 #' @export
@@ -496,7 +496,7 @@ setMethod("%*%", signature(x="dgRMatrix", y="numeric"),
 #' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
-#' \emph{Bioinformatics} (accepted).
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
 #' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords methods
 #' @export
@@ -507,7 +507,7 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
     if (!missing(seed))
         set.seed(seed)
 
-    seqType = match.arg(seqType)
+    seqType <- match.arg(seqType)
 
     if (!(is.numeric(numSequences) && length(numSequences) == 1 &&
           numSequences >= 1))
@@ -639,7 +639,7 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
 #' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
-#' \emph{Bioinformatics} (accepted).
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
 #' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords prediction performance
 #' @keywords methods
@@ -836,7 +836,7 @@ computeROCandAUC <- function(prediction, labels, allLabels=NULL)
 #' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
-#' \emph{Bioinformatics} (accepted).
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
 #' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords prediction performance
 #' @keywords methods

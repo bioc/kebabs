@@ -149,7 +149,7 @@ The above described install method is the standard way of installing the package
 
 \begin{itemize}
 \item{install packages on which \kebabs\ depends via Bioconductor with\\\\
-\texttt{source("http://bioconductor.org/biocLiteR")\\
+\texttt{source("http://bioconductor.org/biocLite.R")\\
 biocLite(c("Rcpp", "S4Vectors", "XVector", "Biostrings", "SparseM",\\
 \mbox{\hspace{57pt} "kernlab",} "e1071","LiblineaR"))}}
 \item{open the Bioconductor page of the package\footnote{\url{http://www.bioconductor.org/packages/release/bioc/html/kebabs.html}} in your web browser, download the source package \texttt{kebabs\_\kebabsVersion.tar.gz} and save the source package on your hard disk.}
@@ -1712,6 +1712,14 @@ Additional sequence kernels like the local alignment kernel, Fisher kernel and T
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.3.4:] \hfill
+\begin{itemize}
+\item correction of Ubuntu problem with realloc for 0 elements in linearKernel generating a sparse empty kernel matrix
+\item correction of problem with feature weights and prediction profiles for position specific gappy pair kernel
+\item correction of problem with feature weights and prediction profiles for position specific motif kernel
+\item corrections for feature weights, prediction via feature weights and prediction profile for distance weighted kernels
+\item update of KeBABS citation
+\end{itemize}
 \item[Version 1.3.3:] \hfill
 \begin{itemize}
 \item new export kebabsCollectInfo for collection of package info
@@ -1818,7 +1826,7 @@ Additional sequence kernels like the local alignment kernel, Fisher kernel and T
 If you use this package for research that is published later, you are kindly asked to cite it as follows:
 
 \begin{quote}
-J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package for kernel-based analysis of biological sequences. Bioinformatics (accepted). DOI: 10.1093/bioinformatics/btv176.
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package for kernel-based analysis of biological sequences. Bioinformatics, 31(15):2574-2576, 2015. DOI: 10.1093/bioinformatics/btv176.
 \end{quote}
 
 To obtain Bib\TeX\ entries of the reference, you can enter the following into your R session:

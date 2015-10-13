@@ -15,6 +15,9 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
     if (isUserDefined(kernel))
         stop("prediction profiles not supported for user-defined kernel\n")
     
+    if (is.null(featureWeights))
+        stop("'featureWeights' are missing\n")
+
     if (!is.numeric(b))
         stop("'b' must be a single numeric\n")
 
@@ -52,7 +55,7 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
     else
         annSpec <- FALSE
 
-    offsetX <- mcols(object)[["offset"]][sel]
+    offsetX <- mcols(object)[["offset"]]
 
     if (is.null(offsetX))
     {
@@ -62,11 +65,9 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
     }
     else
     {
-        startPosX <- -offsetX
-        startPosX[which(startPosX > 0)] <- 0
-        startPosX <- startPosX + 1
+        startPosX <- -offsetX[sel] + 1
         minPos <- min(startPosX)
-        maxPos <- max(startPosX + width(object)[sel])
+        maxPos <- max(startPosX + width(object)[sel]) - 1
     }
 
     if (!is(kernel, "MotifKernel"))
@@ -84,28 +85,46 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
     }
     else
     {
-        ## for annotation specific kernel use original motifs
-        ## otherwise create tree from motifs in featureWeights
+        ## for annotation specific and position dependent kernel
+        ## use original motifs otherwise create tree from motifs
+        ## in featureWeights
 
         motifs <- kernelParameters(kernel)$motifs
         motifLengths <- kernelParameters(kernel)$motifLengths
 
-        fwMotifs <- colnames(featureWeights)
-        fwMotifLengths <- nchar(motifs)
-
-        result <- .Call("validateMotifsC", motifs, motifLengths)
         maxMotifLength <- max(motifLengths)
         maxPatternLength <- max(nchar(motifs))
 
-        result <- .Call("validateMotifsC", fwMotifs, fwMotifLengths)
-        fwMaxMotifLength <- max(fwMotifLengths)
-        fwMaxPatternLength <- max(nchar(fwMotifs))
+        if (length(kernelParameters(kernel)$distWeight) == 0 &&
+            !kernelParameters(kernel)$annSpec)
+        {
+            fwMotifs <- colnames(featureWeights)
+            fwMotifLengths <- nchar(motifs)
+            
+            result <- .Call("validateMotifsC", fwMotifs, fwMotifLengths)
+            fwMaxMotifLength <- max(fwMotifLengths)
+            fwMaxPatternLength <- max(nchar(fwMotifs))
 
-        ## rough limit for no of nodes in motif tree from no of
-        ## chars and no of substitution groups, add one for root
-        nodeLimit <- sum(motifLengths) + 1 +
-        sum(sapply(gregexpr("[", motifs, fixed=TRUE),
-                   function(x) length(unlist(x))))
+            ## rough limit for no of nodes in motif tree from no of
+            ## chars and no of substitution groups, add one for root
+            nodeLimit <- sum(fwMotifLengths) + 1 +
+                         sum(sapply(gregexpr("[", fwMotifs, fixed=TRUE),
+                                    function(x) length(unlist(x))))
+        }
+        else
+        {
+            ## rough limit for no of nodes in motif tree from no of
+            ## chars and no of substitution groups, add one for root
+            nodeLimit <- sum(motifLengths) + 1 +
+                             sum(sapply(gregexpr("[", motifs, fixed=TRUE),
+                                        function(x) length(unlist(x))))
+
+            fwMotifs <- NULL
+            fwMotifLengths <- NULL
+            fwMaxMotifLength <- 0
+            fwMaxPatternLength <- 0
+        }
+
         k <- 0
     }
 
@@ -119,19 +138,40 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
 
     if (length(distWeight) > 0)
     {
-        maxDist <- maxPos - minPos
+        if (is(kernel, "SpectrumKernel"))
+            minFeatureLength <- k
+        else if (is(kernel, "GappyPairKernel"))
+            minFeatureLength <- k
+        else if (is(kernel, "MotifKernel"))
+            minFeatureLength <- min(motifLengths)
+
+        if (is.list(featureWeights))
+        {
+            posNames <- lapply(featureWeights, colnames)
+            minPosSV <- min(unlist(lapply(posNames, "[", 1)))
+            maxPosSV <- max(unlist(lapply(posNames, "[",
+            unlist(lapply(posNames, length)))))
+        }
+        else
+        {
+            posNames <- colnames(featureWeights)
+            minPosSV <- as.numeric(posNames[1])
+            maxPosSV <- as.numeric(posNames[length(posNames)])
+        }
+
+        maxDist <- max(maxPos, maxPosSV) - min(minPos, minPosSV)
 
         if (is.function(distWeight))
         {
             ## precompute distance weight vector
             ## terminate on stop and warning
             ## assuming that all distances are partially overlapping
-            distWeight <- tryCatch(distWeight(0:(maxDist - k + 1)),
+            distWeight <- tryCatch(distWeight(0:(maxDist - minFeatureLength + 1)),
                                    warning=function(w) {stop(w)},
                                    error=function(e) {stop(e)})
 
             if (!(is.numeric(distWeight) && length(distWeight) ==
-                  maxDist - k + 2))
+                  maxDist - minFeatureLength + 2))
             {
                 stop("distWeight function did not return a numeric vector\n",
                      "       of correct length\n")
@@ -139,13 +179,13 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
 
             ## limit to values larger than .Machine$double.eps
             ## for non-monotonic decreasing functions search from end
-            for (i in (maxDist - k + 1):0)
+            for (i in (maxDist - minFeatureLength + 2):1)
             {
                 if (distWeight[i] > .Machine$double.eps)
                     break
             }
 
-            distWeight <- distWeight[0:i]
+            distWeight <- distWeight[1:i]
         }
 
         if (isTRUE(all.equal(distWeight, c(1, rep(0, length(distWeight)-1)))))
@@ -350,7 +390,7 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
 #' Fuzzy Equivalence Relations. \cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
-#' \emph{Bioinformatics} (accepted).
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
 #' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords prediction profile
 #' @keywords feature weights

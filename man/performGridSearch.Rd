@@ -28,164 +28,139 @@
 ## for details see below
 }
 \arguments{
-  \item{kernel}{and other parameters see
-  \code{\link{kbsvm}}}
+\item{kernel}{and other parameters see \code{\link{kbsvm}}}
 }
 \value{
-grid search stores the results in the KeBABS model. They
-can be retrieved with the accessor
-\code{\link{modelSelResult}{KBModel}}.
+grid search stores the results in the KeBABS model. They can be
+retrieved with the accessor \code{\link{modelSelResult}{KBModel}}.
 }
 \description{
-Perform grid search with one or multiple sequence kernels
-on one or multiple SVMs with one or multiple SVM parameter
-sets.
+Perform grid search with one or multiple sequence kernels on
+one or multiple SVMs with one or multiple SVM parameter sets.
 }
 \details{
 Overview\cr
 
-To simplify the selection of an appropriate sequence kernel
-(including setting of the kernel parameters), SVM
-implementation and setting of SVM hyperparameters KeBABS
-provides grid search functionality. In addition to the
-possibility of running the same learning tasks for
-different settings of the SVM hyperparameters the concept
-of grid search is seen here in the broader context of
-finding good values for all major variable parts of the
-learning task which includes:\cr \itemize{ \item{selection
-of the sequence kernel and standard kernel parameters:
-spectrum, mismatch, gappy pair or motif kernel}
-\item{selection of the kernel variant: regular,
-annotation-specific, position-specific or distance weighted
-kernel variants} \item{selection of the SVM implementation
-via package and SVM} \item{selection of the SVM
-hyperparameters for the SVM implementation} }
+To simplify the selection of an appropriate sequence kernel (including
+setting of the kernel parameters), SVM implementation and setting of SVM
+hyperparameters KeBABS provides grid search functionality. In
+addition to the possibility of running the same learning tasks for
+different settings of the SVM hyperparameters the concept of grid search
+is seen here in the broader context of finding good values for all major
+variable parts of the learning task which includes:\cr
+\itemize{
+\item{selection of the sequence kernel and standard kernel parameters:
+      spectrum, mismatch, gappy pair or motif kernel}
+\item{selection of the kernel variant: regular, annotation-specific,
+      position-specific or distance weighted kernel variants}
+\item{selection of the SVM implementation via package and SVM}
+\item{selection of the SVM hyperparameters for the SVM implementation}
+}
 
-KeBABS supports the joint variation of any combination of
-these learning aspects together with cross validation (CV)
-to find the best selection based on cross validation
-performance. After the grid search the performance values
-of the different settings and the best setting of the grid
-search run can be retrieved from the KeBABS model with the
-accessor \code{\link{modelSelResult}}.\cr
+KeBABS supports the joint variation of any combination of these learning
+aspects together with cross validation (CV) to find the best selection based
+on cross validation performance. After the grid search the performance
+values of the different settings and the best setting of the grid search
+run can be retrieved from the KeBABS model with the accessor
+\code{\link{modelSelResult}}.\cr
 
-Grid search is started with the method \code{\link{kbsvm}}
-by passing multiple values to parameters for which in
-regular training only a single parameter value is used.
-Multiple values can be passed for the parameter
-\code{kernel} as list of kernel objects and for the
-parameters \code{pkg}, \code{svm} and the hyperparameters
-of the used SVMs as vectors (numeric or integer vector
-dependent on the hyperparameter). The parameter cost in the
-usage section above is just one representative of SVM
-hyperparameters that can be varied in grid search.
-Following types of grid search are supported (for examples
-see below):\cr
+Grid search is started with the method \code{\link{kbsvm}} by passing
+multiple values to parameters for which in regular training only a single
+parameter value is used. Multiple values can be passed for the parameter
+\code{kernel} as list of kernel objects and for the parameters \code{pkg},
+\code{svm} and the hyperparameters of the used SVMs as vectors (numeric or
+integer vector dependent on the hyperparameter). The parameter cost in the
+usage section above is just one representative of SVM hyperparameters that
+can be varied in grid search. Following types of grid search are supported
+(for examples see below):\cr
 
-\itemize{ \item{variation of one or multiple
-hyperparameter(s) for a given SVM implementation and one
-specific kernel by passing hyperparameter values as
-vectors} \item{variation of the kernel parameters of a
-single kernel:\cr for the sequence kernels in addition to
-the standard kernel parameters like k for spectrum or m for
-gappy pair analysis can be performed in a
-position-independent or position-dependent manner with
-multiple distance weighting functions and different
-parameter settings for the distance weighting functions
-(see \code{\link{positionMetadata}}) or with or without
-annotation specific functionality (see
-\code{\link{annotationMetadata}} using one specific or
-multiple annotations resulting in considerable variation
-possibilities on the kernel side. The kernel objects for
-the different parameter settings of the kernel must be
-precreated and are passed as list to \code{\link{kbsvm}}.
-Usually each kernel has the best performance at differernt
-hyperparameter values. Therefore in general just varying
-the kernel parameters without varying the hyperparameter
-values does not make sense but both must be varied together
-as described below.} \item{variation of multiple SVMs from
-the same or different R packages with identical or
-different SVM hyperparameters (dependent on the formulation
-of the SVM objective) for one specific kernel}
-\item{combination of the previous three variants as far as
-runtime allows (see also runtime hints below)} }
+\itemize{
+\item{variation of one or multiple hyperparameter(s) for a given SVM
+      implementation and one specific kernel by passing hyperparameter
+      values as vectors}
+\item{variation of the kernel parameters of a single kernel:\cr
+      for the sequence kernels in addition to the standard kernel parameters
+      like k for spectrum or m for gappy pair analysis can be performed in a
+      position-independent or position-dependent manner with multiple
+      distance weighting functions and different parameter settings for the
+      distance weighting functions (see \code{\link{positionMetadata}}) or
+      with or without annotation specific functionality (see
+      \code{\link{annotationMetadata}} using one specific or multiple
+      annotations resulting in considerable variation possibilities on the
+      kernel side. The kernel objects for the different parameter settings
+      of the kernel must be precreated and are passed as list to
+      \code{\link{kbsvm}}. Usually each kernel has the best performance
+      at differernt hyperparameter values. Therefore in general just varying
+      the kernel parameters without varying the hyperparameter values does
+      not make sense but both must be varied together as described below.}
+\item{variation of multiple SVMs from the same or different R packages with
+      identical or different SVM hyperparameters (dependent on the
+      formulation of the SVM objective) for one specific kernel}
+\item{combination of the previous three variants as far as runtime allows
+      (see also runtime hints below)}
+}
 
-For collecting performance values grid search is organized
-in a matrix like manner with different kernel objects
-representing the rows and different hyperparameter settings
-or SVM and hyperparameter settings as columns of the
-matrix. If multiple hyperparameters are used on a single
-SVM the same entry in all hyperparameter vectors is used as
-one parameter set corresponding to a single column in the
-grid matrix. The same applies to multiple SVMs, i.e. when
-multiple SVMs are used from the same package the \code{pkg}
-parameter still must have one entry for each entry in the
-\code{svm} parameter (see examples below). The best
-performing setting is reported dependent on the performance
-objective.\cr
+For collecting performance values grid search is organized in a matrix
+like manner with different kernel objects representing the rows and
+different hyperparameter settings or SVM and hyperparameter settings as
+columns of the matrix. If multiple hyperparameters are used on a single
+SVM the same entry in all hyperparameter vectors is used as one parameter
+set corresponding to a single column in the grid matrix. The same
+applies to multiple SVMs, i.e. when multiple SVMs are used from the same
+package the \code{pkg} parameter still must have one entry for each entry
+in the \code{svm} parameter (see examples below). The best performing
+setting is reported dependent on the performance objective.\cr
 
-Instead of a single training and test cycle for each grid
-point cross validation should be used to get more
-representative results. In this case CV is executed for
-each parameter setting. For larger datasets or kernels with
-higher complexity the runtime for the full grid search
-should be limited through adequate selection of the
-parameter \code{cross}.\cr
+Instead of a single training and test cycle for each grid point cross
+validation should be used to get more representative results. In this case
+CV is executed for each parameter setting. For larger datasets or kernels
+with higher complexity the runtime for the full grid search should be
+limited through adequate selection of the parameter \code{cross}.\cr
 
 Performance measures and performance objective\cr
 
-The usual performance measure for grid search is the cross
-validation error which is stored by default for each grid
-point. For e.g. non-symmetrical class distribution of the
-dataset other performance measures can be more expressive.
-For such sitations also the accuracy, the balanced accuracy
-and the Matthews correlation coefficient can be stored for
-a grid point (see parameter \code{perfParameters} in
-\code{\link{kbsvm}}. (The accuracy corresponds fully to the
-CV error because it is just the inverted measure. It is
-included for easier comparability with the balanced
-accuracy). The performance values can be retrieved from the
-model selection result object with the accessor
-\code{\link{performance}}. The objective for selecting the
-best performing paramters settings is by default the CV
-error. With the parameter \code{perfObjective} in
-\code{\link{kbsvm}} one of the other above mentioned
-performance parameters can be chosen as objective for the
+The usual performance measure for grid search is the cross validation error
+which is stored by default for each grid point. For e.g. non-symmetrical
+class distribution of the dataset other performance measures can be more
+expressive. For such sitations also the accuracy, the balanced accuracy and
+the Matthews correlation coefficient can be stored for a grid point (see
+parameter \code{perfParameters} in \code{\link{kbsvm}}. (The accuracy
+corresponds fully to the CV error because it is just the inverted measure.
+It is included for easier comparability with the balanced accuracy). The
+performance values can be retrieved from the model selection result object
+with the accessor \code{\link{performance}}. The objective for selecting the
+best performing paramters settings is by default the CV error. With the
+parameter \code{perfObjective} in \code{\link{kbsvm}} one of the other
+above mentioned performance parameters can be chosen as objective for the
 best settings instead of the cross validation error. \cr
 
 Runtime Hints\cr
 
-When parameter \code{showCVTimes} in \code{\link{kbsvm}} is
-set to TRUE the runtime for the individual cross validation
-runs is shown for each grid point. In this way quick
-runtime estimates can be gathered through running the grid
-search for a reduced grid and extrapolating the runtimes to
-the full grid. Display of a progress indication in grid
-search is available with the parameter \code{showProgress}
-in \code{\link{kbsvm}}.\cr
+When parameter \code{showCVTimes} in \code{\link{kbsvm}} is set to TRUE the
+runtime for the individual cross validation runs is shown for each grid
+point. In  this way quick runtime estimates can be gathered through running
+the grid search for a reduced grid and extrapolating the runtimes to the
+full grid. Display of a progress indication in grid search is available
+with the parameter \code{showProgress} in \code{\link{kbsvm}}.\cr
 
-Dependent on the number of sequences, the complexity of the
-kernel processing, the type of chosen cross validation and
-the degree of variation of parameters in grid search the
-runtime can grow drastically. One possible strategy for
-reducing the runtime could be a stepwise approach searching
-for areas with good performance in a first coarse grid
-search run and then refining the areas of good performance
-with additional more fine grained grid searches.\cr
+Dependent on the number of sequences, the complexity of the kernel
+processing, the type of chosen cross validation and the degree of variation
+of parameters in grid search the runtime can grow drastically.
+One possible strategy for reducing the runtime could be a stepwise
+approach searching for areas with good performance in a first coarse grid
+search run and then refining the areas of good performance with additional
+more fine grained grid searches.\cr
 
-The implementation of the sequence kernels was done with a
-strong focus on runtime performance which brings a
-considerable improvement compared to other implementations.
-In KeBABS also an interface to the very fast SVM
-implementations in package LiblineaR is available. Beyond
-these performance improvements KeBABS also supports the
-generation of sparse explicit representations for every
-sequence kernel which can be used instead of the kernel
-matrix for learning. In many cases especially with a large
-number of samples where the kernel matrix would become too
-large this alternative provides additional dynamical
-benefits. The current implementation of grid search does
-not make use of multi-core infrastructures, the entire
+The implementation of the sequence kernels was done with a strong focus on
+runtime performance which brings a considerable improvement compared to
+other implementations. In KeBABS also an interface to the very fast SVM
+implementations in package LiblineaR is available. Beyond these performance
+improvements KeBABS also supports the generation of sparse explicit
+representations for every sequence kernel which can be used instead of the
+kernel matrix for learning. In many cases especially with a large number of
+samples where the kernel matrix would become too large this alternative
+provides additional dynamical benefits. The current implementation of grid
+search does not make use of multi-core infrastructures, the entire
 processing is done on a single core.\cr
 }
 \examples{
@@ -308,18 +283,17 @@ modelSelResult(model)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
-\code{\link{kbsvm}}, \code{\link{spectrumKernel}},
-\code{\link{mismatchKernel}},
+\code{\link{kbsvm}},
+\code{\link{spectrumKernel}}, \code{\link{mismatchKernel}},
 \code{\link{gappyPairKernel}}, \code{\link{motifKernel}},
-\code{\link{positionMetadata}},
-\code{\link{annotationMetadata}},
+\code{\link{positionMetadata}}, \code{\link{annotationMetadata}},
 \code{\link{performModelSelection}}
 }
 \keyword{grid}

@@ -20,22 +20,30 @@
 \S4method{auc}{ROCData}(object)
 }
 \arguments{
-  \item{object}{an object of class
-  \code{\linkS4class{ROCData}}}
+\item{object}{an object of class \code{\linkS4class{ROCData}}}
 }
 \value{
-\code{auc}: returns a numeric value\cr \code{tpr}: returns
-a numeric vector\cr \code{fpr}: returns a numeric vector\cr
+\code{auc}: returns a numeric value\cr
+\code{tpr}: returns a numeric vector\cr
+\code{fpr}: returns a numeric vector\cr
 }
 \description{
 ROCData Accessors
 }
 \section{Accessor-like methods}{
-  \describe{ \item{}{\code{auc}: returns the area under the
-  ROC curve.  } \item{}{\code{tpr}: returns the true
-  positive rate values as numeric vector.  }
-  \item{}{\code{fpr}: returns the false positive rate
-  values as numeric vector.  } }
+
+
+\describe{
+  \item{}{\code{auc}:
+  returns the area under the ROC curve.
+  }
+  \item{}{\code{tpr}:
+  returns the true positive rate values as numeric vector.
+  }
+  \item{}{\code{fpr}:
+  returns the false positive rate values as numeric vector.
+  }
+}
 }
 \examples{
 ## create kernel object for normalized spectrum kernel
@@ -62,10 +70,10 @@ auc(rocdata)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

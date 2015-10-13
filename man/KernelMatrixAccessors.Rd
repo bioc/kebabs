@@ -15,14 +15,11 @@
 \S4method{as.KernelMatrix}{matrix}(x, center = FALSE)
 }
 \arguments{
-  \item{x}{kernel matrix of class
-  \code{\link{KernelMatrix}}}
+\item{x}{kernel matrix of class \code{\link{KernelMatrix}}}
 
-  \item{i}{numeric vector with indicies or character with
-  element names}
+\item{i}{numeric vector with indicies or character with element names}
 
-  \item{center}{when set to \code{TRUE} the matrix is
-  centered. Default=FALSE}
+\item{center}{when set to \code{TRUE} the matrix is centered. Default=FALSE}
 }
 \value{
 see above
@@ -31,31 +28,40 @@ see above
 KernelMatrix Accessors
 }
 \section{Accessor-like methods}{
-  \describe{ \item{}{\code{x[i,]}: return a
-  \code{KernelMatrix} object that only contains the rows
-  selected with the subsetting parameter i. This parameter
-  can be a numeric vector with indices or a character
-  vector which is matched against the names of \code{x}.  }
-  \item{}{\code{x[,j]}: return a \code{KernelMatrix} object
-  that only contains the columns selected with the
-  subsetting parameter j. This parameter can be a numeric
-  vector with indices or a character vector which is
-  matched against the names of \code{x}.  }
-  \item{}{\code{x[i,j]}: return a \code{KernelMatrix}
-  object that only contains the rows selected with the
-  subsetting parameter i and columns selected by j. Both
-  parameters can be a numeric vector with indices or a
-  character vector which is matched against the names of
-  \code{x}.  } }
+
+
+\describe{
+  \item{}{\code{x[i,]}:
+  return a \code{KernelMatrix} object that only contains the rows selected
+  with the subsetting parameter i. This parameter can be a numeric vector
+  with indices or a character vector which is matched against the names of
+  \code{x}.
+  }
+  \item{}{\code{x[,j]}:
+  return a \code{KernelMatrix} object that only contains the columns selected
+  with the subsetting parameter j. This parameter can be a numeric vector
+  with indices or a character vector which is matched against the names of
+  \code{x}.
+  }
+  \item{}{\code{x[i,j]}:
+  return a \code{KernelMatrix} object that only contains the rows selected
+  with the subsetting parameter i and columns selected by j. Both parameters
+  can be a numeric vector with indices or a character vector which is matched
+  against the names of \code{x}.
+  }
+}
 }
 
 \section{Coercion methods}{
-  In the code snippets below, \code{x} is a kernel matrix.
 
-  \describe{ \item{}{\code{as.KernelMatrix(x,
-  center=FALSE)}: center the kernel matrix dependent on the
-  center parameter and coerce it to class
-  \code{\linkS4class{KernelMatrix}} .  } }
+In the code snippets below, \code{x} is a kernel matrix.
+
+\describe{
+  \item{}{\code{as.KernelMatrix(x, center=FALSE)}:
+  center the kernel matrix dependent on the center parameter and coerce
+  it to class \code{\linkS4class{KernelMatrix}} .
+  }
+}
 }
 \examples{
 ## create kernel object for normalized spectrum kernel
@@ -73,10 +79,10 @@ km1to5
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

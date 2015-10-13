@@ -7,34 +7,29 @@
 computeROCandAUC(prediction, labels, allLabels = NULL)
 }
 \arguments{
-  \item{prediction}{prediction results in the form of
-  decision values as returned by \code{\link{predict}} for
-  predictionType="decision".}
+\item{prediction}{prediction results in the form of decision values as
+returned by \code{\link{predict}} for predictionType="decision".}
 
-  \item{labels}{label vector of same length as parameter
-  'prediction'.}
+\item{labels}{label vector of same length as parameter 'prediction'.}
 
-  \item{allLabels}{vector containing all occuring labels
-  once. This parameter is required only if the labels
-  parameter is not a factor. Default=NULL}
+\item{allLabels}{vector containing all occuring labels once. This parameter
+is required only if the labels parameter is not a factor. Default=NULL}
 }
 \value{
-On successful completion the function returns an object of
-class \code{\linkS4class{ROCData}} containing the AUC, a
-numeric vector of TPR values and a numeric vector
-containing the FPR values. If the ROC and AUC cannot be
-computed because of missing positive or negative samples
-the function returns 3 NA values.
+On successful completion the function returns an object of class
+\code{\linkS4class{ROCData}} containing the AUC, a numeric vector of
+TPR values and a numeric vector containing the FPR values. If the ROC and
+AUC cannot be computed because of missing positive or negative samples the
+function returns 3 NA values.
 }
 \description{
 Compute the receiver operating characteristic (ROC) and
-area under the ROC curve (AUC) as performance measure for
-binary classification
+area under the ROC curve (AUC) as performance measure for binary
+classification
 }
 \details{
-For binary classfication this function computes the
-receiver operating curve (ROC) and the area under the ROC
-curve (AUC).
+For binary classfication this function computes the receiver operating
+curve (ROC) and the area under the ROC curve (AUC).
 }
 \examples{
 ## load transcription factor binding site data
@@ -74,11 +69,11 @@ plot(rocdata)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{predict}}, \code{\linkS4class{ROCData}}

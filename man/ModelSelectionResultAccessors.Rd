@@ -22,34 +22,49 @@
 \S4method{gridRows}{ModelSelectionResult}(object)
 }
 \arguments{
-  \item{object}{a model selection result object (can be
-  extracted from KeBABS model with accessor
-  \code{\link{modelSelResult}})}
+\item{object}{a model selection result object (can be extracted from
+KeBABS model with accessor \code{\link{modelSelResult}})}
 }
 \value{
 \code{gridRows}: returns a list of kernel objects\cr
-\code{gridColumns}: returns a \code{DataFrame} object with
-grid column parameters\cr \code{gridErrors}: returns a
-matrix with grid errors\cr \code{performance}: returns a
-list of matrices with performance values \code{selGridRow}:
-returns the selected kernel \code{selGridCol}: returns the
-selected SVM and/or hyperparameter(s) \code{fullModel}:
-returns a kebabs model of class
+\code{gridColumns}: returns a \code{DataFrame} object with grid column
+parameters\cr
+\code{gridErrors}: returns a matrix with grid errors\cr
+\code{performance}: returns a list of matrices with performance values
+\code{selGridRow}: returns the selected kernel
+\code{selGridCol}: returns the selected SVM and/or hyperparameter(s)
+\code{fullModel}: returns a kebabs model of class
 \code{\linkS4class{KBModel}}
 }
 \description{
 ModelSelectionResult Accessors
 }
 \section{Accessor-like methods}{
-  \describe{ \item{}{\code{gridRows}: return the grid rows
-  containing the kernels.  } \item{}{\code{gridColumns}:
-  return the grid columns.  } \item{}{\code{gridErrors}:
-  return the grid CV errors.  } \item{}{\code{performance}:
-  return the collected performance parameters.  }
-  \item{}{\code{selGridRow}: return the selected grid row.
-  } \item{}{\code{selGridCol}: return the selected grid
-  column.  } \item{}{\code{fullModel}: return the full
-  model.  } }
+
+
+\describe{
+  \item{}{\code{gridRows}:
+  return the grid rows containing the kernels.
+  }
+  \item{}{\code{gridColumns}:
+  return the grid columns.
+  }
+  \item{}{\code{gridErrors}:
+  return the grid CV errors.
+  }
+  \item{}{\code{performance}:
+  return the collected performance parameters.
+  }
+  \item{}{\code{selGridRow}:
+  return the selected grid row.
+  }
+  \item{}{\code{selGridCol}:
+  return the selected grid column.
+  }
+  \item{}{\code{fullModel}:
+  return the full model.
+  }
+}
 }
 \examples{
 ## create kernel object for normalized spectrum kernel
@@ -78,10 +93,10 @@ performance(mres)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

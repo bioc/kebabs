@@ -216,6 +216,61 @@ getFeatureWeightsPosDep <- function(model, svmIndex=1, features=NULL,
         maxPos <- max(startPosSV + width(model@SV))
     }
 
+    if (length(distWeight) > 0)
+    {
+        if (is(model@svmInfo@selKernel, "SpectrumKernel"))
+            minFeatureLength <- k
+        else if (is(model@svmInfo@selKernel, "GappyPairKernel"))
+            minFeatureLength <- k
+        else if (is(model@svmInfo@selKernel, "MotifKernel"))
+            minFeatureLength <- min(motifLengths)
+
+        if (length(offsetSV) > 0)
+            maxDist <- max(width(model@SV) - offsetSV) - min(-offsetSV + 1)
+        else
+        {
+            offsetSV <- integer(0)
+            maxDist <- maxSeqLength - 1
+        }
+
+        if (is.function(distWeight))
+        {
+            ## precompute distance weight vector
+            ## terminate on stop and warning
+            ## assuming that all distances are partially overlapping
+            distWeight <- tryCatch(distWeight(0:(maxDist -
+                                                 minFeatureLength + 1)),
+                                   warning=function(w) {stop(w)},
+                                   error=function(e) {stop(e)})
+
+            if (!(is.numeric(distWeight) && length(distWeight) ==
+                  (maxDist - minFeatureLength + 2)))
+            {
+                stop("distance weighting function did not return a numeric\n",
+                     "       vector of correct length\n")
+            }
+
+            ## limit to values larger than .Machine$double.eps
+            ## for non-monotonic decreasing functions search from end
+            for (i in (maxDist - minFeatureLength + 2):1)
+            {
+                if (distWeight[i] > .Machine$double.eps)
+                    break
+            }
+
+            distWeight <- distWeight[1:i]
+        }
+
+        if (length(distWeight) == 0)
+            stop("only zero values for distance weights\n")
+
+        if (isTRUE(all.equal(distWeight, c(1, rep(0, length(distWeight)-1)))))
+        {
+            posSpec <- TRUE
+            distWeight <- numeric(0)
+        }
+    }
+
     coefs <- getSVMSlotValue("coef", model)
 
     if (!is.list(model@alphaIndex))
@@ -232,7 +287,7 @@ getFeatureWeightsPosDep <- function(model, svmIndex=1, features=NULL,
     posDepFeatureWeights <- .Call("getFeatureWeightsPosDepC",
             model@SV, svIndices - 1, offsetSV,
             as.logical(isXStringSet), as.integer(maxSeqLength),
-            as.integer(svmIndex), as.double(weightLimit),
+            as.integer(svmIndex), distWeight, as.double(weightLimit),
             as.integer(kernelType[class(model@svmInfo@selKernel)]),
             as.integer(k), as.integer(m), as.integer(bioCharset[[2]]), motifs,
             motifLengths, as.integer(maxMotifLength),
@@ -393,7 +448,7 @@ getFeatureWeightsPosDep <- function(model, svmIndex=1, features=NULL,
 #' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
-#' \emph{Bioinformatics} (accepted).
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
 #' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 #' @keywords feature weights
 #' @keywords methods

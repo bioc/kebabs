@@ -12,113 +12,102 @@ motifKernel(motifs, r = 1, annSpec = FALSE, distWeight = numeric(0),
 \S4method{getFeatureSpaceDimension}{MotifKernel}(kernel, x)
 }
 \arguments{
-  \item{motifs}{a set of motif patterns specified as
-  character vector. The order in which the patterns are
-  passed for creation of the kernel object also determines
-  the order of the features in the explicit representation.
-  Lowercase characters in motifs are always converted to
-  uppercase. For details concerning the definition of motif
-  patterns see below and in the examples section.}
+\item{motifs}{a set of motif patterns specified as character vector. The
+order in which the patterns are passed for creation of the kernel object
+also determines the order of the features in the explicit representation.
+Lowercase characters in motifs are always converted to uppercase. For
+details concerning the definition of motif patterns see below and in the
+examples section.}
 
-  \item{r}{exponent which must be > 0 (see details section
-  in \link{spectrumKernel}). Default=1}
+\item{r}{exponent which must be > 0 (see details section in
+\link{spectrumKernel}). Default=1}
 
-  \item{annSpec}{boolean that indicates whether sequence
-  annotation should be taken into account (details see on
-  help page for \code{\link{annotationMetadata}}).
-  Default=FALSE}
+\item{annSpec}{boolean that indicates whether sequence annotation should
+be taken into account (details see on help page for
+\code{\link{annotationMetadata}}). Default=FALSE}
 
-  \item{distWeight}{a numeric distance weight vector or a
-  distance weighting function (details see on help page for
-  \code{\link{gaussWeight}}). Default=NULL}
+\item{distWeight}{a numeric distance weight vector or a distance weighting
+function (details see on help page for \code{\link{gaussWeight}}).
+Default=NULL}
 
-  \item{normalized}{generated data from this kernel will be
-  normalized (details see below). Default=TRUE}
+\item{normalized}{generated data from this kernel will be normalized
+(details see below). Default=TRUE}
 
-  \item{exact}{use exact character set for the evaluation
-  (details see below). Default=TRUE}
+\item{exact}{use exact character set for the evaluation (details see below).
+Default=TRUE}
 
-  \item{ignoreLower}{ignore lower case characters in the
-  sequence. If the parameter is not set lower case
-  characters are treated like uppercase. default=TRUE}
+\item{ignoreLower}{ignore lower case characters in the sequence. If the
+parameter is not set lower case characters are treated like uppercase.
+default=TRUE}
 
-  \item{presence}{if this parameter is set only the
-  presence of a motif will be considered, otherwise the
-  number of occurances of the motif is used; Default=FALSE}
+\item{presence}{if this parameter is set only the presence of a motif will
+be considered, otherwise the number of occurances of the motif is used;
+Default=FALSE}
 
-  \item{kernel}{a sequence kernel object}
+\item{kernel}{a sequence kernel object}
 
-  \item{x}{one or multiple biological sequences in the form
-  of a \code{\linkS4class{DNAStringSet}},
-  \code{\linkS4class{RNAStringSet}},
-  \code{\linkS4class{AAStringSet}} (or as
-  \code{\linkS4class{BioVector}})}
+\item{x}{one or multiple biological sequences in the form of a
+\code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+\code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}})}
 }
 \value{
-motif: upon successful completion, the function returns a
-kernel object of class \code{\linkS4class{MotifKernel}}.
+motif: upon successful completion, the function returns a kernel
+object of class \code{\linkS4class{MotifKernel}}.
 
-of getDimFeatureSpace: dimension of the feature space as
-numeric value
+of getDimFeatureSpace:
+dimension of the feature space as numeric value
 }
 \description{
 Create a motif kernel object and the kernel matrix
 }
 \details{
-Creation of kernel object\cr\cr The function 'motif'
-creates a kernel object for the motif kernel for a set of
-given DNA-, RNA- or AA-motifs. This kernel object can then
-be used to generate a kernel matrix or an explicit
-representation for this kernel. The individual patterns in
-the set of motifs are built similar to regular expressions
-through concatination of following elements in arbitrary
-order: \itemize{ \item{a specific character from the used
-character set - e.g. 'A' or 'G' in DNA patterns for
-matching a specific character} \item{the wildcard character
-'.' which matches any valid character of the character set
-except '-'} \item{a substitution group specified by a
-collection of characters from the character set enclosed in
-square brackets - e.g. [AG] - which matches any of the
-listed characters; with a leading '^' the character list is
-inverted and matching occurs for all characters of the
-character set which are not listed except '-'} } For values
-different from 1 (=default value) parameter \code{r} leads
-to a transfomation of similarities by taking each element
-of the similarity matrix to the power of r. For the
-annotation specific variant of this kernel see
-\link{annotationMetadata}, for the distance weighted
-variants see \link{positionMetadata}. If
-\code{normalized=TRUE}, the feature vectors are scaled to
-the unit sphere before computing the similarity value for
-the kernel matrix. For two samples with the feature vectors
-\code{x} and \code{y} the similarity is computed as:
-\deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T
-y)/(|x| |y|)} For an explicit representation generated with
-the feature map of a normalized kernel the rows are
-normalized by dividing them through their Euclidean norm.
-For parameter \code{exact=TRUE} the sequence characters are
-interpreted according to an exact character set. If the
-flag is not set ambigous characters from the IUPAC
-characterset are also evaluated.
+Creation of kernel object\cr\cr
+The function 'motif' creates a kernel object for the motif kernel for a set
+of given DNA-, RNA- or AA-motifs. This kernel object can then be used to
+generate a kernel matrix or an explicit representation for this kernel.
+The individual patterns in the set of motifs are built similar to regular
+expressions through concatination of following elements in arbitrary order:
+\itemize{
+\item{a specific character from the used character set - e.g. 'A' or 'G' in
+  DNA patterns for matching a specific character}
+\item{the wildcard character '.' which matches any valid character of the
+  character set except '-'}
+\item{a substitution group specified by a collection of characters from the
+  character set enclosed in square brackets - e.g. [AG] - which matches any
+  of the listed characters; with a leading '^' the character list is
+  inverted and matching occurs for all characters of the character set
+  which are not listed except '-'}
+}
+For values different from 1 (=default value) parameter \code{r} leads
+to a transfomation of similarities by taking each element of the similarity
+matrix to the power of r. For the annotation specific variant of this
+kernel see \link{annotationMetadata}, for the distance weighted
+variants see \link{positionMetadata}. If \code{normalized=TRUE}, the
+feature vectors are scaled to the unit sphere before computing the
+similarity value for the kernel matrix. For two samples with the feature
+vectors \code{x} and \code{y} the similarity is computed as:
+\deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T y)/(|x| |y|)}
+For an explicit representation generated with the feature map of a
+normalized kernel the rows are normalized by dividing them through their
+Euclidean norm. For parameter \code{exact=TRUE} the sequence characters
+are interpreted according to an exact character set. If the flag is not
+set ambigous characters from the IUPAC characterset are also evaluated.
 
 The annotation specific variant (for details see
-\link{annotationMetadata}) and the position dependent
-variants (for details see \link{positionMetadata}) either
-in the form of a position specific or a distance weighted
-kernel are supported for the motif kernel. The generation
-of an explicit representation is not possible for the
+\link{annotationMetadata}) and the position dependent variants (for
+details see \link{positionMetadata}) either in the form of a position
+specific or a distance weighted kernel are supported for the motif kernel.
+The generation of an explicit representation is not possible for the
 position dependent variants of this kernel.
 
-Hint: For a normalized motif kernel with a feature subset
-of a normalized spectrum kernel the explicit representation
-will not be identical to the subset of an explicit
-representation for the spectrum kernel because the motif
-kernel is not aware of the other kmers which are used in
-the spectrum kernel additionally for normalization.\cr\cr
-Creation of kernel matrix\cr\cr The kernel matrix is
-created with the function \code{\link{getKernelMatrix}} or
-via a direct call with the kernel object as shown in the
-examples below.
+Hint: For a normalized motif kernel with a feature subset of a normalized
+spectrum kernel the explicit representation will not be identical to the
+subset of an explicit representation for the spectrum kernel because
+the motif kernel is not aware of the other kmers which are used in the
+spectrum kernel additionally for normalization.\cr\cr
+Creation of kernel matrix\cr\cr
+The kernel matrix is created with the function \code{\link{getKernelMatrix}}
+or via a direct call with the kernel object as shown in the examples below.
 }
 \examples{
 ## instead of user provided sequences in XStringSet format
@@ -159,19 +148,18 @@ Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
 \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
-(Ben-Hur, 2003) -- A. Ben-Hur, and D. Brutlag. Remote
-homology detection: a motif based approach. \cr\cr
-(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M.
-Ionescu and S. Hochreiter. Modelling position specificity
-in sequence kernels by fuzzy equivalence relations. \cr\cr
-(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U.
-Bodenhofer, R. Volkmer and S. Hochreiter. Complex networks
-govern coiled-coil oligomerizations - predicting and
-profiling by means of a machine learning approach.\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+(Ben-Hur, 2003) -- A. Ben-Hur, and D. Brutlag. Remote homology detection:
+a motif based approach. \cr\cr
+(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M. Ionescu and
+S. Hochreiter. Modelling position specificity in sequence kernels by fuzzy
+equivalence relations. \cr\cr
+(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer
+and S. Hochreiter. Complex networks govern coiled-coil oligomerizations -
+predicting and profiling by means of a machine learning approach.\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{kernelParameters-method}},

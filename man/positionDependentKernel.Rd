@@ -39,150 +39,136 @@ swdWeight(d)
 \S4method{positionMetadata}{BioVector}(x)
 }
 \arguments{
-  \item{d}{a numeric vector of distance values}
+\item{d}{a numeric vector of distance values}
 
-  \item{sigma}{a positive numeric value defining the peak
-  width or in case of gaussWeight the width of the bell
-  function (details see below)}
+\item{sigma}{a positive numeric value defining the peak width or in case of
+gaussWeight the width of the bell function (details see below)}
 
-  \item{x}{biological sequences in the form of a
-  \code{\linkS4class{DNAStringSet}},
-  \code{\linkS4class{RNAStringSet}},
-  \code{\linkS4class{AAStringSet}} (or as
-  \code{\linkS4class{BioVector}})}
+\item{x}{biological sequences in the form of a
+\code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+\code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}})}
 
-  \item{value}{for assignment of position metadata the
-  value is an integer vector with gives the offset to the
-  start position 1 for each sequence. Positive and negative
-  offset values are possible. Without position metadata all
-  sequences must be aligned and start at position 1. For
-  deletion of position metadata set value to NULL.}
+\item{value}{for assignment of position metadata the value is an integer
+vector with gives the offset to the start position 1 for each sequence.
+Positive and negative offset values are possible. Without position metadata
+all sequences must be aligned and start at position 1. For deletion of
+position metadata set value to NULL.}
 }
 \value{
-The distance weighting functions return a numerical vector
-with distance weights.
+The distance weighting functions return a numerical vector with distance
+weights.
 }
 \description{
 Assign position related metadata and reate a kernel object
 with position dependency
 }
 \details{
-Position Dependent Kernel \cr\cr For the standard spectrum
-kernel kmers are considered independent of their position
-in the calculation of the similarity value between two
-sequences. For position dependent kernels the position of a
-kmer/pattern is also of importance. Position information
-for a pair of sequences can be used in a
-\code{\link{sequenceKernel}} in three different ways
-representing the full range of position dependency:
-\itemize{ \item{Position independent kernel: ignores the
-position of patterns and just takes the number of their
-occurances or their presence (see parameter \code{presence}
-in functions \code{\link{spectrumKernel},
-\link{gappyPairKernel}, \link{motifKernel}}) in the
-sequences into account for similarity determination.}
-\item{Distance weighted kernel: uses the position related
-distance between the occurance of the same pattern in the
-two sequences in weighted form as contribution to the
-similarity value (see below under Distance Weighted
-kernel)} \item{Position specific kernel: considers patterns
-only if they occur at the same position in the two
-sequences (see below under Position Specific Kernel)} }
-Position dependency is available in all kernels except the
-mismatch kernel.\cr\cr Distance Weighted Kernel\cr\cr These
-kernels weight the contribution to the similarity value
-based on the distance of their start positions in the two
-sequences. The user can define the distance weights either
-through passing a distance weighting function or a weight
-vector to the kernel. Through this weighting the degree of
-locality in the similarity consideration between two
-sequences can be adjusted flexibly. Such a position
-dependent kernel can be used in the same way as the normal
-position independent kernel variant. Distance weighting can
-be used for all kernels in this package except the mismatch
-kernel. The package defines four predefined weighting
-functions (see also examples): \itemize{ \item{linWeigth: a
-weighting function with linear decrease} \item{expWeight: a
-weighting function with exponential decrease}
-\item{gaussWeigth: a bell-shaped weighting function with a
-decrease similar to a gaussian distribution}
-\item{swdWeight: the distance weighting function used in
-the Shifted Weighted Degree (SWD) kernel which is similar
-to an exponential decrease but it has a smaller peak and
-larger tails} } Also user-defined functions can be used for
-distance weighting. (see below)\cr\cr Position Specific
-Kernel \cr\cr One variant of position dependent kernels is
-the position specific kernel. This kernel takes patterns
-into account only if they are located at identical
-positions in the two sequences. This kernel can be selected
-through passing a distance weight value of 1 to the kernel
-indicating that the neighborhood of a pattern in the other
-sequence is irrelevant for the similarity consideration.
-This kernel is in fact one end of the spectrum (sic!) where
-locality is reduced to the exact location and the normal
-position independent kernel is at the other end - not
-caring about position at all. Through adjustment of sigma
-in the predefined functions a continous blending between
-these two extremes is possible for the degree of locality.
-Evaluation of position information is controlled through
-setting the parameter \code{distWeight} to 1 in the
-functions \code{\link{spectrumKernel},
-\link{gappyPairKernel}, \link{motifKernel}}. This parameter
-value is in fact interpreted as a numeric vector with 1 for
-zero distance and 0 for all other distances.\cr\cr Positive
-Definiteness\cr\cr The standard SVMs only support positive
-definite kernels / kernel matrices. This means that the
-distance weighting function must must be chosen such that
-the resulting kernel is positive definite. For positive
-definiteness also symmetry of the distance weighting
-function is important. Unlike usual distances the relative
-distance value here can have positive and negative values
-dependent on whether the pattern in the second sequence is
-located at higher or lower positions than the pattern in
-the first sequence. The predefined distance weighting
-functions except for swdWeight deliver a positive definite
-kernel for all parameter settings. According to Sonnenburg
-et al. 2005 the SWD kernel has empirically shown positive
-definiteness but it is not proved for this kernel. If a
-weight vector with predefined weights per distance is
-passed to the kernel instead of a distance weighting
-function positive definiteness of the kernel must also be
-ensured by adequate selection of the weight values.\cr\cr
-User-Defined Distance Function\cr\cr For user defined
-distance functions symmetry and positive definitness of the
-resulting kernel are important. Such a function gets a
-numeric distance vector 'x' as input (and possibly other
-parameters controlling the weighting behavior) and returns
-a weight vector of identical length. When called with a
-missing parameter x all other parameters must be supplied
-or have appropriate default values. In this case the
-function must return a new function with just the single
-parameter x which calls the original user defined function
-with x and all the other parameters set to the values
-passed in the call. \cr\cr This behavior is needed for
-assignment of the function with missing parameter x to the
-distWeight parameter in the kernel. At the time of kernel
-definition the actual distance values are not available.
-Later when sequence data is passed to this kernel for
-generation of a kernel matrix or an explicit representation
-this single argument function is called to get the distance
-dependent weights. The code for the predefined
-\code{expWeight} function in the example section below
-shows how a user-specific function can be set up.\cr\cr
-Offset\cr\cr To allow flexible alignment of sequence
-positions without redefining the XStringSet or BioVector an
-additional metadata element named offset can be assigned to
-the sequence set via \code{positionMetadata<-} (see example
-below). Position metadata is a numeric vector with the same
-number of elements as the sequence set and gives for each
-sequence an offset to position 1. When positions metadata
-is not assigned to a sequence set the position 1 is
-associated with the first character in each sequence of the
-sequence set., i.e. in this case the sequences should be
-aligned such that all have the same starting positions with
-respect to the learning task (e.g. all sequences start at a
-transcription start site). Offset information is only
-evaluated in position dependent kernel variants.
+Position Dependent Kernel \cr\cr
+For the standard spectrum kernel kmers are considered independent of their
+position in the calculation of the similarity value between two sequences.
+For position dependent kernels the position of a kmer/pattern is also of
+importance. Position information for a pair of sequences can be used in
+a \code{\link{sequenceKernel}} in three different ways representing the
+full range of position dependency:
+\itemize{
+\item{Position independent kernel: ignores the position of patterns and
+just takes the number of their occurances or their presence (see parameter
+\code{presence} in functions \code{\link{spectrumKernel},
+\link{gappyPairKernel}, \link{motifKernel}}) in the sequences
+into account for similarity determination.}
+\item{Distance weighted kernel: uses the position related distance between
+the occurance of the same pattern in the two sequences in weighted form as
+contribution to the similarity value (see below under Distance Weighted
+kernel)}
+\item{Position specific kernel: considers patterns only if they occur at
+the same position in the two sequences (see below under Position Specific
+Kernel)}
+}
+Position dependency is available in all kernels except the mismatch
+kernel.\cr\cr
+Distance Weighted Kernel\cr\cr
+These kernels weight the contribution to the similarity value
+based on the distance of their start positions in the two sequences. The
+user can define the distance weights either through passing a distance
+weighting function or a weight vector to the kernel. Through this weighting
+the degree of locality in the similarity consideration between two sequences
+can be adjusted flexibly. Such a position dependent kernel can be used in
+the same way as the normal position independent kernel variant. Distance
+weighting can be used for all kernels in this package except the mismatch
+kernel. The package defines four predefined weighting functions (see also
+examples):
+\itemize{
+\item{linWeigth: a weighting function with linear decrease}
+\item{expWeight: a weighting function with exponential decrease}
+\item{gaussWeigth: a bell-shaped weighting function with a decrease similar
+      to a gaussian distribution}
+\item{swdWeight: the distance weighting function used in the Shifted Weighted
+      Degree (SWD) kernel which is similar to an exponential decrease but
+      it has a smaller peak and larger tails}
+}
+Also user-defined functions can be used for distance weighting.
+(see below)\cr\cr
+Position Specific Kernel \cr\cr
+One variant of position dependent kernels is the position specific kernel.
+This kernel takes patterns into account only if they are located at
+identical positions in the two sequences. This kernel can be selected
+through passing a distance weight value of 1 to the kernel indicating that
+the neighborhood of a pattern in the other sequence is irrelevant for the
+similarity consideration. This kernel is in fact one end of the
+spectrum (sic!) where locality is reduced to the exact location and the
+normal position independent kernel is at the other end - not caring about
+position at all. Through adjustment of sigma in the predefined functions
+a continous blending between these two extremes is possible for the degree
+of locality. Evaluation of position information is controlled through
+setting the parameter \code{distWeight} to 1 in the functions
+\code{\link{spectrumKernel}, \link{gappyPairKernel}, \link{motifKernel}}.
+This parameter value is in fact interpreted as a numeric vector with 1 for
+zero distance and 0 for all other distances.\cr\cr
+Positive Definiteness\cr\cr
+The standard SVMs only support positive definite kernels / kernel matrices.
+This means that the distance weighting function must must be chosen such
+that the resulting kernel is positive definite. For positive definiteness
+also symmetry of the distance weighting function is important. Unlike usual
+distances the relative distance value here can have positive and negative
+values dependent on whether the pattern in the second sequence is located
+at higher or lower positions than the pattern in the first sequence. The
+predefined distance weighting functions except for swdWeight deliver a
+positive definite kernel for all parameter settings. According to Sonnenburg
+et al. 2005 the SWD kernel has empirically shown positive definiteness but
+it is not proved for this kernel. If a weight vector with predefined weights
+per distance is passed to the kernel instead of a distance weighting
+function positive definiteness of the kernel must also be ensured by
+adequate selection of the weight values.\cr\cr
+User-Defined Distance Function\cr\cr
+For user defined distance functions symmetry and positive definitness of
+the resulting kernel are important. Such a function gets a numeric distance
+vector 'x' as input (and possibly other parameters controlling the weighting
+behavior) and returns a weight vector of identical length. When
+called with a missing parameter x all other parameters must be supplied or
+have appropriate default values. In this case the function must return a
+new function with just the single parameter x which calls the original user
+defined function with x and all the other parameters set to the values passed
+in the call. \cr\cr
+This behavior is needed for assignment of the function with missing
+parameter x to the distWeight parameter in the kernel. At the time of kernel
+definition the actual distance values are not available.  Later when
+sequence data is passed to this kernel for generation of a kernel matrix or
+an explicit representation this single argument function is called to get
+the distance dependent weights. The code for the predefined \code{expWeight}
+function in the example section below shows how a user-specific
+function can be set up.\cr\cr
+Offset\cr\cr
+To allow flexible alignment of sequence positions without redefining the
+XStringSet or BioVector an additional metadata element named offset can be
+assigned to the sequence set via \code{positionMetadata<-} (see example
+below). Position metadata is a numeric vector with the same number of
+elements as the sequence set and gives for each sequence an offset to
+position 1. When positions metadata is not assigned to a sequence set the
+position 1 is associated with the first character in each sequence of the
+sequence set., i.e. in this case the sequences should be aligned such that
+all have the same starting positions with respect to the learning task
+(e.g. all sequences start at a transcription start site). Offset information
+is only evaluated in position dependent kernel variants.
 }
 \examples{
 ## plot predefined weighting functions for sigma=10
@@ -283,22 +269,20 @@ Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
 \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
-(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M.
-Ionescu and S. Hochreiter. Modelling position specificity
-in sequence kernels by fuzzy equivalence relations. \cr\cr
-(Sonnenburg, 2005) -- S. Sonnenburg, G. Raetsch and B.
-Schoelkopf. Large Scale Genomic Sequence SVM Classifiers.
-\cr\cr J. Palme, S. Hochreiter, and U. Bodenhofer (2015)
-KeBABS: an R package for kernel-based analysis of
-biological sequences. \emph{Bioinformatics} (accepted).
-DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M. Ionescu and
+S. Hochreiter. Modelling position specificity in sequence kernels by fuzzy
+equivalence relations. \cr\cr
+(Sonnenburg, 2005) -- S. Sonnenburg, G. Raetsch and B. Schoelkopf.
+Large Scale Genomic Sequence SVM Classifiers. \cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
-\code{\link{spectrumKernel}},
-\code{\link{gappyPairKernel}}, \code{\link{motifKernel}},
-\code{\link{annotationMetadata}}, \code{\link{metadata}},
-\code{\link{mcols}}
+\code{\link{spectrumKernel}}, \code{\link{gappyPairKernel}},
+\code{\link{motifKernel}}, \code{\link{annotationMetadata}},
+\code{\link{metadata}}, \code{\link{mcols}}
 }
 \keyword{distance}
 \keyword{kernel}

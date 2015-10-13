@@ -11,22 +11,27 @@
 \S4method{folds}{CrossValidationResult}(object)
 }
 \arguments{
-  \item{object}{a cross validation result object (can be
-  extracted from KeBABS model with accessor
-  \code{\link{cvResult}})}
+\item{object}{a cross validation result object (can be extracted from
+KeBABS model with accessor \code{\link{cvResult}})}
 }
 \value{
 \code{folds}: returns the folds used in CV\cr
-\code{performance}: returns a list with the performance
-values
+\code{performance}: returns a list with the performance values
 }
 \description{
 CrossValidationResult Accessors
 }
 \section{Accessor-like methods}{
-  \describe{ \item{}{\code{folds}: return the CV folds.  }
-  \item{}{\code{performance}: return the collected
-  performance parameters.  } }
+
+
+\describe{
+  \item{}{\code{folds}:
+  return the CV folds.
+  }
+  \item{}{\code{performance}:
+  return the collected performance parameters.
+  }
+}
 }
 \examples{
 ## create kernel object for normalized spectrum kernel
@@ -50,10 +55,10 @@ performance(cvResult(model))$foldAUC
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

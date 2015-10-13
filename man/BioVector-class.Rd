@@ -15,32 +15,28 @@
 BioVector, DNAVector, RNAVector and AAVector Classes
 }
 \details{
-This class is the parent class for representing sets of
-biological sequences with support of lowercase characters.
-The derived classes \code{\linkS4class{DNAVector}},
-\code{\linkS4class{RNAVector}} and
-\code{\linkS4class{AAVector}} hold DNA-, RNA- or
-AA-sequences which can contain also lowercase characters.
-In many cases repeat regions are coded as lowercase
-characters and with the \code{\linkS4class{BioVector}}
-based classes sequence analysis with and without repeat
-regions can be performed from the same sequence set.
-Whenever lowercase is not needed please use the
-\code{\linkS4class{XStringSet}} based classes as they
-provide much richer functionality. The class
-\code{BioVector }is derived from "character" and holds the
-sequence information as character vector. Interfaces for
-the small set of functions needed in KeBABS are designed
-consistent with \code{\linkS4class{XStringSet}}.
+This class is the parent class for representing sets of biological
+sequences with support of lowercase characters. The derived classes
+\code{\linkS4class{DNAVector}}, \code{\linkS4class{RNAVector}} and
+\code{\linkS4class{AAVector}} hold DNA-, RNA- or AA-sequences which can
+contain also lowercase characters. In many cases repeat regions are coded
+as lowercase characters and with the \code{\linkS4class{BioVector}} based
+classes sequence analysis with and without repeat regions can be performed
+from the same sequence set. Whenever lowercase is not needed please use the
+\code{\linkS4class{XStringSet}} based classes as they provide much richer
+functionality. The class \code{BioVector }is derived from "character" and
+holds the sequence information as character vector. Interfaces for the
+small set of functions needed in KeBABS are designed consistent with
+\code{\linkS4class{XStringSet}}.
 
-Instances of the \code{DNAVector} class are used for
-representing sets of DNA sequences.
+Instances of the \code{DNAVector} class are used for representing sets of
+DNA sequences.
 
-Instances of the \code{RNAVector} class are used for
-representing sets of RNA sequences.
+Instances of the \code{RNAVector} class are used for representing sets of
+RNA sequences.
 
-Instances of the \code{AAVector} class are used for
-representing sets of amino acid sequences.
+Instances of the \code{AAVector} class are used for representing sets of
+amino acid sequences.
 }
 \section{Slots}{
 
@@ -59,10 +55,10 @@ KeBABS uses the column names "annotation" and "offset".}
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

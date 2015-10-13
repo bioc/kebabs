@@ -48,9 +48,9 @@ uint64_t * featureNamesToIndex(SEXP featureNames, int numFeatures, ByteStringVec
             break;
 
         case MISMATCH:
-
-//            return(featureNamesToIndexMismatch(featureNames, annCharset, k, m, motifs,
-//                                        alphaInf));
+            // same as corresponding spectrum
+            return(featureNamesToIndexSpectrum(featureNames, numFeatures, annCharset, annotationIndexMap,
+                                               k, FALSE, alphaInf));
             break;
 
         case GAPPY_PAIR:
@@ -75,17 +75,17 @@ void genFeatureVectorsPosDep(ByteStringVector x, int sizeX, IntegerVector selX, 
                              ByteStringVector motifs, IntegerVector *motifLengths, int maxMotifLength,
                              int maxPatternLength, int nodeLimit, struct alphaInfo *alphaInf,
                              uint64_t dimFeatureSpace, bool presence, bool normalized, bool unmapped,
-                             bool reverseComplement, bool posSpecific, int sortType, int numPositions,
-                             uint64_t **startIndex, void **featVectorIndex, int32_t **featVectorValue,
-                             uint32_t **kernelValue, int *indexSize)
+                             bool reverseComplement, bool posSpecific, NumericVector distWeight,
+                             int sortType, int numPositions, uint64_t **startIndex, void **featVectorIndex,
+                             int32_t **featVectorValue, double **kernelValue, int *indexSize)
 {
     switch (kernelType)
     {
         case SPECTRUM:
 
             genFeatVectorsPosDepSpectrum(x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength, k, alphaInf,
-                                         dimFeatureSpace, presence, normalized, unmapped, reverseComplement,
-                                         posSpecific, KBS_SORT_BY_POSITION, numPositions, startIndex,
+                                         dimFeatureSpace, presence, normalized, reverseComplement,
+                                         posSpecific, distWeight, KBS_SORT_BY_POSITION, numPositions, startIndex,
                                          featVectorIndex, featVectorValue, kernelValue, indexSize);
             break;
 
@@ -94,8 +94,8 @@ void genFeatureVectorsPosDep(ByteStringVector x, int sizeX, IntegerVector selX, 
         case GAPPY_PAIR:
 
             genFeatVectorsGappyPair(x, sizeX, selX, offsetX, annX, annCharset, maxSeqLength, k, m, alphaInf,
-                                    dimFeatureSpace, presence, normalized, unmapped, reverseComplement,
-                                    posSpecific, KBS_SORT_BY_POSITION, numPositions, startIndex,
+                                    dimFeatureSpace, presence, normalized, reverseComplement,
+                                    posSpecific, distWeight, KBS_SORT_BY_POSITION, numPositions, startIndex,
                                     featVectorIndex, featVectorValue, kernelValue, indexSize);
             break;
 
@@ -103,8 +103,8 @@ void genFeatureVectorsPosDep(ByteStringVector x, int sizeX, IntegerVector selX, 
 
             genFeatVectorsMotif(x, sizeX, selX, offsetX, maxSeqLength, pMotifTree, freeNode, motifs,
                                 *motifLengths, maxMotifLength, maxPatternLength, nodeLimit, alphaInf,
-                                presence, normalized, posSpecific, KBS_SORT_BY_POSITION, startIndex,
-                                (uint32_t **) featVectorIndex, featVectorValue, kernelValue);
+                                presence, normalized, posSpecific, distWeight, KBS_SORT_BY_POSITION,
+                                startIndex, (uint32_t **) featVectorIndex, featVectorValue, kernelValue);
             break;
     }
 
@@ -120,20 +120,22 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
 {
     const void *vmax;
     int i, j, l, *slot_i, *slot_p, maxMotifLength, maxPatternLength, numRows, numCols, freeNode;
-    int distWeightLength, position, numPositions, offset, indexSize, result, rowIndex,upper1, upper2;
+    int distWeightLength, position, numPositions, offset, indexSize, result, rowIndex;
     int lengthPred, nrowProf, ncolProf, nrowFeatWeights, ncolFeatWeights, numDots, numUnweightedPos;
-    uint32_t *kernelValue, *unweightedPositions, **unweightedPos, startIndexUnweighted;
+    int lower, lower1, lower2, upper, upper1, upper2, minPosSV, shiftPos;
+    uint32_t *unweightedPositions, **unweightedPos, startIndexUnweighted;
     int32_t *featVectorValue;
     uint64_t dimFeatureSpace, *rowIndices, *startIndex, key, featureIndex;
-    double *slot_x, part, normFactor, sumAlphas, weight;
-    bool bit64 = FALSE, implicitPosition = FALSE, presence = FALSE;
+    const char *minPosSV_Char;
+    double *kernelValue, *slot_x, part, normFactor, sumAlphas, weight;
+    bool featContributions, bit64 = FALSE, implicitPosition = FALSE, presence = FALSE;
     void *featVectorIndex, *pMotifTree;
     struct alphaInfo alphaInf;
     struct allIndMaps allIndexMaps;
     khiter_t iter;
     khash_t(fwa32) *hmap32;
     khash_t(fwa64) *hmap64;
-    SEXP rownames;
+    SEXP rownames, colnames;
 
     ByteStringVector x;
     ByteStringVector motifs;
@@ -223,6 +225,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
     IntegerVector unweightedPosStart(motifs.length + 1);
     IntegerVector noAnnot(0);
     IntegerVector sel(1);
+    NumericMatrix km1(1,1);
 
     getAlphabetInfo(bioCharset, lowercase, unmapped, &alphaInf, &allIndexMaps);
 
@@ -236,6 +239,9 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
     numRows = INTEGER(GET_SLOT(featureWeightsR, Rf_install(MATRIX_DIM_SLOT)))[0];
     numCols = INTEGER(GET_SLOT(featureWeightsR, Rf_install(MATRIX_DIM_SLOT)))[1];
     rownames = VECTOR_ELT(GET_SLOT(featureWeightsR, Rf_install(MATRIX_DIMNAMES_SLOT)), 0);
+    colnames = VECTOR_ELT(GET_SLOT(featureWeightsR, Rf_install(MATRIX_DIMNAMES_SLOT)), 1);
+    minPosSV_Char = CHAR(STRING_ELT(colnames, 0));
+    minPosSV = atoi(minPosSV_Char);
 
     rowIndices = featureNamesToIndex(rownames, numRows, dummy, noAnnot, kernelType, k, m, &pMotifTree, &freeNode,
                                      motifs, pMotifLengths, maxMotifLength, maxPatternLength, nodeLimit,
@@ -256,24 +262,32 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
     // alloc feature weights matrix for distance weighted kernels
     NumericMatrix featureWeights(nrowFeatWeights, ncolFeatWeights);
 
+    featContributions = TRUE;
+
     if (posSpecific)
     {
-        bit64 = (dimFeatureSpace * (maxPos - minPos + 1)) > MAXUINT32;
-
-        // add access hashmap to sparse feature weights matrix
-        if (bit64)
-        {
-            hmap64 = (khash_t(fwa64) *) generateAccessHashmap(numRows, numCols, rowIndices,
-                                                              dimFeatureSpace, firstWeightedPos, slot_i,
-                                                              slot_p, slot_x, bit64);
-            pAccessHMap64 = hmap64;
-        }
+        if ((minPos > minPosSV + numCols - 1) || (maxPos < minPosSV))
+            featContributions = FALSE;
         else
         {
-            hmap32 = (khash_t(fwa32) *) generateAccessHashmap(numRows, numCols, rowIndices,
-                                                              dimFeatureSpace, firstWeightedPos, slot_i,
-                                                              slot_p, slot_x, bit64);
-            pAccessHMap32 = hmap32;
+            bit64 = (dimFeatureSpace * (maxPos - minPos + 1)) > MAXUINT32;
+            
+            // add access hashmap to sparse feature weights matrix
+            if (bit64)
+            {
+                hmap64 = (khash_t(fwa64) *) generateAccessHashmap(numRows, numCols, rowIndices,
+                                                                  dimFeatureSpace, firstWeightedPos, slot_i,
+                                                                  slot_p, slot_x, bit64);
+                pAccessHMap64 = hmap64;
+            }
+            else
+            {
+                hmap32 = (khash_t(fwa32) *) generateAccessHashmap(numRows, numCols, rowIndices,
+                                                                  dimFeatureSpace, firstWeightedPos, slot_i,
+                                                                  slot_p, slot_x, bit64);
+                pAccessHMap32 = hmap32;
+            }
+            
         }
     }
     else
@@ -290,33 +304,83 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                 kh_value(hmap64, iter) = i;
         }
 
-        // generate full weight matrix - walk through dgCMatrix columnwise
-        for (i = 0; i < numCols; i++)
-        {
-            for (j = slot_p[i]; j < slot_p[i + 1]; j++)
-            {
-                // copy weight vector forward and reverse around position
-                // clipped to relevant index range
-                rowIndex = slot_i[j];
-                sumAlphas = slot_x[j];
+        // col addressing for final FW - shifted access to preliminary FW
+        shiftPos = minPos - minPosSV;
+        lower = -distWeightLength + 1;
 
-                if (i + 1 >= distWeightLength)
+        if (shiftPos + lower < 0)
+            lower = -shiftPos;
+
+        if (lower + shiftPos > numCols - 1)
+            featContributions = FALSE;
+
+        upper = ncolFeatWeights + distWeightLength - 2;
+
+        if (upper + shiftPos > numCols - 1)
+            upper = numCols - shiftPos - 1;
+
+        if (upper + shiftPos < 0)
+            featContributions = FALSE;
+
+        if (lower > upper)
+            featContributions = FALSE;
+
+        if (featContributions)
+        {
+            // generate full weight matrix - walk through dgCMatrix columnwise
+            for (i = lower; i <= upper; i++)
+            {
+                if (i < ncolFeatWeights)
+                    lower1 = 0;
+                else
+                    lower1 = i - ncolFeatWeights + 1;
+
+                if (i - distWeightLength + 1 >= 0)
                     upper1 = distWeightLength;
                 else
                     upper1 = i + 1;
 
-                if (i + distWeightLength <= ncolFeatWeights)
+                if (i + 1 >= 0)
+                    lower2 = 1;
+                else
+                    lower2 = -i;
+
+                if (i + distWeightLength - 1 < ncolFeatWeights)
                     upper2 = distWeightLength;
                 else
                     upper2 = ncolFeatWeights - i;
 
-                for (l = 0; l < upper1; l++)
-                    featureWeights(rowIndex, i - l) += sumAlphas * distWeight[l];
+                for (j = slot_p[i + shiftPos]; j < slot_p[i + 1 + shiftPos]; j++)
+                {
+                    // copy weight vector forward and reverse around position
+                    // clipped to relevant index range
+                    rowIndex = slot_i[j];
+                    sumAlphas = slot_x[j];
 
-                for (l = 1; l < upper2; l++)
-                    featureWeights(rowIndex, i + l) += sumAlphas * distWeight[l];
+                    for (l = lower1; l < upper1; l++)
+                        featureWeights(rowIndex, i - l) += sumAlphas * distWeight[l];
+                    
+                    for (l = lower2; l < upper2; l++)
+                        featureWeights(rowIndex, i + l) += sumAlphas * distWeight[l];
+                }
             }
         }
+    }
+
+    if (!featContributions)
+    {
+        vmaxset(vmax);
+
+        if (!getPredProfile)
+        {
+            for (i = 0; i < sizeX; i++)
+                pred[i] = b;
+
+            return(pred);
+        }
+        else
+            // return zero pred profs
+            return(pprof);
     }
 
     // generate unweighted positions for motif kernel for prediction profile
@@ -337,8 +401,8 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
         genFeatureVectorsPosDep(x, 1, sel, offsetX, dummy, dummy, maxSeqLength, kernelType, k, m, &pMotifTree,
                                 &freeNode, motifs, pMotifLengths, maxMotifLength, maxPatternLength, nodeLimit,
                                 &alphaInf, dimFeatureSpace, presence, normalized, unmapped, reverseComplement,
-                                posSpecific, KBS_SORT_BY_POSITION, numPositions, &startIndex, &featVectorIndex,
-                                &featVectorValue, &kernelValue, &indexSize);
+                                posSpecific, distWeight, KBS_SORT_BY_POSITION, numPositions, &startIndex,
+                                &featVectorIndex, &featVectorValue, &kernelValue, &indexSize);
 
         if (normalized)
             normFactor = 1.0 / sqrt(kernelValue[0]);
@@ -490,7 +554,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
 
                                 if (kernelType == GAPPY_PAIR)
                                 {
-                                    part = normFactor * slot_x[kh_value(hmap64, iter)] / 2 * k;
+                                    part = normFactor * slot_x[kh_value(hmap64, iter)] / (2 * k);
                                     numDots = key % (m + 1);
 
                                     for (l = position; l < position + k; l++)
@@ -539,7 +603,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
 
                                 if (kernelType == GAPPY_PAIR)
                                 {
-                                    part = normFactor * slot_x[kh_value(hmap32, iter)] / 2 * k;
+                                    part = normFactor * slot_x[kh_value(hmap32, iter)] / (2 * k);
                                     numDots = key % (m + 1);
 
                                     for (l = position; l < position + k; l++)
@@ -674,7 +738,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                             {
                                 if (kernelType == GAPPY_PAIR)
                                 {
-                                    part = normFactor * weight / 2 * k;
+                                    part = normFactor * weight / (2 * k);
                                     numDots = featureIndex % (m + 1);
 
                                     for (l = position; l < position + k; l++)

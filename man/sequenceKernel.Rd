@@ -34,114 +34,99 @@ getKernelMatrix(kernel, x, y, selx, sely)
 \S4method{isUserDefined}{SequenceKernel}(object)
 }
 \arguments{
-  \item{from}{a sequence kernel object}
+\item{from}{a sequence kernel object}
 
-  \item{kernel}{one kernel object of class
-  \code{\linkS4class{SequenceKernel}} or one kernlab string
-  kernel (see \code{\link[kernlab:stringdot]{stringdot}}}
+\item{kernel}{one kernel object of class \code{\linkS4class{SequenceKernel}}
+or one kernlab string kernel (see \code{\link[kernlab:stringdot]{stringdot}}}
 
-  \item{x}{one or multiple biological sequences in the form
-  of a \code{\linkS4class{DNAStringSet}},
-  \code{\linkS4class{RNAStringSet}},
-  \code{\linkS4class{AAStringSet}} (or as
-  \code{\linkS4class{BioVector}})}
+\item{x}{one or multiple biological sequences in the form of a
+\code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+\code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}})}
 
-  \item{y}{one or multiple biological sequences in the form
-  of a \code{\linkS4class{DNAStringSet}},
-  \code{\linkS4class{RNAStringSet}},
-  \code{\linkS4class{AAStringSet}} (or as
-  \code{\linkS4class{BioVector}}); if this parameter is
-  specified a rectangular kernel matrix with the samples in
-  \code{x} as rows and the samples in \code{y} as columns
-  is generated otherwise a square kernel matrix with
-  samples in \code{x} as rows and columns is computed;
-  default=\code{NULL}}
+\item{y}{one or multiple biological sequences in the form of a
+\code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+\code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}});
+if this parameter is specified a rectangular kernel matrix with the
+samples in \code{x} as rows and the samples in \code{y} as columns is
+generated otherwise a square kernel matrix with samples in \code{x} as
+rows and columns is computed; default=\code{NULL}}
 
-  \item{selx}{subset of indices into \code{x}; when this
-  parameter is present the kernel matrix is generated for
-  the specified subset of \code{x} only;
-  default=\code{NULL}}
+\item{selx}{subset of indices into \code{x}; when this parameter is present
+the kernel matrix is generated for the specified subset of \code{x} only;
+default=\code{NULL}}
 
-  \item{sely}{subset of indices into \code{y}; when this
-  parameter is present the kernel matrix is generated for
-  the specified subset of \code{y} only;
-  default=\code{NULL}}
+\item{sely}{subset of indices into \code{y}; when this parameter is present
+the kernel matrix is generated for the specified subset of \code{y} only;
+default=\code{NULL}}
 
-  \item{object}{a sequence kernel object}
+\item{object}{a sequence kernel object}
 }
 \value{
-getKernelMatrix: upon successful completion, the function
-returns a kernel matrix of class
-\code{\linkS4class{KernelMatrix}} which contains similarity
+getKernelMatrix: upon successful completion, the function returns a kernel
+matrix of class \code{\linkS4class{KernelMatrix}} which contains similarity
 values between pairs of the biological sequences.
 
 kernelParameters: the kernel parameters as list
 
-isUserDefined: boolean indicating whether kernel is
-user-defined or not
+isUserDefined: boolean indicating whether kernel is user-defined or not
 }
 \description{
-Create the kernel matrix for a kernel object\cr\cr Retrieve
-kernel parameters from the kernel object
+Create the kernel matrix for a kernel object\cr\cr
+Retrieve kernel parameters from the kernel object
 }
 \details{
-Sequence Kernel\cr\cr A sequence kernel is used for
-determination of similarity values between biological
-sequences based on patterns occuring in the sequences. The
-kernels in this package were specifically written for the
-biological domain. The corresponding term in the kernlab
-package is string kernel which is a domain independent
-implementation of the same functionality which often used
-in other domains, for example in text classification. For
-the sequence kernels in this package DNA-, RNA- or AA-acid
-sequences are used as input with a reduced character set
-compared to regular text.\cr\cr In string kernels the
-actual position of a pattern in the sequence/text is
-irrelevant just the number of occurances of the pattern is
-important for the similarity consideration. The kernels
-provided in this package can be created in a
-position-independent or position-dependent way. Position
-dependent kernels are using the postion of patterns on the
-pair of sequences to determine the contribution of a
-pattern match to the similarity value. For details see help
-page for \code{\link{positionMetadata}}. As second method
-of specializing similarity consideration in a kernel is to
-use annotation information which is placed along the
-sequences. For details see
-\code{\link{annotationMetadata}}. Following kernels are
-available: \itemize{ \item{spectrum kernel} \item{mismatch
-kernel} \item{gappy pair kernel} \item{motif kernel} }
-These kernels are provided in a position-independent
-variant. For all kernels except the mismatch also the
-position-dependent and the annotation-specific variants of
-the kernel are supported. In addition the spectrum and
-gappy pair kernel can be created as mixture kernels with
-the weighted degree kernel and shifted weighted degree
-kernel being two specific examples of such mixture kernels.
-The functions described below apply for any kind of kernel
-in this package. Retrieving kernel paramters from the
-kernel object\cr\cr The function 'kernelParameters'
-retrieves the kernel parameters and returns them as list.
-The function 'seqKernelAsChar' converts a sequnce kernel
-object into a character string.\cr\cr Generation of kernel
-matrix\cr\cr The function \code{getKernelMatrix} creates a
-kernel matrix for the specified kernel and one or two given
-sets of sequences. It contains similarity values between
-pairs of samples. If one set of sequences is used the
-square kernel matrix contains pairwise similarity values
-for this set. For two sets of sequences the similarities
-are calculated between these sets resulting in a
-rectangular kernel matrix. The kernel matrix is always
-created as dense matrix of the class
-\code{\linkS4class{KernelMatrix}}. Alternatively the kernel
-matrix can also be generated via a direct function call
-with the kernel object. (see examples below)\cr\cr
-Generation of explicit representation\cr\cr With the
-function \code{\link{getExRep}} an explicit representation
-for a specified kernel and a given set of sequences can be
-generated in sparse or dense form. Applying the linear
-kernel to the explicit representation with the function
-\code{\link{linearKernel}} also generates a dense kernel
+Sequence Kernel\cr\cr
+A sequence kernel is used for determination of similarity values between
+biological sequences based on patterns occuring in the sequences. The
+kernels in this package were specifically written for the biological domain.
+The corresponding term in the kernlab package is string kernel which is a
+domain independent implementation of the same functionality which often
+used in other domains, for example in text classification. For the
+sequence kernels in this package DNA-, RNA- or AA-acid sequences are used
+as input with a reduced character set compared to regular text.\cr\cr
+In string kernels the actual position of a pattern in the sequence/text is
+irrelevant just the number of occurances of the pattern is important for
+the similarity consideration. The kernels provided in this package can be
+created in a position-independent or position-dependent way. Position
+dependent kernels are using the postion of patterns on the pair of sequences
+to determine the contribution of a pattern match to the similarity value.
+For details see help page for \code{\link{positionMetadata}}. As second
+method of specializing similarity consideration in a kernel is to use
+annotation information which is placed along the sequences. For details see
+\code{\link{annotationMetadata}}.
+Following kernels are available:
+\itemize{
+\item{spectrum kernel}
+\item{mismatch kernel}
+\item{gappy pair kernel}
+\item{motif kernel}
+}
+These kernels are provided in a position-independent variant. For all
+kernels except the mismatch also the position-dependent and the
+annotation-specific variants of the kernel are supported. In addition
+the spectrum and gappy pair kernel can be created as mixture kernels with
+the weighted degree kernel and shifted weighted degree kernel being two
+specific examples of such mixture kernels. The functions described below
+apply for any kind of kernel in this package.
+Retrieving kernel paramters from the kernel object\cr\cr
+The function 'kernelParameters' retrieves the kernel parameters and returns
+them as list. The function 'seqKernelAsChar' converts a sequnce kernel
+object into a character string.\cr\cr
+Generation of kernel matrix\cr\cr
+The function \code{getKernelMatrix} creates a kernel matrix for the
+specified kernel and one or two given sets of sequences. It contains
+similarity values between pairs of samples. If one set of sequences is used
+the square kernel matrix contains pairwise similarity values for this set.
+For two sets of sequences the similarities are calculated between these sets
+resulting in a rectangular kernel matrix. The kernel matrix is always
+created as dense matrix of the class \code{\linkS4class{KernelMatrix}}.
+Alternatively the kernel matrix can also be generated via a direct function
+call with the kernel object. (see examples below)\cr\cr
+Generation of explicit representation\cr\cr
+With the function \code{\link{getExRep}} an explicit representation for
+a specified kernel and a given set of sequences can be generated in sparse
+or dense form. Applying the linear kernel to the explicit representation
+with the function \code{\link{linearKernel}} also generates a dense kernel
 matrix.
 }
 \examples{
@@ -184,15 +169,14 @@ km[1:5,1:5]
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
-\code{\link{as.KernelMatrix}},
-\code{\linkS4class{KernelMatrix}},
+\code{\link{as.KernelMatrix}}, \code{\linkS4class{KernelMatrix}},
 \code{\link{spectrumKernel}}, \code{\link{mismatchKernel}},
 \code{\link{gappyPairKernel}}, \code{\link{motifKernel}}
 }

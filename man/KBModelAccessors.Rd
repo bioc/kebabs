@@ -39,40 +39,52 @@
 getSVMSlotValue(paramName, model, raw = FALSE)
 }
 \arguments{
-  \item{object}{a KeBABS model}
+\item{object}{a KeBABS model}
 
-  \item{paramName}{unified name of an SVM model data
-  element}
+\item{paramName}{unified name of an SVM model data element}
 
-  \item{model}{a KeBABS model}
+\item{model}{a KeBABS model}
 
-  \item{raw}{when set to \code{TRUE} the parameter value is
-  delivered in exactly the way as it is stored in the SVM
-  specific model, when set to \code{FALSE} it is delivered
-  in unified format}
+\item{raw}{when set to \code{TRUE} the parameter value is delivered in
+exactly the way as it is stored in the SVM specific model, when
+set to \code{FALSE} it is delivered in unified format}
 }
 \value{
-\code{getSVMSlotValue}: value of requested parameter in
-unified or native format dependent on parameter \code{raw}.
+\code{getSVMSlotValue}:
+value of requested parameter in unified or native format dependent on
+parameter \code{raw}.
 }
 \description{
 KBModel Accessors
 }
 \section{Accessor-like methods}{
-  \describe{ \item{}{\code{modelOffset}: returns the model
-  offset.  } \item{}{\code{featureWeights}: returns the
-  feature weights.  } \item{}{\code{SVindex}: returns the
-  support vector indices for the training samples.  }
-  \item{}{\code{cvResult}: returns result of cross
-  validation as object of class
-  \code{\linkS4class{CrossValidationResult}}.  }
-  \item{}{\code{modelSelResult}: returns result of model
-  selection as object of class
-  \code{\linkS4class{ModelSelectionResult}}.  }
-  \item{}{\code{svmModel}: returns the native svm model
-  stored within KeBABS model.  }
-  \item{}{\code{probabilityModel}: returns the probability
-  model stored within KeBABS model.  } }
+
+
+\describe{
+  \item{}{\code{modelOffset}:
+  returns the model offset.
+  }
+  \item{}{\code{featureWeights}:
+  returns the feature weights.
+  }
+  \item{}{\code{SVindex}:
+  returns the support vector indices for the training samples.
+  }
+  \item{}{\code{cvResult}:
+  returns result of cross validation as object of class
+  \code{\linkS4class{CrossValidationResult}}.
+  }
+  \item{}{\code{modelSelResult}:
+  returns result of model selection as object of class
+  \code{\linkS4class{ModelSelectionResult}}.
+  }
+  \item{}{\code{svmModel}:
+  returns the native svm model stored within KeBABS model.
+  }
+  \item{}{\code{probabilityModel}:
+  returns the probability model stored within KeBABS model.
+  }
+}
 }
 \examples{
 ## create kernel object for normalized spectrum kernel
@@ -98,10 +110,10 @@ modelOffset(model)
 Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr J.
-Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R
-package for kernel-based analysis of biological sequences.
-\emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+\url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 

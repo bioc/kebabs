@@ -124,8 +124,8 @@ bool getPDFeatureWeights(SEXP *pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(pd
 
 // function returns numeric matrix
 RcppExport SEXP getFeatureWeightsPosDepC(SEXP svR, SEXP selSVR, SEXP offsetSVR, SEXP isXStringSetR, SEXP maxSeqLengthR,
-                                         SEXP svmIndexR, SEXP weightLimitR, SEXP kernelTypeR, SEXP kR, SEXP mR,
-                                         SEXP bioCharsetR, SEXP motifsR, SEXP motifLengthsR, SEXP maxMotifLengthR,
+                                         SEXP svmIndexR, SEXP distWeightR, SEXP weightLimitR, SEXP kernelTypeR, SEXP kR,
+                                         SEXP mR, SEXP bioCharsetR, SEXP motifsR, SEXP motifLengthsR, SEXP maxMotifLengthR,
                                          SEXP maxPatternLengthR, SEXP nodeLimitR, SEXP coefsR, SEXP reverseComplementR,
                                          SEXP posSpecR, SEXP minPosR, SEXP maxPosR, SEXP normalizedR, SEXP lowercaseR,
                                          SEXP unmappedR)
@@ -159,6 +159,7 @@ RcppExport SEXP getFeatureWeightsPosDepC(SEXP svR, SEXP selSVR, SEXP offsetSVR, 
     IntegerVector selSV(selSVR);
     IntegerVector offsetSV(offsetSVR);
     NumericVector coefs(coefsR);
+    NumericVector distWeight(distWeightR);
 
     sizeSV = selSV.size();
     motifs.length = 0;
@@ -195,9 +196,9 @@ RcppExport SEXP getFeatureWeightsPosDepC(SEXP svR, SEXP selSVR, SEXP offsetSVR, 
         case SPECTRUM:
         {
             getFeaturesOfSVSpectrum(&pPDFeatWeights, pdfwmap, pdfimap, sv, sizeSV, selSV, offsetSV,
-                                    maxSeqLength, coefs, reverseComplement, posSpecific, weightLimit,
-                                    k, minPos, maxPos, dimFeatureSpace, &alphaInf, normalized,
-                                    indexSize, &numKeys, &keys);
+                                    maxSeqLength, coefs, reverseComplement, posSpecific, distWeight,
+                                    weightLimit, k, minPos, maxPos, dimFeatureSpace, &alphaInf,
+                                    normalized, indexSize, &numKeys, &keys);
             break;
         }
 
@@ -213,9 +214,9 @@ RcppExport SEXP getFeatureWeightsPosDepC(SEXP svR, SEXP selSVR, SEXP offsetSVR, 
         case GAPPY_PAIR:
         {
             getFeaturesOfSVGappyPair(&pPDFeatWeights, pdfwmap, pdfimap, sv, sizeSV, selSV, offsetSV,
-                                     maxSeqLength, coefs, reverseComplement, posSpecific, weightLimit,
-                                     k, m, minPos, maxPos, dimFeatureSpace, &alphaInf, normalized,
-                                     indexSize, &numKeys, &keys);
+                                     maxSeqLength, coefs, reverseComplement, posSpecific, distWeight,
+                                     weightLimit, k, m, minPos, maxPos, dimFeatureSpace, &alphaInf,
+                                     normalized, indexSize, &numKeys, &keys);
             break;
         }
 
@@ -228,9 +229,10 @@ RcppExport SEXP getFeatureWeightsPosDepC(SEXP svR, SEXP selSVR, SEXP offsetSVR, 
             int nodeLimit = as<int>(nodeLimitR);
 
             getFeaturesOfSVMotif(&pPDFeatWeights, pdfwmap, pdfimap, sv, sizeSV, selSV, offsetSV,
-                                 maxSeqLength, coefs, posSpecific, weightLimit, motifs, motifLengths,
-                                 maxMotifLength, maxPatternLength, nodeLimit, minPos, maxPos,
-                                 dimFeatureSpace, &alphaInf, normalized, indexSize, &numKeys, &keys);
+                                 maxSeqLength, coefs, posSpecific, distWeight, weightLimit, motifs,
+                                 motifLengths, maxMotifLength, maxPatternLength, nodeLimit, minPos,
+                                 maxPos, dimFeatureSpace, &alphaInf, normalized, indexSize, &numKeys,
+                                 &keys);
             break;
         }
     }

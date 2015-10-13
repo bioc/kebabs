@@ -277,10 +277,19 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
 
     vmaxset(vmax);
 
-    // shrink to actual size
-    iptr = (int *) Realloc(iptr, nextFree, int);
-    xptr = (double *) Realloc(xptr, nextFree, double);
-    
+    if (nextFree == 0)  // realloc with 0 bytes does not work on Ubuntu
+    {
+        // shrink to one element
+        iptr = (int *) Realloc(iptr, 1, int);
+        xptr = (double *) Realloc(xptr, 1, double);
+    }
+    else
+    {
+        // shrink to actual size
+        iptr = (int *) Realloc(iptr, nextFree, int);
+        xptr = (double *) Realloc(xptr, nextFree, double);
+    }
+
     // allocate sparse km as dgCMatrix
     numProtect = 0;
     spm = PROTECT(NEW_OBJECT(MAKE_CLASS("dgCMatrix")));

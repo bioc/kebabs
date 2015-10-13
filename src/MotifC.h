@@ -39,17 +39,18 @@ uint64_t * featureNamesToIndexMotif(SEXP featureNames, int numFeatures, void **p
 
 void getFeaturesOfSVMotif(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap, ByteStringVector x,
                           int sizeX, Rcpp::IntegerVector selX, Rcpp::IntegerVector offsetX, int maxSeqLength,
-                          Rcpp::NumericVector coefs, bool posSpecific, double weightLimit, ByteStringVector motifs,
-                          Rcpp::IntegerVector motifLengths, int maxMotifLength, int maxPatternLength, int nodeLimit,
-                          int minPos, int maxPos, uint64_t dimFeatureSpace, struct alphaInfo *alphaInf, bool normalized,
-                          int featIndexSize, uint64_t *numKeys, void **keys);
+                          Rcpp::NumericVector coefs, bool posSpecific, Rcpp::NumericVector distWeight,
+                          double weightLimit, ByteStringVector motifs, Rcpp::IntegerVector motifLengths,
+                          int maxMotifLength, int maxPatternLength, int nodeLimit, int minPos, int maxPos,
+                          uint64_t dimFeatureSpace, struct alphaInfo *alphaInf, bool normalized, int featIndexSize,
+                          uint64_t *numKeys, void **keys);
 
 void genFeatVectorsMotif(ByteStringVector x, int sizeX, Rcpp::IntegerVector selX, Rcpp::IntegerVector offsetX,
                          int maxSeqLength, void **pMotifTree, int *freeNode, ByteStringVector motifs,
                          Rcpp::IntegerVector motifLengths, int maxMotifLength, int maxPatternLength,
                          int nodeLimit, struct alphaInfo *alphaInf, bool presence, bool normalized,
-                         bool posSpecific, int sortType, uint64_t **startIndex, uint32_t **featVectorIndex,
-                         int32_t **featVectorValue, uint32_t **kernelValue);
+                         bool posSpecific, Rcpp::NumericVector distWeight, int sortType, uint64_t **startIndex,
+                         uint32_t **featVectorIndex, int32_t **featVectorValue, double **kernelValue);
 
 RcppExport void findUnweightedPositions(ByteStringVector motifs, Rcpp::IntegerVector *unweightedPosStart,
                                         uint32_t **unweightedPos);

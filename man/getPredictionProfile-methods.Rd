@@ -18,70 +18,59 @@
   svmIndex = 1, sel = NULL, weightLimit = .Machine$double.eps)
 }
 \arguments{
-  \item{object}{a single biological sequence in the form of
-  an \code{\linkS4class{DNAString}},
-  \code{\linkS4class{RNAString}} or
-  \code{\linkS4class{AAString}} or multiple biological
-  sequences as \code{\linkS4class{DNAStringSet}},
-  \code{\linkS4class{RNAStringSet}},
-  \code{\linkS4class{AAStringSet}} (or as
-  \code{\linkS4class{BioVector}}).}
+\item{object}{a single biological sequence in the form of an
+\code{\linkS4class{DNAString}}, \code{\linkS4class{RNAString}} or
+\code{\linkS4class{AAString}} or multiple biological sequences as
+\code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+\code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}}).}
 
-  \item{kernel}{a sequence kernel object of class
-  \code{\linkS4class{SequenceKernel}}.}
+\item{kernel}{a sequence kernel object of class
+\code{\linkS4class{SequenceKernel}}.}
 
-  \item{featureWeights}{a feature weights matrix retrieved
-  from a KeBABS model with the accessor
-  \code{\link{featureWeights}}.}
+\item{featureWeights}{a feature weights matrix retrieved from a KeBABS model
+with the accessor \code{\link{featureWeights}}.}
 
-  \item{b}{model intercept from a KeBABS model.}
+\item{b}{model intercept from a KeBABS model.}
 
-  \item{svmIndex}{integer value selecting one of the
-  pairwise SVMs in case of pairwise multiclass
-  classification. Default=1}
+\item{svmIndex}{integer value selecting one of the pairwise SVMs in case of
+pairwise multiclass classification. Default=1}
 
-  \item{sel}{subset of indices into \code{x} as integer
-  vector. When this parameter is present the prediction
-  profiles are computed for the specified subset of samples
-  only. Default=\code{integer(0)}}
+\item{sel}{subset of indices into \code{x} as integer vector. When this
+parameter is present the prediction profiles are computed for the specified
+subset of samples only. Default=\code{integer(0)}}
 
-  \item{weightLimit}{the feature weight limit is a single
-  numeric value and allows pruning of feature weights. All
-  feature weights with an absolute value below this limit
-  are set to 0 and are not considered for the prediction
-  profile computation. This parameter is only relevant when
-  featureWeights are calculated in KeBABS during training.
-  Default=.Machine$double.eps}
+\item{weightLimit}{the feature weight limit is a single numeric value and
+allows pruning of feature weights. All feature weights with an absolute
+value below this limit are set to 0 and are not considered for the
+prediction profile computation. This parameter is only relevant when
+featureWeights are calculated in KeBABS during training.
+Default=.Machine$double.eps}
 }
 \value{
-getPredictionProfile: upon successful completion, the
-function returns a set of prediction profiles for the
-sequences as class \code{\linkS4class{PredictionProfile}}.
+getPredictionProfile: upon successful completion, the function returns a set
+of prediction profiles for the sequences as class
+\code{\linkS4class{PredictionProfile}}.
 }
 \description{
 compute prediction profiles for a given set of biological
 sequences from a model trained with /code{kbsvm}
 }
 \details{
-With this method prediction profiles can be generated
-explicitely for a given set of sequences with a given model
-represented through its feature weights and the model
-intercept b. A single prediction profile shows for each
-position of the sequence the contribution of the patterns
-at this position to the decision value. The prediciion
-profile also includes the kernel object used for the
-generation of the profile and the seqence data.\cr\cr A
-single profile or a pair can be plotted with method
-\code{\link{plot}} showing the relevance of sequence
-positions for the prediction. Please consider that patterns
-occuring at neighboring sequence positions are not
-statistically independent which means that the relevance of
-a specific position is not only determined by the patterns
-at this position but is also influenced by the neighborhood
-around this position. Prediction profiles can also be
-generated implicitely during predction for the predicted
-samples (see parameter \code{predProfiles} in
-\code{\link{predict}}).\cr\cr
+With this method prediction profiles can be generated explicitely for a
+given set of sequences with a given model represented through its feature
+weights and the model intercept b. A single prediction profile shows for
+each position of the sequence the contribution of the patterns at this
+position to the decision value. The prediciion profile also includes the
+kernel object used for the generation of the profile and the seqence
+data.\cr\cr
+A single profile or a pair can be plotted with method \code{\link{plot}}
+showing the relevance of sequence positions for the prediction. Please
+consider that patterns occuring at neighboring sequence positions are not
+statistically independent which means that the relevance of a specific
+position is not only determined by the patterns at this position but is also
+influenced by the neighborhood around this position. Prediction profiles can
+also be generated implicitely during predction for the predicted samples
+(see parameter \code{predProfiles} in \code{\link{predict}}).\cr\cr
 }
 \examples{
 ## set random generator seed to make the results of this example
@@ -130,22 +119,21 @@ Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
 \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
-(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U.
-Bodenhofer, R. Volkmer, and S. Hochreiter. Complex networks
-govern coiled coil oligomerization - predicting and
-profiling by means of a machine learning approach.\cr\cr
-(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, S.
-Ionescu, and S. Hochreiter. Modeling Position Specificity
-in Sequence Kernels by Fuzzy Equivalence Relations. \cr\cr
-J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS:
-an R package for kernel-based analysis of biological
-sequences. \emph{Bioinformatics} (accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer,
+R. Volkmer, and S. Hochreiter. Complex networks govern coiled coil
+oligomerization - predicting and profiling by means of a machine learning
+approach.\cr\cr
+(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, S. Ionescu, and
+S. Hochreiter. Modeling Position Specificity in Sequence Kernels by
+Fuzzy Equivalence Relations. \cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
-\code{\linkS4class{PredictionProfile}},
-\code{\link{predict}}, \code{\link{plot}},
-\code{\link{featureWeights}{KBModel}}
+\code{\linkS4class{PredictionProfile}}, \code{\link{predict}},
+\code{\link{plot}}, \code{\link{featureWeights}{KBModel}}
 }
 \keyword{feature}
 \keyword{methods}

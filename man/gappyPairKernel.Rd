@@ -14,142 +14,119 @@ gappyPairKernel(k = 1, m = 1, r = 1, annSpec = FALSE,
 \S4method{getFeatureSpaceDimension}{GappyPairKernel}(kernel, x)
 }
 \arguments{
-  \item{k}{length of the substrings (also called kmers)
-  which are considered in pairs by this kernel. This
-  parameter together with parameter m (see below) defines
-  the size of the feature space, i.e. the total number of
-  features considered in this kernel is (|A|^(2*k))*(m+1),
-  with |A| as the size of the alphabet (4 for DNA and RNA
-  sequences and 21 for amino acid sequences). Sequences
-  with a total number of characters shorter than 2 * k + m
-  will be accepted but not all possible patterns of the
-  feature space can be taken into account. When multiple
-  kernels with different k and/or m values should be
-  generated, e.g. for model selection an integer vector can
-  be specified instead of a single numeric values. In this
-  case a list of kernel objects with the individual values
-  from the integer vector of parameter k is generated as
-  result. The processing effort for this kernel is highly
-  dependent on the value of k because of the additional
-  factor 2 in the exponent for the feature space size) and
-  only small values of k will allow efficient processing.
-  Default=1}
+\item{k}{length of the substrings (also called kmers) which are considered
+in pairs by this kernel. This parameter together with parameter m (see below)
+defines the size of the feature space, i.e. the total number of features
+considered in this kernel is (|A|^(2*k))*(m+1), with |A| as the size
+of the alphabet (4 for DNA and RNA sequences and 21 for amino acid
+sequences). Sequences with a total number of characters shorter than
+2 * k + m will be accepted but not all possible patterns of the feature space
+can be taken into account. When multiple kernels with different k and/or m
+values should be generated, e.g. for model selection an integer vector can be
+specified instead of a single numeric values. In this case a list of kernel
+objects  with the individual values from the integer vector of parameter k is
+generated as result. The processing effort for this kernel is highly
+dependent on the value of k because of the additional factor 2 in the
+exponent for the feature space size) and only small values of k will allow
+efficient processing. Default=1}
 
-  \item{m}{maximal number of irrelevant positions between a
-  pair of kmers. The value of m must be an integer value
-  larger than 0. For example a value of m=2 means that
-  zero, one or two irrelevant positions between kmer pairs
-  are considered as valid features. (A value of 0
-  corresponds to the spectrum kernel with a kmer length of
-  2*k and is not allowed for the gappy pair kernel). When
-  an integer vector is specified a list of kernels is
-  generated as described above for parameter k. If multiple
-  values are specified both for parameter k and parameter m
-  one kernel object is created for each of the combinations
-  of k and m. Default=1}
+\item{m}{maximal number of irrelevant positions between a pair of kmers. The
+value of m must be an integer value larger than 0. For example a value of m=2
+means that zero, one or two irrelevant positions between kmer pairs are
+considered as valid features. (A value of 0 corresponds to the spectrum
+kernel with a kmer length of 2*k and is not allowed for the gappy pair
+kernel). When an integer vector is specified a list of kernels is generated
+as described above for parameter k. If multiple values are specified both
+for parameter k and parameter m one kernel object is created for each of the
+combinations of k and m. Default=1}
 
-  \item{r}{exponent which must be > 0 (see details section
-  in \link{spectrumKernel}). Default=1}
+\item{r}{exponent which must be > 0 (see details section  in
+\link{spectrumKernel}). Default=1}
 
-  \item{annSpec}{boolean that indicates whether sequence
-  annotation should be taken into account (details see on
-  help page for \code{\link{annotationMetadata}}).
-  Annotation information is only evaluated for the kmer
-  positions of the kmer pair but not for the irrelevant
-  positions in between. For the annotation specific gappy
-  pair kernel the total number of features increases to
-  (|A|^(2*k))*(|a|^(2*k)*(m+1) with |A| as the size of the
-  sequence alphabet and |a| as the size of the annotation
-  alphabet. Default=FALSE}
+\item{annSpec}{boolean that indicates whether sequence annotation should
+be taken into account (details see on help page for
+\code{\link{annotationMetadata}}). Annotation information is only
+evaluated for the kmer positions of the kmer pair but not for the irrelevant
+positions in between. For the annotation specific gappy pair kernel the
+total number of features increases to (|A|^(2*k))*(|a|^(2*k)*(m+1) with
+|A| as the size of the sequence alphabet and |a| as the size of the
+annotation alphabet. Default=FALSE}
 
-  \item{distWeight}{a numeric distance weight vector or a
-  distance weighting function (details see on help page for
-  \code{\link{gaussWeight}}). Default=NULL}
+\item{distWeight}{a numeric distance weight vector or a distance weighting
+function (details see on help page for \code{\link{gaussWeight}}).
+Default=NULL}
 
-  \item{normalized}{generated data from this kernel will be
-  normalized (details see below). Default=TRUE}
+\item{normalized}{generated data from this kernel will be normalized
+(details see below). Default=TRUE}
 
-  \item{exact}{use exact character set for the evaluation
-  (details see below). Default=TRUE}
+\item{exact}{use exact character set for the evaluation (details see below).
+Default=TRUE}
 
-  \item{ignoreLower}{ignore lower case characters in the
-  sequence. If the parameter is not set lower case
-  characters are treated like uppercase. Default=TRUE}
+\item{ignoreLower}{ignore lower case characters in the sequence. If the
+parameter is not set lower case characters are treated like uppercase.
+Default=TRUE}
 
-  \item{presence}{if this parameter is set only the
-  presence of a kmers will be considered, otherwise the
-  number of occurances of the kmer is used. Default=FALSE}
+\item{presence}{if this parameter is set only the presence of a kmers will
+be considered, otherwise the number of occurances of the kmer is used.
+Default=FALSE}
 
-  \item{revComplement}{if this parameter is set a kmer pair
-  and its reverse complement are treated as the same
-  feature. Default=FALSE}
+\item{revComplement}{if this parameter is set a kmer pair and its reverse
+complement are treated as the same feature. Default=FALSE}
 
-  \item{mixCoef}{mixing coefficients for the mixture
-  variant of the gappy pair kernel. A numeric vector of
-  length k is expected for this parameter with the unused
-  components in the mixture set to 0. Default=numeric(0)}
+\item{mixCoef}{mixing coefficients for the mixture variant of the gappy
+pair kernel. A numeric vector of length k is expected for this parameter
+with the unused components in the mixture set to 0. Default=numeric(0)}
 
-  \item{kernel}{a sequence kernel object}
+\item{kernel}{a sequence kernel object}
 
-  \item{x}{one or multiple biological sequences in the form
-  of a \code{\linkS4class{DNAStringSet}},
-  \code{\linkS4class{RNAStringSet}},
-  \code{\linkS4class{AAStringSet}} (or as
-  \code{\linkS4class{BioVector}})}
+\item{x}{one or multiple biological sequences in the form of a
+\code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+\code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}})}
 }
 \value{
-gappyPairKernel: upon successful completion, the function
-returns a kernel object of class
-\code{\linkS4class{GappyPairKernel}}.
+gappyPairKernel: upon successful completion, the function returns a kernel
+object of class \code{\linkS4class{GappyPairKernel}}.
 
-of getDimFeatureSpace: dimension of the feature space as
-numeric value
+of getDimFeatureSpace:
+dimension of the feature space as numeric value
 }
 \description{
 Create a gappy pair kernel object and the kernel matrix
 }
 \details{
-Creation of kernel object\cr\cr The function
-'gappyPairKernel' creates a kernel object for the gappy
-pair kernel. This kernel object can then be used with a set
-of DNA-, RNA- or AA-sequences to generate a kernel matrix
-or an explicit representation for this kernel. The gappy
-pair kernel uses pairs of neighboring subsequences of
-length k (kmers) with up to m irrelevant positions between
-the kmers. For sequences shorter than 2*k the self
-similarity (i.e. the value on the main diagonal in the
-square kernel matrix) is 0. The explicit representation
-contains only zeros for such a sample. Dependent on the
-learning task it might make sense to remove such sequences
-from the data set as they do not contribute to the model
-but still influence performance values.\cr\cr For values
-different from 1 (=default value) parameter \code{r} leads
-to a transfomation of similarities by taking each element
-of the similarity matrix to the power of r. If
-\code{normalized=TRUE}, the feature vectors are scaled to
-the unit sphere before computing the similarity value for
-the kernel matrix. For two samples with the feature vectors
-\code{x} and \code{y} the similarity is computed as:
-\deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T
-y)/(|x| |y|)} For an explicit representation generated with
-the feature map of a normalized kernel the rows are
-normalized by dividing them through their Euclidean norm.
-For parameter \code{exact=TRUE} the sequence characters are
-interpreted according to an exact character set. If the
-flag is not set ambigous characters from the IUPAC
-characterset are also evaluated.
+Creation of kernel object\cr\cr
+The function 'gappyPairKernel' creates a kernel object for the gappy pair
+kernel. This kernel object can then be used with a set of DNA-, RNA- or
+AA-sequences to generate a kernel matrix or an explicit representation for
+this kernel. The gappy pair kernel uses pairs of neighboring subsequences
+of length k (kmers) with up to m irrelevant positions between the kmers. For
+sequences shorter than 2*k the self similarity (i.e. the value on the main
+diagonal in the square kernel matrix) is 0. The explicit representation
+contains only zeros for such a sample. Dependent on the learning task it
+might make sense to remove such sequences from the data set as they do not
+contribute to the model but still influence performance values.\cr\cr
+For values different from 1 (=default value) parameter \code{r}
+leads to a transfomation of similarities by taking each element of the
+similarity matrix to the power of r. If \code{normalized=TRUE}, the feature
+vectors are scaled to the unit sphere before computing the similarity value
+for the kernel matrix. For two samples with the feature vectors \code{x}
+and \code{y} the similarity is computed as:
+\deqn{s=\frac{\vec{x}^T\vec{y}}{\|\vec{x}\|\|\vec{y}\|}}{s=(x^T y)/(|x| |y|)}
+For an explicit representation generated with the feature map of a
+normalized kernel the rows are normalized by dividing them through their
+Euclidean norm. For parameter \code{exact=TRUE} the sequence characters
+are interpreted according to an exact character set. If the flag is not
+set ambigous characters from the IUPAC characterset are also evaluated.
 
 The annotation specific variant (for details see
-\link{annotationMetadata}) and the position dependent
-variants (for details see \link{positionMetadata}) either
-in the form of a position specific or a distance weighted
-kernel are supported for the gappy pair kernel. The
-generation of an explicit representation is not possible
+\link{annotationMetadata}) and the position dependent variants (for
+details see \link{positionMetadata}) either in the form of a position
+specific or a distance weighted kernel are supported for the gappy
+pair kernel. The generation of an explicit representation is not possible
 for the position dependent variants of this kernel.\cr\cr
-Creation of kernel matrix\cr\cr The kernel matrix is
-created with the function \code{\link{getKernelMatrix}} or
-via a direct call with the kernel object as shown in the
-examples below.
+Creation of kernel matrix\cr\cr
+The kernel matrix is created with the function \code{\link{getKernelMatrix}}
+or via a direct call with the kernel object as shown in the examples below.
 }
 \examples{
 ## instead of user provided sequences in XStringSet format
@@ -187,26 +164,23 @@ Johannes Palme <kebabs@bioinf.jku.at>
 }
 \references{
 \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
-(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U.
-Bodenhofer, R. Volkmer and S. Hochreiter. Complex networks
-govern coiled-coil oligomerizations - predicting and
-profiling by means of a machine learning approach.\cr
-(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M.
-Ionescu and S. Hochreiter. Modelling position specificity
-in sequence kernels by fuzzy equivalence relations. \cr\cr
-(Kuksa, 2008) -- P. Kuksa, P.-H. Huang and V. Pavlovic.
-Fast Protein Homology and Fold Detection with Sparse
-Spatial Sample Kernels\cr\cr J. Palme, S. Hochreiter, and
-U. Bodenhofer (2015) KeBABS: an R package for kernel-based
-analysis of biological sequences. \emph{Bioinformatics}
-(accepted). DOI:
-\href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer
+and S. Hochreiter. Complex networks govern coiled-coil oligomerizations -
+predicting and profiling by means of a machine learning approach.\cr
+(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M. Ionescu and
+S. Hochreiter. Modelling position specificity in sequence kernels by fuzzy
+equivalence relations. \cr\cr
+(Kuksa, 2008) -- P. Kuksa, P.-H. Huang and V. Pavlovic. Fast Protein Homology
+and Fold Detection with Sparse Spatial Sample Kernels\cr\cr
+J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+for kernel-based analysis of biological sequences.
+\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
 }
 \seealso{
 \code{\link{getKernelMatrix}}, \code{\link{getExRep}},
-\code{\link{kernelParameters-method}},
-\code{\link{spectrumKernel}}, \code{\link{mismatchKernel}},
-\code{\link{motifKernel}},
+\code{\link{kernelParameters-method}}, \code{\link{spectrumKernel}},
+\code{\link{mismatchKernel}}, \code{\link{motifKernel}},
 \code{\linkS4class{GappyPairKernel}}
 }
 \keyword{gappy}

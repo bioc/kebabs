@@ -7,23 +7,21 @@
 kebabsCollectInfo(onlyKebabsRelated = TRUE)
 }
 \arguments{
-  \item{onlyKebabsRelated}{if set to \code{TRUE} only the
-  packages related to KeBABS are shown, if set to
-  \code{FALSE} all attached packages and all packages
-  loaded via namespace are shown. Default=TRUE}
+\item{onlyKebabsRelated}{if set to \code{TRUE} only the packages related
+to KeBABS are shown, if set to \code{FALSE} all attached packages and
+all packages loaded via namespace are shown. Default=TRUE}
 }
 \value{
 see above
 }
 \description{
-Collects and prints general R and package version
-information. If you have a question related to some KeBABS
-functionality or observe some unexpected behavior please
-call this function and send its output together with your
-information to the contact address specified on the title
-page of the package vignette. The function by default only
-outputs the package version of those packages which are
-directly related to the KeBABS functionality.
+Collects and prints general R and package version information.
+If you have a question related to some KeBABS functionality or observe
+some unexpected behavior please call this function and send its output
+together with your information to the contact address specified on the
+title page of the package vignette. The function by default only outputs
+the package version of those packages which are directly related to the
+KeBABS functionality.
 }
 \examples{
 ## collect KeBABS related package information
