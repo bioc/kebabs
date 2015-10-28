@@ -36,7 +36,7 @@ using namespace Rcpp;
 
 uint64_t * featureNamesToIndex(SEXP featureNames, int numFeatures, ByteStringVector annCharset, IntegerVector annotationIndexMap,
                                int kernelType, int k, int m, void **motifTree, int *freeNode, ByteStringVector motifs,
-                               IntegerVector *motifLengths, int maxMotifLength, int maxPatternLength, int nodeLimit,
+                               IntegerVector motifLengths, int maxMotifLength, int maxPatternLength, int nodeLimit,
                                bool reverseComplement, struct alphaInfo *alphaInf)
 {
     switch (kernelType)
@@ -72,7 +72,7 @@ uint64_t * featureNamesToIndex(SEXP featureNames, int numFeatures, ByteStringVec
 void genFeatureVectorsPosDep(ByteStringVector x, int sizeX, IntegerVector selX, IntegerVector offsetX,
                              ByteStringVector annX, ByteStringVector annCharset, int maxSeqLength,
                              int kernelType, int k, int m, void **pMotifTree, int *freeNode,
-                             ByteStringVector motifs, IntegerVector *motifLengths, int maxMotifLength,
+                             ByteStringVector motifs, IntegerVector motifLengths, int maxMotifLength,
                              int maxPatternLength, int nodeLimit, struct alphaInfo *alphaInf,
                              uint64_t dimFeatureSpace, bool presence, bool normalized, bool unmapped,
                              bool reverseComplement, bool posSpecific, NumericVector distWeight,
@@ -102,7 +102,7 @@ void genFeatureVectorsPosDep(ByteStringVector x, int sizeX, IntegerVector selX, 
         case MOTIF:
 
             genFeatVectorsMotif(x, sizeX, selX, offsetX, maxSeqLength, pMotifTree, freeNode, motifs,
-                                *motifLengths, maxMotifLength, maxPatternLength, nodeLimit, alphaInf,
+                                motifLengths, maxMotifLength, maxPatternLength, nodeLimit, alphaInf,
                                 presence, normalized, posSpecific, distWeight, KBS_SORT_BY_POSITION,
                                 startIndex, (uint32_t **) featVectorIndex, featVectorValue, kernelValue);
             break;
@@ -139,7 +139,6 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
 
     ByteStringVector x;
     ByteStringVector motifs;
-    IntegerVector *pMotifLengths;
     ByteStringVector dummy;
     dummy.length = 0;
     distWeightLength = 0;
@@ -203,22 +202,10 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
     else
         x = XStringSet2ByteStringVec(xR);
 
-    if (kernelType == MOTIF)
-    {
-        IntegerVector motifLengths(motifLengthsR);
-        pMotifLengths = &motifLengths;
-        maxMotifLength = as<int>(maxMotifLengthR);
-        maxPatternLength = as<int>(maxPatternLengthR);
-        motifs = charVector2ByteStringVec(motifsR);
-    }
-    else
-    {
-        pMotifLengths = NULL;
-        maxMotifLength = 0;
-        maxPatternLength = 0;
-        motifs.length = 0;
-    }
-
+    maxMotifLength = as<int>(maxMotifLengthR);
+    maxPatternLength = as<int>(maxPatternLengthR);
+    motifs = charVector2ByteStringVec(motifsR);
+    IntegerVector motifLengths(motifLengthsR);
     IntegerVector selX(selXR);
     IntegerVector offsetX(offsetXR);
     NumericVector distWeight(distWeightR);
@@ -244,7 +231,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
     minPosSV = atoi(minPosSV_Char);
 
     rowIndices = featureNamesToIndex(rownames, numRows, dummy, noAnnot, kernelType, k, m, &pMotifTree, &freeNode,
-                                     motifs, pMotifLengths, maxMotifLength, maxPatternLength, nodeLimit,
+                                     motifs, motifLengths, maxMotifLength, maxPatternLength, nodeLimit,
                                      reverseComplement, &alphaInf);
 
     if (!posSpecific)
@@ -276,14 +263,14 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
             if (bit64)
             {
                 hmap64 = (khash_t(fwa64) *) generateAccessHashmap(numRows, numCols, rowIndices,
-                                                                  dimFeatureSpace, firstWeightedPos, slot_i,
+                                                                  dimFeatureSpace, 0, slot_i,
                                                                   slot_p, slot_x, bit64);
                 pAccessHMap64 = hmap64;
             }
             else
             {
                 hmap32 = (khash_t(fwa32) *) generateAccessHashmap(numRows, numCols, rowIndices,
-                                                                  dimFeatureSpace, firstWeightedPos, slot_i,
+                                                                  dimFeatureSpace, 0, slot_i,
                                                                   slot_p, slot_x, bit64);
                 pAccessHMap32 = hmap32;
             }
@@ -399,7 +386,7 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
             offset = 0;
 
         genFeatureVectorsPosDep(x, 1, sel, offsetX, dummy, dummy, maxSeqLength, kernelType, k, m, &pMotifTree,
-                                &freeNode, motifs, pMotifLengths, maxMotifLength, maxPatternLength, nodeLimit,
+                                &freeNode, motifs, motifLengths, maxMotifLength, maxPatternLength, nodeLimit,
                                 &alphaInf, dimFeatureSpace, presence, normalized, unmapped, reverseComplement,
                                 posSpecific, distWeight, KBS_SORT_BY_POSITION, numPositions, &startIndex,
                                 &featVectorIndex, &featVectorValue, &kernelValue, &indexSize);
@@ -418,37 +405,51 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                 {
                     if (implicitPosition)
                     {
+                        if (-offset + j + 1 < firstWeightedPos)
+                            continue;
+
                         switch (indexSize) {
                             case 1:
-                                key = (-offset + j + 1) * dimFeatureSpace + ((uint8_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1 - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint8_t *) featVectorIndex)[j];
                                 break;
                             case 2:
-                                key = (-offset + j + 1) * dimFeatureSpace + ((uint16_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1  - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint16_t *) featVectorIndex)[j];
                                 break;
                             case 3:
                             case 4:
-                                key = (-offset + j + 1) * dimFeatureSpace + ((uint32_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1 - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint32_t *) featVectorIndex)[j];
                                 break;
                             default:
-                                key = (-offset + j + 1) * dimFeatureSpace + ((uint64_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1 - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint64_t *) featVectorIndex)[j];
                                 break;
                         }
                     }
                     else
                     {
+                        if (featVectorValue[j] < firstWeightedPos)
+                            continue;
+                        
                         switch (indexSize) {
                             case 1:
-                                key = featVectorValue[j] * dimFeatureSpace + ((uint8_t *) featVectorIndex)[j];
+                                key = (featVectorValue[j] - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint8_t *) featVectorIndex)[j];
                                 break;
                             case 2:
-                                key = featVectorValue[j] * dimFeatureSpace + ((uint16_t *) featVectorIndex)[j];
+                                key = (featVectorValue[j] - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint16_t *) featVectorIndex)[j];
                                 break;
                             case 3:
                             case 4:
-                                key = featVectorValue[j] * dimFeatureSpace + ((uint32_t *) featVectorIndex)[j];
+                                key = (featVectorValue[j] - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint32_t *) featVectorIndex)[j];
                                 break;
                             default:
-                                key = featVectorValue[j] * dimFeatureSpace + ((uint64_t *) featVectorIndex)[j];
+                                key = (featVectorValue[j] - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint64_t *) featVectorIndex)[j];
                                 break;
                         }
                     }
@@ -476,19 +477,26 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                 {
                     for (j = 0; j < (int) startIndex[1]; j++)
                     {
+                        if (-offset + j + 1 < firstWeightedPos)
+                            continue;
+
                         switch (indexSize) {
                             case 1:
-                                key = (-offset + j + 1) * dimFeatureSpace + ((uint8_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1 - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint8_t *) featVectorIndex)[j];
                                 break;
                             case 2:
-                                key = (-offset + j + 1) * dimFeatureSpace + ((uint16_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1  - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint16_t *) featVectorIndex)[j];
                                 break;
                             case 3:
                             case 4:
-                                key = (-offset + j + 1) * dimFeatureSpace + ((uint32_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1 - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint32_t *) featVectorIndex)[j];
                                 break;
                             default:
-                                key = (-offset + j + 1) * dimFeatureSpace + ((uint64_t *) featVectorIndex)[j];
+                                key = (-offset + j + 1 - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint64_t *) featVectorIndex)[j];
                                 break;
                         }
 
@@ -524,22 +532,29 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                 {
                     for (j = 0; j < (int) startIndex[1]; j++)
                     {
+                        if (featVectorValue[j] < firstWeightedPos)
+                            continue;
+
                         switch (indexSize) {
                             case 1:
-                                key = featVectorValue[j] * dimFeatureSpace + ((uint8_t *) featVectorIndex)[j];
+                                key = (featVectorValue[j] - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint8_t *) featVectorIndex)[j];
                                 featureIndex = ((uint8_t *) featVectorIndex)[j];
                                 break;
                             case 2:
-                                key = featVectorValue[j] * dimFeatureSpace + ((uint16_t *) featVectorIndex)[j];
+                                key = (featVectorValue[j] - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint16_t *) featVectorIndex)[j];
                                 featureIndex = ((uint16_t *) featVectorIndex)[j];
                                 break;
                             case 3:
                             case 4:
-                                key = featVectorValue[j] * dimFeatureSpace + ((uint32_t *) featVectorIndex)[j];
+                                key = (featVectorValue[j] - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint32_t *) featVectorIndex)[j];
                                 featureIndex = ((uint32_t *) featVectorIndex)[j];
                                 break;
                             default:
-                                key = featVectorValue[j] * dimFeatureSpace + ((uint64_t *) featVectorIndex)[j];
+                                key = (featVectorValue[j] - firstWeightedPos) * dimFeatureSpace +
+                                      ((uint64_t *) featVectorIndex)[j];
                                 featureIndex = ((uint64_t *) featVectorIndex)[j];
                                 break;
                         }
@@ -574,9 +589,9 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                                         startIndexUnweighted = MAXUINT32;
 
                                     part = normFactor * slot_x[kh_value(hmap64, iter)] /
-                                           ((*pMotifLengths)[featureIndex] - numUnweightedPos);
+                                           (motifLengths[featureIndex] - numUnweightedPos);
 
-                                    for (l = position; l < position + (*pMotifLengths)[featureIndex]; l++)
+                                    for (l = position; l < position + motifLengths[featureIndex]; l++)
                                     {
                                         while ((startIndexUnweighted <
                                                 (uint32_t) (unweightedPosStart)[featureIndex + 1]) &&
@@ -623,9 +638,9 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                                         startIndexUnweighted = MAXUINT32;
 
                                     part = normFactor * slot_x[kh_value(hmap32, iter)] /
-                                           ((*pMotifLengths)[featureIndex] - numUnweightedPos);
+                                           (motifLengths[featureIndex] - numUnweightedPos);
 
-                                    for (l = position; l < position + (*pMotifLengths)[featureIndex]; l++)
+                                    for (l = position; l < position + motifLengths[featureIndex]; l++)
                                     {
                                         while ((startIndexUnweighted <
                                                 (uint32_t) (unweightedPosStart)[featureIndex + 1]) &&
@@ -757,9 +772,9 @@ RcppExport SEXP getPosDepPredOrProfC(SEXP featureWeightsR, SEXP weightLimitR, SE
                                     else
                                         startIndexUnweighted = MAXUINT32;
 
-                                    part = normFactor * weight / ((*pMotifLengths)[featureIndex] - numUnweightedPos);
+                                    part = normFactor * weight / (motifLengths[featureIndex] - numUnweightedPos);
 
-                                    for (l = position; l < position + (*pMotifLengths)[featureIndex]; l++)
+                                    for (l = position; l < position + motifLengths[featureIndex]; l++)
                                     {
                                         while ((startIndexUnweighted <
                                                 (uint32_t) (unweightedPosStart)[featureIndex + 1]) &&

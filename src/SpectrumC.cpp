@@ -2799,7 +2799,7 @@ static void assignFeatureNames(SEXP colnames, void *indexMap, int k, struct alph
                             for (j = 0; j < k; j++)
                             {
                                 kmer[2*k - j - 1] =
-                                reverseAnnotationMap[(int)((currIndex % (int) powAnnot[j + 1]) / powAnnot[j])];
+                                reverseAnnotationMap[(int)((currIndex % powAnnot[j + 1]) / powAnnot[j])];
                             }
 
                             currIndex = currIndex / powAnnot[k];
@@ -2834,7 +2834,7 @@ static void assignFeatureNames(SEXP colnames, void *indexMap, int k, struct alph
                         for (j = 0; j < k; j++)
                         {
                             kmer[2*k - j - 1] =
-                                reverseAnnotationMap[(int)((currIndex % (int) powAnnot[j + 1]) / powAnnot[j])];
+                                reverseAnnotationMap[(int)((currIndex % powAnnot[j + 1]) / powAnnot[j])];
                         }
 
                         currIndex = currIndex / powAnnot[k];
@@ -2843,7 +2843,7 @@ static void assignFeatureNames(SEXP colnames, void *indexMap, int k, struct alph
                     for (j = 0; j < k; j++)
                     {
                         kmer[k - j - 1] =
-                            alphaInf->reverseIndexMap[(int)((currIndex % (int) powAlpha[j + 1]) / (int) powAlpha[j])];
+                            alphaInf->reverseIndexMap[(int)((currIndex % powAlpha[j + 1]) / powAlpha[j])];
                     }
 
                     SET_STRING_ELT(colnames, l++, Rf_mkChar(kmer));
@@ -2867,14 +2867,14 @@ static void assignFeatureNames(SEXP colnames, void *indexMap, int k, struct alph
                 for (j = 0; j < k; j++)
                 {
                     kmer[2*k - j - 1] =
-                    reverseAnnotationMap[(int)((currIndex % (int) powAnnot[j + 1]) / powAnnot[j])];
+                    reverseAnnotationMap[(int)((currIndex % powAnnot[j + 1]) / powAnnot[j])];
                 }
 
                 currIndex = currIndex / powAnnot[k];
             }
 
             for (j = 0; j < k; j++)
-                kmer[k - j - 1] = alphaInf->reverseIndexMap[(int)((currIndex % (int) powAlpha[j + 1]) / (int) powAlpha[j])];
+                kmer[k - j - 1] = alphaInf->reverseIndexMap[(int)((currIndex % powAlpha[j + 1]) / powAlpha[j])];
 
             SET_STRING_ELT(colnames, i, Rf_mkChar(kmer));
         }
@@ -3810,6 +3810,8 @@ bool getSVWeightsFeatSpectrum(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_
         kh_value(pdfimap, iter) = i;
     }
 
+    Free(*keys);
+    
     // perform weight pruning for pos specific kernels
     // for pos dependent kernels weight pruning is done at prediction or
     // profile generation when the actual weights are calculated
@@ -3915,7 +3917,7 @@ void getWeightedFeatOfSVSpectrum(T maxUnSignedIndex, SEXP **pdFeatWeights, khash
             for (j = 0; j < k; j++)
             {
                 kmer[k - j - 1] =
-                    alphaInf->reverseIndexMap[(int)((index % (int) powAlpha[j + 1]) / (int) powAlpha[j])];
+                    alphaInf->reverseIndexMap[(int)((index % powAlpha[j + 1]) / powAlpha[j])];
             }
 
             SET_STRING_ELT(rownames, row, Rf_mkChar(kmer));

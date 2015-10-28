@@ -1,35 +1,15 @@
 Change history of package kebabs:
 ====================================
 
-Version 1.3.4:
-- correction of Ubuntu problem with realloc for 0 elements
-  in linearKernel generating a sparse empty kernel matrix
-- correction of problem with feature weights and prediction
-  profiles for position specific gappy pair kernel
-- correction of problem with feature weights and prediction
-  profiles for position specific motif kernel
-- corrections for feature weights, prediction via feature
-  weights and prediction profile for distance weighted kernels
-- update of KeBABS citation
+Version 1.5.1
+- new method to compute prediction profiles from models
+  trained with mixture kernels
+- correction for position specific kernel with offsets
+- corrections for prediction profile of motif kernel
+- additional hint on help page of kbsvm
 
-Version 1.3.3:
-- new export kebabsCollectInfo for collection of package info
-- update of version dependency to Biostrings, XVector, S4Vector
-- correction for leading + or - in factor label
-- change of bibtex style sheet in vignette to plainnat.bst
-
-Version 1.3.2:
-- correction of error in kernel lists
-- user defined sequence kernel example SpectrumKernlabKernel
-  moved to separate directory
-
-Version 1.3.1
-- correction of error in model selection for processing
-  via dense LIBSVM
-- remove problem in check for loading of SparseM
-
-Version 1.3.0:
-- first devel version created from release version 1.2.0
+Version 1.5.0:
+- first devel version created from release version 1.4.0
 
 
 

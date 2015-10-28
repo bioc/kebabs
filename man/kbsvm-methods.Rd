@@ -360,6 +360,10 @@ following parameters - here shown with their unified names:\cr
   cross:            \tab number of folds in k-fold cross validation\cr
 }
 
+Hint: If a tolerance value is specified in \code{kbsvm} the same value
+should be used throughout the complete analysis to make results
+comparable.\cr\cr
+
 
 The following table shows the relevance of the SVM parameters cost, nu and
 eps for the different SVMs:\cr

@@ -4364,7 +4364,7 @@ void getWeightedFeatOfSVGappyPair(T maxUnSignedIndex, SEXP **pdFeatWeights, khas
                 }
 
                 kmer[index--] =
-                    alphaInf->reverseIndexMap[(int)((featIndex % (int) powAlpha[j + 1]) / powAlpha[j])];
+                    alphaInf->reverseIndexMap[(int)((featIndex % powAlpha[j + 1]) / powAlpha[j])];
             }
 
             SET_STRING_ELT(rownames, row, Rf_mkChar(kmer));

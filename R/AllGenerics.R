@@ -58,7 +58,13 @@ if (!isGeneric("sequences"))
 if (!isGeneric("getPredictionProfile"))
 {
     setGeneric("getPredictionProfile",
-           function(object, ...) standardGeneric("getPredictionProfile"))
+               function(object, ...) standardGeneric("getPredictionProfile"))
+}
+
+if (!isGeneric("getPredProfMixture"))
+{
+    setGeneric("getPredProfMixture",
+               function(object, ...) standardGeneric("getPredProfMixture"))
 }
 
 if (!isGeneric("heatmap"))

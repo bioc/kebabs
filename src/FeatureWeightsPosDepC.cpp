@@ -56,6 +56,7 @@ bool getWeightsPerPosition(T maxUnSignedIndex, SEXP *pdFeatWeights, khash_t(pdfw
         if (iter == kh_end(pdfwmap))
         {
             Rprintf("key %llu not found in hashmap during determination of feature weights\n", keys[i]);
+            Free(keys);
             return(FALSE);
         }
 
@@ -72,15 +73,17 @@ bool getWeightsPerPosition(T maxUnSignedIndex, SEXP *pdFeatWeights, khash_t(pdfw
         if (iter == kh_end(pdfimap))
         {
             Rprintf("pattern %llu not found in hashmap during determination of feature weights\n", featIndex);
+            Free(keys);
             return(FALSE);
         }
 
         INTEGER(slot_i)[currElem++] = kh_value(pdfimap, iter);
     }
 
-    while (currCol <= numCols)
+    while (currCol < numCols)
         INTEGER(slot_p)[++currCol] = currElem;
 
+    Free(keys);
     return(TRUE);
 }
 
@@ -162,11 +165,8 @@ RcppExport SEXP getFeatureWeightsPosDepC(SEXP svR, SEXP selSVR, SEXP offsetSVR, 
     NumericVector distWeight(distWeightR);
 
     sizeSV = selSV.size();
-    motifs.length = 0;
     pPDFeatWeights = &pdFeatWeights;
-
-    if (kernelType == MOTIF)
-        motifs = charVector2ByteStringVec(motifsR);
+    motifs = charVector2ByteStringVec(motifsR);
 
     if (isXStringSet)
         sv = XStringSet2ByteStringVec(svR);
@@ -222,7 +222,6 @@ RcppExport SEXP getFeatureWeightsPosDepC(SEXP svR, SEXP selSVR, SEXP offsetSVR, 
 
         case MOTIF:
         {
-            motifs = charVector2ByteStringVec(motifsR);
             IntegerVector motifLengths(motifLengthsR);
             int maxMotifLength = as<int>(maxMotifLengthR);
             int maxPatternLength = as<int>(maxPatternLengthR);

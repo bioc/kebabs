@@ -82,6 +82,7 @@ struct intfFindMotifs {
     char *keyPool;
     uint64_t *keyPoolSize;
     uint64_t *poolNextFree;
+    uint64_t currFeatVecLength;
     int32_t *pFeatVecValue;
     uint32_t *pFeatVecIndex;
     uint32_t *unweightedPos;
@@ -696,7 +697,7 @@ bool getLeaf(struct intfStorePattern *intf)
 void setFeatureIndex(struct prefTreeMotif *pTree, int maxMotifLength, int maxPatternLength, struct alphaInfo *alphaInf,
                      bool assignFeatureName, bool zeroFeatures, ByteStringVector motifs, IntegerVector *motifLengths,
                      bool annSpec, SEXP colnames, khash_t(fim) *featMap, char **keyPool, uint64_t *keyPoolSize,
-                     uint64_t *poolNextFree, bool motifWithAnnotation)
+                     uint64_t *poolNextFree, bool motifWithAnnotation, bool setUsedMotif)
 {
     int i, j, g, curr, pos, numEntries, featureIndex, result;
     uint32_t currIndex, motifIndex;
@@ -729,6 +730,9 @@ void setFeatureIndex(struct prefTreeMotif *pTree, int maxMotifLength, int maxPat
             if (!motifWithAnnotation)
             {
                 pTree->node[intf.leafBlock].ib.idx[MAX_ALPHA_SIZE - 1] = featureIndex++;
+                
+                if (setUsedMotif)
+                    pTree->node[intf.leafBlock].flags |= TF_USED_MOTIF;
 
                 if (assignFeatureName)
                 {
@@ -943,6 +947,62 @@ void resetInfoInTree(uint8_t task, uint8_t flagToReset, struct prefTreeMotif *pT
     return;
 }
 
+RcppExport void findUnweightedPositions(ByteStringVector motifs, IntegerVector *unweightedPosStart,
+                                        uint32_t **unweightedPos)
+{
+    int i, j, arraySize, currIndex, currPos;
+    bool substGroupOpen;
+
+    arraySize = motifs.length * 2; // start with two unweighted positions per motif on average
+    pUnweightedPos = (uint32_t *) Calloc(arraySize, uint32_t);
+    *unweightedPos = pUnweightedPos;
+    currIndex = 0;
+
+    for (i = 0; i < motifs.length; i++)
+    {
+        (*unweightedPosStart)[i] = currIndex;
+        currPos = -1;
+        substGroupOpen = FALSE;
+
+        for (j = 0; j < motifs.nchar[i]; j++)
+        {
+            if (substGroupOpen)
+            {
+                if (motifs.ptr[i][j] == ']')
+                {
+                    currPos++;
+                    substGroupOpen = FALSE;
+                }
+            }
+            else
+            {
+                if (motifs.ptr[i][j] == '[')
+                    substGroupOpen = TRUE;
+                else
+                {
+                    currPos++;
+
+                    if (motifs.ptr[i][j] == '.')
+                    {
+                        if (currIndex >=  arraySize)
+                        {
+                            arraySize = arraySize * 2;
+                            pUnweightedPos = Realloc(pUnweightedPos, arraySize, uint32_t);
+                            *unweightedPos = pUnweightedPos;
+                        }
+
+                        (*unweightedPos)[currIndex++] = currPos;
+                    }
+                }
+            }
+        }
+    }
+
+    (*unweightedPosStart)[motifs.length] = currIndex;
+
+    return;
+}
+
 bool findAnnotatedMotif(uint32_t leafBlock, uint32_t motifStart, uint32_t currPos,
                         struct intfFindMotifs *intf)
 {
@@ -970,10 +1030,17 @@ bool findAnnotatedMotif(uint32_t leafBlock, uint32_t motifStart, uint32_t currPo
     pos += motifLength;
     localKey[pos++] = '\0';
 
+    // wildcard positions for annotation
+    for (i = (*intf->unweightedPosStart)[motifIndex]; i < (*intf->unweightedPosStart)[motifIndex + 1]; i++)
+        localKey[pos - motifLength + intf->unweightedPos[i] - 1] = '.';
+
     iter = kh_get(fim, intf->featMap, localKey);
 
     if (iter == kh_end(intf->featMap))
     {
+        if (intf->pProf != NULL)
+            return(TRUE);
+
         // new key
         if (*intf->keyPoolSize < *intf->poolNextFree + 10 + motifLength)
         {
@@ -1177,7 +1244,8 @@ bool descendOnBranch(uint32_t startPos, uint32_t endPos, uint32_t startBlock, ui
                                     }
                                     else
                                     {
-                                        if (intf->pProf != NULL)
+                                        if (intf->pProf != NULL &&
+                                            (intf->pTree->node[currNext].flags & TF_USED_MOTIF))
                                         {
                                             motifIndex = intf->pTree->node[currNext].ib.idx[MAX_ALPHA_SIZE - 2];
                                             weight = (*intf->featureWeights)(intf->svmIndex, intf->pTree->node[currNext].ib.idx[MAX_ALPHA_SIZE - 1]);
@@ -1288,7 +1356,8 @@ bool descendOnBranch(uint32_t startPos, uint32_t endPos, uint32_t startBlock, ui
                                                 }
                                                 else
                                                 {
-                                                    if (intf->pProf != NULL)
+                                                    if (intf->pProf != NULL &&
+                                                        (intf->pTree->node[currGroup].flags & TF_USED_MOTIF))
                                                     {
                                                         motifIndex = intf->pTree->node[currGroup].ib.idx[MAX_ALPHA_SIZE - 2];
                                                         weight = (*intf->featureWeights)(intf->svmIndex, intf->pTree->node[currGroup].ib.idx[MAX_ALPHA_SIZE - 1]);
@@ -1402,7 +1471,8 @@ bool descendOnBranch(uint32_t startPos, uint32_t endPos, uint32_t startBlock, ui
                                 }
                                 else
                                 {
-                                    if (intf->pProf != NULL)
+                                    if (intf->pProf != NULL &&
+                                        (intf->pTree->node[curr].flags & TF_USED_MOTIF))
                                     {
                                         motifIndex = intf->pTree->node[curr].ib.idx[MAX_ALPHA_SIZE - 2];
                                         weight = (*intf->featureWeights)(intf->svmIndex, intf->pTree->node[curr].ib.idx[MAX_ALPHA_SIZE - 1]);
@@ -1527,6 +1597,13 @@ void descendOnBranchPos(uint32_t startPos, uint32_t endPos, uint32_t startBlock,
                         }
                         else
                         {
+                            if (intf->elemIndex >= intf->currFeatVecLength)
+                            {
+                                intf->currFeatVecLength = intf->currFeatVecLength * 1.4;
+                                intf->pFeatVecIndex = (uint32_t *) Realloc(intf->pFeatVecIndex, intf->currFeatVecLength, uint32_t);
+                                intf->pFeatVecValue = (int32_t *) Realloc(intf->pFeatVecValue, intf->currFeatVecLength, int32_t);
+                            }
+
                             intf->pFeatVecValue[intf->elemIndex] = *motifBegin - intf->offset + 1;
                             intf->pFeatVecIndex[intf->elemIndex++] = intf->pTree->node[currNext].ib.idx[MAX_ALPHA_SIZE - 1];
                             intf->kernelValue++;
@@ -1569,6 +1646,15 @@ void descendOnBranchPos(uint32_t startPos, uint32_t endPos, uint32_t startBlock,
                                     }
                                     else
                                     {
+                                        if (intf->elemIndex >= intf->currFeatVecLength)
+                                        {
+                                            intf->currFeatVecLength = intf->currFeatVecLength * 1.4;
+                                            intf->pFeatVecIndex = (uint32_t *) Realloc(intf->pFeatVecIndex, intf->currFeatVecLength,
+                                                                                       uint32_t);
+                                            intf->pFeatVecValue = (int32_t *) Realloc(intf->pFeatVecValue, intf->currFeatVecLength,
+                                                                                      int32_t);
+                                        }
+
                                         intf->pFeatVecValue[intf->elemIndex] = *motifBegin - intf->offset + 1;
                                         intf->pFeatVecIndex[intf->elemIndex++] = intf->pTree->node[currGroup].ib.idx[MAX_ALPHA_SIZE - 1];
                                         intf->kernelValue++;
@@ -1610,6 +1696,13 @@ void descendOnBranchPos(uint32_t startPos, uint32_t endPos, uint32_t startBlock,
                     }
                     else
                     {
+                        if (intf->elemIndex >= intf->currFeatVecLength)
+                        {
+                            intf->currFeatVecLength = intf->currFeatVecLength * 1.4;
+                            intf->pFeatVecIndex = (uint32_t *) Realloc(intf->pFeatVecIndex, intf->currFeatVecLength, uint32_t);
+                            intf->pFeatVecValue = (int32_t *) Realloc(intf->pFeatVecValue, intf->currFeatVecLength, int32_t);
+                        }
+
                         intf->pFeatVecValue[intf->elemIndex] = *motifBegin - intf->offset + 1;
                         intf->pFeatVecIndex[intf->elemIndex++] = intf->pTree->node[curr].ib.idx[MAX_ALPHA_SIZE - 1];
                         intf->kernelValue++;
@@ -1639,7 +1732,7 @@ void getNonzeroMotifs(bool annSpec, int32_t *featVectorValue, uint32_t *featVect
 {
     uint32_t currBlock, elemIndex;
     uint32_t blockStack[4 * (2 * maxMotifLength + 1)];
-    int i, currIndex, maxBlockIndex, currStack, numEntries, curr;
+    int currIndex, maxBlockIndex, currStack, numEntries;
     khiter_t iter;
 
     elemIndex = sampleIndex * fDim;
@@ -1732,30 +1825,15 @@ void getNonzeroMotifs(bool annSpec, int32_t *featVectorValue, uint32_t *featVect
     else
     {
         numEntries = kh_size(featMap);
-        curr = 0;
 
         struct fmData entryData;
 
         if (numEntries > 0)
         {
-            // get key pointers
-            char **keys = (char **) Calloc(numEntries, char *);
-            pKeys = keys;
-            curr = 0;
-
+            // sorting happens before creation of kernel matrix
             for (iter = kh_begin(featMap); iter != kh_end(featMap); iter++)
             {
                 if (kh_exist(featMap, iter))
-                    keys[curr++] = (char *)kh_key(featMap, iter);
-            }
-
-            // sorting happens before creation of kernel matrix
-            // loop through keys
-            for (i = 0; i < numEntries; i++)
-            {
-                iter = kh_get(fim, featMap, keys[i]);
-
-                if (iter != kh_end(featMap))
                 {
                     entryData = kh_value(featMap, iter);
 
@@ -1937,6 +2015,9 @@ void getNonzeroMotifsERS(bool annSpec, struct prefTreeMotif *pTree, khash_t(fim)
                     }
                 }
             }
+
+            Free(keys);
+            pKeys = NULL;
         }
     }
 
@@ -1951,7 +2032,7 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
 {
     int i, freeNode, maxNoOfNodes, iX, iY, numSamples, fDim;
     int32_t *featVectorValue;
-    uint32_t *featVectorIndex;
+    uint32_t *featVectorIndex, *unweightedPositions, **unweightedPos;
     uint64_t keyPoolSize, poolNextFree;
     bool printWarning = TRUE;
     struct prefTreeMotif *pTree;
@@ -1959,6 +2040,7 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
     struct intfFindMotifs intf;
     IntegerVector annotationIndexMap(MAX_CHAR);
     IntegerVector reverseAnnotationMap(MAX_CHAR);
+    IntegerVector unweightedPosStart(motifs.length + 1);
 
     // setup init mask
     for (i = 0; i < MAX_ALPHA_SIZE; i++)
@@ -1987,6 +2069,13 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
         intf.poolNextFree = &poolNextFree;
         intf.keyPool = (char *) Calloc(keyPoolSize, char);
         pKeypool = intf.keyPool;
+
+        unweightedPos = &unweightedPositions;
+
+        findUnweightedPositions(motifs, &unweightedPosStart, unweightedPos);
+
+        intf.unweightedPosStart = &unweightedPosStart;
+        intf.unweightedPos = *unweightedPos;
     }
     else
     {
@@ -2092,7 +2181,7 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
     featVectorIndex = (uint32_t *) R_alloc(numSamples * fDim, sizeof(uint32_t));
 
     setFeatureIndex(pTree, maxMotifLength, maxPatternLength, alphaInf, FALSE, TRUE, motifs, &motifLengths,
-                    annX.length > 0, NULL, intf.featMap, &intf.keyPool, &keyPoolSize, &poolNextFree, FALSE);
+                    annX.length > 0, NULL, intf.featMap, &intf.keyPool, &keyPoolSize, &poolNextFree, FALSE, FALSE);
 
     intf.markUsedOnly = FALSE;
     intf.markMotifsInSample = FALSE;
@@ -2149,12 +2238,6 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
         pKeypool = NULL;
     }
 
-    if (pKeys != NULL)
-    {
-        Free(pKeys);
-        pKeys = NULL;
-    }
-
     // sort feature vectors
     sort2Arrays(MAXUINT32, featVectorIndex, featVectorValue, numSamples, fDim, NULL);
 
@@ -2188,19 +2271,16 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     if (!symmetric)
         numSamples += sizeY;
 
-    double *normValues = (double *) R_alloc(numSamples, sizeof(double));
+    double *normValues = (double *) Calloc(numSamples, double);
 
     // allocate arrays for sparse feature vectors with 32 or 64 bit index
     // store only unnormalized k-mer counts to avoid double space usage
     // add one for the sentinel
-    if (sizeX == 1)
-        fDim = 30 * maxSeqLength + 1;
-    else
-        fDim = 15 * maxSeqLength + 1;
+    fDim = 2 * maxSeqLength + 1;
     
-    featVectorValue = (int32_t *) R_alloc(numSamples * fDim, sizeof(int32_t));
-    featVectorIndex = (uint32_t *) R_alloc(numSamples * fDim, sizeof(uint32_t));
-    featVectorsStart = (uint64_t *) R_alloc(numSamples + 1, sizeof(uint64_t));
+    featVectorValue = (int32_t *) Calloc(numSamples * fDim, int32_t);
+    featVectorIndex = (uint32_t *) Calloc(numSamples * fDim, uint32_t);
+    featVectorsStart = (uint64_t *) Calloc(numSamples + 1, uint64_t);
 
     // alloc mem for prefix tree
     maxNoOfNodes = MAX_BLOCK;
@@ -2216,6 +2296,10 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     {
         Rprintf("Allocation of heap for tree failed\n");
         initMatrixWithNA(km, sizeX, sizeY);
+        Free(featVectorIndex);
+        Free(featVectorValue);
+        Free(featVectorsStart);
+        Free(normValues);
         return;
     }
 
@@ -2225,6 +2309,10 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     {
         Rprintf("Creation of tree failed\n");
         initMatrixWithNA(km, sizeX, sizeY);
+        Free(featVectorIndex);
+        Free(featVectorValue);
+        Free(featVectorsStart);
+        Free(normValues);
         return;
     }
 
@@ -2237,6 +2325,7 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     intf.pProf = NULL;
     intf.alphaInf = alphaInf;
     intf.maxMotifLength = maxMotifLength;
+    intf.currFeatVecLength = numSamples * fDim;
     intf.pFeatVecValue = featVectorValue;
     intf.pFeatVecIndex = featVectorIndex;
     intf.fDim = fDim;
@@ -2290,9 +2379,17 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
             normValues[i] = intf.kernelValue;
     }
 
+    featVectorIndex = intf.pFeatVecIndex;
+    featVectorValue = intf.pFeatVecValue;
+
     computeKernelMatrixPos(MAXUINT32, featVectorIndex, featVectorValue, featVectorsStart, km,
                            normValues, maxFeaturesPerSample, motifs.length, sizeX, sizeY, normalized, symmetric,
                            FALSE, distWeight);
+    
+    Free(featVectorIndex);
+    Free(featVectorValue);
+    Free(featVectorsStart);
+    Free(normValues);
 
     return;
 }
@@ -2324,7 +2421,8 @@ void getERDMotif(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
     vmax = vmaxget();
 
     setFeatureIndex(intf->pTree, intf->maxMotifLength, maxPatternLength, intf->alphaInf, useColNames && (intf->numUsedMotifs > 0),
-                    intf->zeroFeatures, motifs, motifLengths, annX.length > 0, colnames, intf->featMap, NULL, NULL, NULL, FALSE);
+                    intf->zeroFeatures, motifs, motifLengths, annX.length > 0, colnames, intf->featMap, NULL, NULL, NULL, FALSE,
+                    FALSE);
 
     normValues = (double *) R_alloc(sizeX, sizeof(double));
 
@@ -2370,7 +2468,7 @@ void getERDMotif(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVector
     return;
 }
 
-void getERSMotif(SEXP **pErs, ByteStringVector x, int sizeX, IntegerVector selX, ByteStringVector annCharset,
+void getERSMotif(SEXP *pErs, ByteStringVector x, int sizeX, IntegerVector selX, ByteStringVector annCharset,
                  ByteStringVector annX, struct intfFindMotifs *intf, ByteStringVector motifs,
                  IntegerVector *motifLengths, int maxPatternLength, bool normalized, uint64_t *dimFeatureSpace,
                  bool useHash, bool useRowNames, bool useColNames)
@@ -2385,7 +2483,7 @@ void getERSMotif(SEXP **pErs, ByteStringVector x, int sizeX, IntegerVector selX,
     // allocate explicit representation
     numProtect = 0;
     ers = PROTECT(NEW_OBJECT(MAKE_CLASS("ExplicitRepresentationSparse")));
-    *pErs = &ers;
+    *pErs = ers;
     dims = PROTECT(Rf_allocVector(INTSXP, 2));
     SET_SLOT(ers, Rf_mkChar("Dim"), dims);
     INTEGER(dims)[0] = sizeX;
@@ -2406,7 +2504,10 @@ void getERSMotif(SEXP **pErs, ByteStringVector x, int sizeX, IntegerVector selX,
             numProtect++;
         }
         else
-            colnames = R_NilValue;
+        {
+            PROTECT(colnames = Rf_allocVector(STRSXP, 0));
+            numProtect++;
+        }
 
         SET_VECTOR_ELT(dimnames, 0, rownames);
         SET_VECTOR_ELT(dimnames, 1, colnames);
@@ -2425,7 +2526,8 @@ void getERSMotif(SEXP **pErs, ByteStringVector x, int sizeX, IntegerVector selX,
     vmax = vmaxget();
 
     setFeatureIndex(intf->pTree, intf->maxMotifLength, maxPatternLength, intf->alphaInf, (useColNames && intf->numUsedMotifs > 0),
-                    intf->zeroFeatures, motifs, motifLengths, annX.length > 0, colnames, intf->featMap, NULL, NULL, NULL, FALSE);
+                    intf->zeroFeatures, motifs, motifLengths, annX.length > 0, colnames, intf->featMap, NULL, NULL, NULL, FALSE,
+                    FALSE);
 
     // set feature values in ER
     intf->markUsedOnly = FALSE;
@@ -2473,7 +2575,7 @@ void getERSMotif(SEXP **pErs, ByteStringVector x, int sizeX, IntegerVector selX,
 
                 Rprintf("Determination of feature values failed\n");
                 ers1 = PROTECT(NEW_OBJECT(MAKE_CLASS("ExplicitRepresentationSparse")));
-                pErs = (SEXP **) ers1;
+                *pErs = ers1;
                 dims1 = PROTECT(Rf_allocVector(INTSXP, 2));
                 SET_SLOT(ers1, Rf_mkChar("Dim"), dims1);
                 INTEGER(dims1)[0] = 0;
@@ -2484,7 +2586,7 @@ void getERSMotif(SEXP **pErs, ByteStringVector x, int sizeX, IntegerVector selX,
         }
     }
 
-    INTEGER(slot_p)[i] = jIdx;
+    INTEGER(slot_p)[sizeX] = jIdx;
 
     vmaxset(vmax);
     UNPROTECT(numProtect);
@@ -2499,6 +2601,7 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
                                 bool useRowNames, bool useColNames, bool zeroFeatures, bool sparse)
 {
     int i, iX, freeNode, maxNoOfNodes;
+    uint32_t *unweightedPositions, **unweightedPos;
     uint64_t poolNextFree, keyPoolSize, dimFeatureSpace;
     bool useHash, printWarning = TRUE;
     struct alphaInfo alphaInf;
@@ -2508,7 +2611,8 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
     struct intfFindMotifs intf;
     IntegerVector annotationIndexMap(MAX_CHAR);
     IntegerVector reverseAnnotationMap(MAX_CHAR);
-    SEXP *explicitRepSparse;
+    IntegerVector unweightedPosStart(motifs.length + 1);
+    SEXP explicitRepSparse;
 
     pUnweightedPos = NULL;
     pKeys = NULL;
@@ -2530,6 +2634,12 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
         intf.poolNextFree = &poolNextFree;
         intf.keyPool = (char *) Calloc(keyPoolSize, char);
         pKeypool = intf.keyPool;
+        unweightedPos = &unweightedPositions;
+        
+        findUnweightedPositions(motifs, &unweightedPosStart, unweightedPos);
+        
+        intf.unweightedPosStart = &unweightedPosStart;
+        intf.unweightedPos = *unweightedPos;
     }
     else
     {
@@ -2604,6 +2714,8 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
     intf.numNonzeroFeatures = 0;
     intf.allIndexMaps = &allIndexMaps;
     intf.motifLengths = &motifLengths;
+    intf.markUsedOnly = FALSE;
+    intf.markMotifsInSample = FALSE;
 
     if (annX.length > 0)
     {
@@ -2672,9 +2784,8 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
         getERSMotif(&explicitRepSparse, x, sizeX, selX, annCharset, annX, &intf, motifs, &motifLengths,
                     maxPatternLength, normalized, &dimFeatureSpace, useHash, useRowNames, useColNames);
 
-        return(*explicitRepSparse);
+        return(explicitRepSparse);
     }
-
 }
 
 RcppExport SEXP validateMotifsC(SEXP motifsR, SEXP motifLengthsR)
@@ -2909,7 +3020,7 @@ RcppExport SEXP motifKernelMatrixC(SEXP xR, SEXP yR, SEXP selXR, SEXP selYR, SEX
 
 // no support for annotation because annotation part cannot be represented as index
 uint64_t * featureNamesToIndexMotif(SEXP featureNames, int numFeatures, void **pMotifTree, int *freeNode,
-                                    ByteStringVector motifs, IntegerVector *motifLengths, int maxMotifLength,
+                                    ByteStringVector motifs, IntegerVector motifLengths, int maxMotifLength,
                                     int maxPatternLength, int nodeLimit, struct alphaInfo *alphaInf)
 {
     int i, maxNoOfNodes;
@@ -2987,7 +3098,6 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
 {
     int i, maxNoOfNodes;
     uint32_t maxNoElements;
-    uint64_t featVecLength;
     bool printWarning = TRUE;
     const void *vmax;
     struct indexBlock nullBlock;
@@ -3027,17 +3137,17 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
         }
     }
 
-    featVecLength = sizeX * maxSeqLength * motifs.length;
+    intf.currFeatVecLength = sizeX * maxSeqLength * 2;
 
-    if (featVecLength > MAX_FEAT_VEC_LENGTH)
-        featVecLength = MAX_FEAT_VEC_LENGTH;
+    if (intf.currFeatVecLength > MAX_FEAT_VEC_LENGTH)
+        intf.currFeatVecLength = MAX_FEAT_VEC_LENGTH;
 
-    *featVectorIndex = (uint32_t *) R_alloc(featVecLength, sizeof(uint32_t));
-    *featVectorValue = (int32_t *) R_alloc(featVecLength, sizeof(int32_t));
-    *startIndex = (uint64_t *) R_alloc(sizeX + 1, sizeof(uint64_t));
+    *featVectorIndex = (uint32_t *) Calloc(intf.currFeatVecLength, uint32_t);
+    *featVectorValue = (int32_t *) Calloc(intf.currFeatVecLength, int32_t);
+    *startIndex = (uint64_t *) Calloc(sizeX + 1, uint64_t);
 
     if (normalized)
-        *kernelValue = (double *) R_alloc(sizeX, sizeof(double));
+        *kernelValue = (double *) Calloc(sizeX, double);
 
     intf.markUsedOnly = FALSE;
     intf.markMotifsInSample = FALSE;
@@ -3053,6 +3163,8 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
     intf.fDim = motifs.length;
     intf.elemIndex = 0;
     maxNoElements = 0;
+
+    (*startIndex)[0] = 0;
 
     // calculate kernel matrix
     for (i = 0; i < sizeX; i++)
@@ -3079,6 +3191,8 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
             return;
         }
 
+        (*startIndex)[i + 1] = intf.elemIndex;
+
         if (normalized)
         {
             if (distWeight.length() == 0)
@@ -3098,7 +3212,9 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
     }
 
     (*startIndex)[sizeX] = intf.elemIndex;
-
+    *featVectorIndex = intf.pFeatVecIndex;
+    *featVectorValue = intf.pFeatVecValue;
+    
     if (intf.elemIndex > maxNoElements)
         maxNoElements = intf.elemIndex;
 
@@ -3157,6 +3273,13 @@ bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(p
             else
                 kh_value(pdfwmap, iter) = kh_value(pdfwmap, iter) + normFactor * coefs[sel[0]];
         }
+
+        Free(featVectorIndex);
+        Free(featVectorValue);
+        Free(startIndex);
+
+        if (normalized)
+            Free(kernelValue);
     }
 
     *numKeys = kh_size(pdfwmap);
@@ -3346,61 +3469,6 @@ void getFeaturesOfSVMotif(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(
     return;
 }
 
-RcppExport void findUnweightedPositions(ByteStringVector motifs, IntegerVector *unweightedPosStart, uint32_t **unweightedPos)
-{
-    int i, j, arraySize, currIndex, currPos;
-    bool substGroupOpen;
-
-    arraySize = motifs.length * 2; // start with two unweighted positions per motif on average
-    pUnweightedPos = (uint32_t *) Calloc(arraySize, uint32_t);
-    *unweightedPos = pUnweightedPos;
-    currIndex = 0;
-
-    for (i = 0; i < motifs.length; i++)
-    {
-        (*unweightedPosStart)[i] = currIndex;
-        currPos = -1;
-        substGroupOpen = FALSE;
-
-        for (j = 0; j < motifs.nchar[i]; j++)
-        {
-            if (substGroupOpen)
-            {
-                if (motifs.ptr[i][j] == ']')
-                {
-                    currPos++;
-                    substGroupOpen = FALSE;
-                }
-            }
-            else
-            {
-                if (motifs.ptr[i][j] == '[')
-                    substGroupOpen = TRUE;
-                else
-                {
-                    currPos++;
-
-                    if (motifs.ptr[i][j] == '.')
-                    {
-                        if (currIndex >=  arraySize)
-                        {
-                            arraySize = arraySize * 2;
-                            pUnweightedPos = Realloc(pUnweightedPos, arraySize, uint32_t);
-                            *unweightedPos = pUnweightedPos;
-                        }
-
-                        (*unweightedPos)[currIndex++] = currPos;
-                    }
-                }
-            }
-        }
-    }
-
-    (*unweightedPosStart)[motifs.length] = currIndex;
-
-    return;
-}
-
 RcppExport bool featuresToMotifTree(ByteStringVector motifs, int maxMotifLength, struct alphaInfo *alphaInf,
                                     bool annSpec, ByteStringVector annCharset, struct prefTreeMotif **pTree,
                                     int *freeNode, int nodeLimit, struct indexBlock *nullBlock, int maxNoOfNodes,
@@ -3438,9 +3506,10 @@ void genPredProfileMotif(NumericMatrix profiles, ByteStringVector x, IntegerVect
                          int fwMaxMotifLength, int fwMaxPatternLength, int nodeLimit, bool lowercase,
                          bool normalized, bool presence)
 {
-    int i, iX, freeNode, maxNoOfNodes, currMaxMotifLength;
+    int i, j, iX, freeNode, maxNoOfNodes, currMaxMotifLength, currSeqLength;
     uint32_t *unweightedPositions, **unweightedPos;
     uint64_t keyPoolSize, poolNextFree, dimFeatureSpace;
+    double normValue;
     bool useHash, printWarning = TRUE;
     char *keyPool;
     struct prefTreeMotif *pTree;
@@ -3448,12 +3517,15 @@ void genPredProfileMotif(NumericMatrix profiles, ByteStringVector x, IntegerVect
     struct indexBlock nullBlock;
     struct alphaInfo alphaInf;
     struct allIndMaps allIndexMaps;
-    IntegerVector *currMotifLengths;
+    IntegerVector *currMotifLengths, selCurr(1), selY(0);
     IntegerVector annotationIndexMap(MAX_CHAR);
     IntegerVector reverseAnnotationMap(MAX_CHAR);
-    IntegerVector unweightedPosStart(featureWeights.ncol() + 1);
-    ByteStringVector *currMotifs;
+    IntegerVector unweightedPosStart(motifs.length + 1);
+    NumericMatrix kmOne(1,1);
+    ByteStringVector *currMotifs, y, annY;
 
+    y.length = 0;
+    annY.length = 0;
     memset(nullBlock.idx, 0, sizeof(indexBlock));
 
     pUnweightedPos = NULL;
@@ -3483,8 +3555,6 @@ void genPredProfileMotif(NumericMatrix profiles, ByteStringVector x, IntegerVect
         for (i = 0; i < currMotifs->length; i++)
             dimFeatureSpace += pow(annCharset.nchar[0], (*currMotifLengths)[i]);
 
-        nodeLimit = nodeLimit + currMotifs->length *
-                    (1 + (pow(annCharset.nchar[0], currMaxMotifLength+1) - 1) / (annCharset.nchar[0] - 1));
         initAnnotationMaps(annCharset, &annotationIndexMap, &reverseAnnotationMap);
 
         // allocate key pool
@@ -3527,7 +3597,7 @@ void genPredProfileMotif(NumericMatrix profiles, ByteStringVector x, IntegerVect
 
     setFeatureIndex(pTree, fwMaxMotifLength, fwMaxPatternLength, &alphaInf, FALSE, TRUE, fwMotifs,
                     fwMotifLengths, annX.length > 0, NULL, intf.featMap, &intf.keyPool, &keyPoolSize,
-                    &poolNextFree, annX.length > 0);
+                    &poolNextFree, annX.length > 0, TRUE);
 
     intf.markUsedOnly = FALSE;
     intf.markMotifsInSample = FALSE;
@@ -3577,7 +3647,34 @@ void genPredProfileMotif(NumericMatrix profiles, ByteStringVector x, IntegerVect
             intf.annptr = annX.ptr[iX];
 
         findMotifs(&intf);
+        
+        if (intf.kernelValue == -1)
+        {
+            initMatrixWithNA(profiles, profiles.nrow(), profiles.ncol());
+            return;
+        }
+
+        if (normalized)
+        {
+            selCurr[0] = iX;
+            currSeqLength = intf.seqnchar;
+
+            getKMStdAnnMotif(kmOne, x, y, 1, 1, selCurr, selY, annCharset, annX, annY, motifs,
+                             *motifLengths, nodeLimit, maxMotifLength, maxPatternLength, FALSE,
+                             TRUE, presence, currSeqLength, &alphaInf);
+
+            normValue = sqrt(kmOne(0,0));
+
+            for (j = 0; j < profiles.ncol(); j++)
+            {
+                if (profiles(i,j) != 0)
+                    profiles(i,j) /= normValue;
+            }
+        }
     }
+
+    if (annX.length > 0)
+        pKeypool = keyPool;
 
     return;
 }
@@ -3594,6 +3691,12 @@ void freeHeapMotif()
     {
         Free(pKeypool);
         pKeypool = NULL;
+    }
+
+    if (pKeys != NULL)
+    {
+        Free(pKeys);
+        pKeys = NULL;
     }
 
     if (pUnweightedPos != NULL)

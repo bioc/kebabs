@@ -574,25 +574,28 @@ void svmpredictd  (int    *decisionvalues,
 
 #ifndef _DENSE_REP
     for (i = 0; i < *xr; i++)
-        free (train[i]);
-    free (train);
+        free(train[i]);
+    free(train);
     
     for (i = 0; i < *r; i++)
-        free (m.SV[i]);
-    free (m.SV);
+        free(m.SV[i]);
+    free(m.SV);
 #else
     for (i = 0; i < *xr; i++)
-        free (train[i]->values);
-    free (train);
+    {
+        free(train[i]->values);
+        free(train[i]);
+    }
+    free(train);
     
     if (*kernel_type == PRECOMPUTED) {
         for (i = 0; i < m.l; i++)
-            free (m.SV[i].values);
-        free (m.SV);
+            free(m.SV[i].values);
+        free(m.SV);
     } else {
         for (i = 0; i < *r; i++)
-            free (m.SV[i].values);
-        free (m.SV);
+            free(m.SV[i].values);
+        free(m.SV);
     }
 #endif
 
