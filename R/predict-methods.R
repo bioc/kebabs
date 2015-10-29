@@ -112,8 +112,8 @@ predict.PositionDependent <- function(model, x, predictionType, sel,
     if (!is(model@svmInfo@selKernel, "MotifKernel"))
     {
         k <- kernelParameters(model@svmInfo@selKernel)$k
-        motifs <- NULL
-        motifLengths <- NULL
+        motifs <- character(0)
+        motifLengths <- integer(0)
         maxMotifLength <- 0
         maxPatternLength <- 0
         nodeLimit <- 0

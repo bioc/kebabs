@@ -33,8 +33,6 @@ RcppExport SEXP generatePredictionProfilesC(SEXP xR, SEXP bioVectorR, SEXP selXR
     ByteStringVector annCharset;
     ByteStringVector motifs;
     ByteStringVector fwMotifs;
-    IntegerVector *pMotifLengths;
-    IntegerVector *pfwMotifLengths;
 
     int k = as<int>(kR);
     int m = as<int>(mR);
@@ -52,6 +50,8 @@ RcppExport SEXP generatePredictionProfilesC(SEXP xR, SEXP bioVectorR, SEXP selXR
     bool reverseComplement = as<bool>(reverseComplementR);
 
     NumericMatrix pprof(numSamples, maxSeqLength);
+    IntegerVector motifLengths(motifLengthsR);
+    IntegerVector fwMotifLengths(fwMotifLengthsR);
 
     vmax = vmaxget();
 
@@ -71,24 +71,18 @@ RcppExport SEXP generatePredictionProfilesC(SEXP xR, SEXP bioVectorR, SEXP selXR
 
     if (kernelType == MOTIF)
     {
-        IntegerVector motifLengths(motifLengthsR);
-        pMotifLengths = &motifLengths;
         maxMotifLength = as<int>(maxMotifLengthR);
         maxPatternLength = as<int>(maxPatternLengthR);
         motifs = charVector2ByteStringVec(motifsR);
-        IntegerVector fwMotifLengths(fwMotifLengthsR);
-        pfwMotifLengths = &fwMotifLengths;
         fwMaxMotifLength = as<int>(fwMaxMotifLengthR);
         fwMaxPatternLength = as<int>(fwMaxPatternLengthR);
         fwMotifs = charVector2ByteStringVec(fwMotifsR);
     }
     else
     {
-        pMotifLengths = NULL;
         maxMotifLength = 0;
         maxPatternLength = 0;
         motifs.length = 0;
-        pfwMotifLengths = NULL;
         fwMaxMotifLength = 0;
         fwMaxPatternLength = 0;
         fwMotifs.length = 0;
@@ -124,7 +118,7 @@ RcppExport SEXP generatePredictionProfilesC(SEXP xR, SEXP bioVectorR, SEXP selXR
 
             genPredProfileMotif(pprof, x, selX, numSamples, annCharset, annX, maxSeqLength, unmapped,
                                 kernelType, k, m, bioCharset, featureWeights, svmIndex, motifs,
-                                pMotifLengths, maxMotifLength, maxPatternLength, fwMotifs, pfwMotifLengths,
+                                &motifLengths, maxMotifLength, maxPatternLength, fwMotifs, &fwMotifLengths,
                                 fwMaxMotifLength, fwMaxPatternLength, nodeLimit, lowercase, normalized,
                                 presence);
             break;

@@ -1712,6 +1712,23 @@ Additional sequence kernels like the local alignment kernel, Fisher kernel and T
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.4.1:] \hfill
+\begin{itemize}
+\item new method to compute prediction profiles from models trained with mixture kernels
+\end{itemize}
+\begin{itemize}
+\item corrections for position specific kernel with offsets
+\end{itemize}
+\begin{itemize}
+\item corrections for prediction profile of motif kernel
+\end{itemize}
+\begin{itemize}
+\item additional hint on help page of kbsvm
+\end{itemize}
+\item[Version 1.4.0:] \hfill
+\begin{itemize}
+\item first release version for Bioc 3.2 created from kebabs 1.3.4
+\end{itemize}
 \item[Version 1.3.4:] \hfill
 \begin{itemize}
 \item correction of Ubuntu problem with realloc for 0 elements in linearKernel generating a sparse empty kernel matrix

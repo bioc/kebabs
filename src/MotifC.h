@@ -34,7 +34,7 @@ void genPredProfileMotif(Rcpp::NumericMatrix profiles, ByteStringVector x, Rcpp:
                          bool normalized, bool presence);
 
 uint64_t * featureNamesToIndexMotif(SEXP featureNames, int numFeatures, void **pMotifTree, int *freeNode,
-                                    ByteStringVector motifs, Rcpp::IntegerVector *motifLengths, int maxMotifLength,
+                                    ByteStringVector motifs, Rcpp::IntegerVector motifLengths, int maxMotifLength,
                                     int maxPatternLength, int nodeLimit, struct alphaInfo *alphaInf);
 
 void getFeaturesOfSVMotif(SEXP **pdFeatWeights, khash_t(pdfw) *pdfwmap, khash_t(pdfi) *pdfimap, ByteStringVector x,

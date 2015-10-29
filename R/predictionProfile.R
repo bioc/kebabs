@@ -73,12 +73,12 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
     if (!is(kernel, "MotifKernel"))
     {
         k <- kernelParameters(kernel)$k
-        motifs <- NULL
-        motifLengths <- NULL
+        motifs <- character(0)
+        motifLengths <- integer(0)
         maxMotifLength <- 0
         maxPatternLength <- 0
-        fwMotifs <- NULL
-        fwMotifLengths <- NULL
+        fwMotifs <- character(0)
+        fwMotifLengths <- integer(0)
         fwMaxMotifLength <- 0
         fwMaxPatternLength <- 0
         nodeLimit <- 0
@@ -95,16 +95,16 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
         maxMotifLength <- max(motifLengths)
         maxPatternLength <- max(nchar(motifs))
 
+        fwMotifs <- colnames(featureWeights)
+        fwMotifLengths <- nchar(fwMotifs)
+
+        result <- .Call("validateMotifsC", fwMotifs, fwMotifLengths)
+        fwMaxMotifLength <- max(fwMotifLengths)
+        fwMaxPatternLength <- max(nchar(fwMotifs))
+
         if (length(kernelParameters(kernel)$distWeight) == 0 &&
             !kernelParameters(kernel)$annSpec)
         {
-            fwMotifs <- colnames(featureWeights)
-            fwMotifLengths <- nchar(motifs)
-            
-            result <- .Call("validateMotifsC", fwMotifs, fwMotifLengths)
-            fwMaxMotifLength <- max(fwMotifLengths)
-            fwMaxPatternLength <- max(nchar(fwMotifs))
-
             ## rough limit for no of nodes in motif tree from no of
             ## chars and no of substitution groups, add one for root
             nodeLimit <- sum(fwMotifLengths) + 1 +
@@ -118,16 +118,10 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
             nodeLimit <- sum(motifLengths) + 1 +
                              sum(sapply(gregexpr("[", motifs, fixed=TRUE),
                                         function(x) length(unlist(x))))
-
-            fwMotifs <- NULL
-            fwMotifLengths <- NULL
-            fwMaxMotifLength <- 0
-            fwMaxPatternLength <- 0
         }
 
         k <- 0
     }
-
 
     if (is(kernel, "MismatchKernel") || is(kernel, "GappyPairKernel"))
         m <- kernelParameters(kernel)$m
@@ -303,7 +297,7 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
 #' allows pruning of feature weights. All feature weights with an absolute
 #' value below this limit are set to 0 and are not considered for the
 #' prediction profile computation. This parameter is only relevant when
-#' featureWeights are calculated in KeBABS during training.
+#' feature weights are calculated in KeBABS during training.
 #' Default=.Machine$double.eps
 #'
 #' @details
@@ -330,7 +324,8 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
 #' \code{\linkS4class{PredictionProfile}}.
 #'
 #' @seealso \code{\linkS4class{PredictionProfile}}, \code{\link{predict}},
-#' \code{\link{plot}}, \code{\link{featureWeights}{KBModel}}
+#' \code{\link{plot}}, \code{\link{featureWeights}},
+#' \code{\link{getPredProfMixture}}
 #'
 #'
 #'
@@ -422,14 +417,17 @@ getPredictionProfile.XString <- function(object, kernel, featureWeights, b,
         switch(class(object),
             "DNAString" = getPredictionProfile(object=DNAStringSet(object),
                                                kernel=kernel, b=b,
+                                               svmIndex=svmIndex,
                                                featureWeights=featureWeights,
                                                weightLimit=weightLimit),
             "RNAString" = getPredictionProfile(object=RNAStringSet(object),
                                                kernel=kernel, b=b,
+                                               svmIndex=svmIndex,
                                                featureWeights=featureWeights,
                                                weightLimit=weightLimit),
             "AAString"  = getPredictionProfile(object=AAStringSet(object),
                                                kernel=kernel, b=b,
+                                               svmIndex=svmIndex,
                                                featureWeights=featureWeights,
                                                weightLimit=weightLimit),
                   stop("wrong class of x\n")
@@ -445,3 +443,258 @@ getPredictionProfile.XString <- function(object, kernel, featureWeights, b,
 
 setMethod("getPredictionProfile", signature(object = "XString"),
           getPredictionProfile.XString)
+
+
+
+getPredProfMixture.BioVectorOrXSS <- function(object, trainseqs, mixModel,
+                   kernels, mixCoef, svmIndex=1, sel=1:length(object),
+                   weightLimit=.Machine$double.eps)
+{
+    if (missing(object) || is.null(object) || length(object) < 1 ||
+        !(class(object) %in% kebabsInfo@allowedSeqSetClasses))
+    {
+        stop(paste("'object' must be a",
+                   paste(kebabsInfo@allowedSeqClasses, collapse=", "), "\n"))
+    }
+
+    if (!(class(trainseqs) %in% kebabsInfo@allowedSeqSetClasses))
+    {
+        stop(paste("'trainseqs' must be a",
+                   paste(kebabsInfo@allowedSeqClasses, collapse=", "), "\n"))
+    }
+
+    if (!is(mixModel, "KBModel"))
+        stop("'mixModel' must be a mixed kernel model of class KBModel\n")
+
+    if (length(kernels) == 1 && is(kernels, "SequenceKernel"))
+        kernels <- list(kernels)
+
+    if (!is.list(kernels) || length(kernels) < 1 ||
+        any(unlist(lapply(kernels, function(x) !is(x, "SequenceKernel")))))
+        stop("'kernels' must be a list of SequenceKernels\n")
+
+    if (!is.numeric(mixCoef) || length(mixCoef) != length(kernels))
+        stop("'mixCoef' does not have the same length as 'kernels'\n")
+
+    ## store support vectors in model for model trained with mixed km
+    ind <- getSVMSlotValue("svIndex", mixModel)
+
+    if (length(ind) > 0)
+    {
+        mixModel@SV <- trainseqs[ind]
+        mixModel@svIndex <- ind
+        mixModel@alphaIndex <- getSVMSlotValue("alphaIndex", mixModel)
+    }
+    else
+        stop("no support vectors in model\n")
+
+    ## compute predprof for each of the kernels and mix
+    b <- getSVMSlotValue("b", mixModel)[svmIndex]
+    model1 <- mixModel
+    model1@svmInfo@selKernel <- kernels[[1]]
+    fw1 <- getFeatureWeights(model=model1,
+                             weightLimit=model1@svmInfo@weightLimit)
+
+    prof <- getPredictionProfile(object, kernels[[1]], fw1, b,
+                svmIndex=svmIndex, sel=sel, weightLimit=weightLimit)
+
+    prof@profiles <- mixCoef[1] * prof@profiles
+    prof@kernel <- kernels
+    prof@baselines <- - b / width(object[sel])
+
+    if (length(kernels) == 1)
+    {
+        prof@kernel <- kernels[[1]]
+        return(prof)
+    }
+
+    for (i in 2:length(kernels))
+    {
+        model2 <- mixModel
+        model2@svmInfo@selKernel <- kernels[[i]]
+        fw2 <- getFeatureWeights(model=model2,
+                                 weightLimit=model2@svmInfo@weightLimit)
+
+        prof2 <- getPredictionProfile(object, kernels[[i]], fw2, b,
+                     svmIndex=svmIndex, sel=sel, weightLimit=weightLimit)
+
+        prof@profiles <- prof@profiles + mixCoef[i] * prof2@profiles
+    }
+
+    return(prof)
+}
+
+#' @rdname getPredProfMixture-methods
+#' @aliases
+#' getPredProfMixture
+#'
+#' @title Calculation Of Predicition Profiles for Mixture Kernels
+#'
+#' @description compute prediction profiles for a given set of biological
+#' sequences from a model trained with mixture kernels
+#'
+#' @param object a single biological sequence in the form of an
+#' \code{\linkS4class{DNAString}}, \code{\linkS4class{RNAString}} or
+#' \code{\linkS4class{AAString}} or multiple biological sequences as
+#' \code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+#' \code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}}).
+#'
+#' @param trainseqs training sequences on which the mixture model was
+#' trained as
+#' \code{\linkS4class{DNAStringSet}}, \code{\linkS4class{RNAStringSet}},
+#' \code{\linkS4class{AAStringSet}} (or as \code{\linkS4class{BioVector}}).
+#'
+#' @param mixModel model object of class \code{\linkS4class{KBModel}}
+#' trained with kernel mixture.
+#'
+#' @param kernels a list of sequence kernel objects of class
+#' \code{\linkS4class{SequenceKernel}}. The same kernels must be used as in
+#' training.
+#'
+#' @param mixCoef mixing coefficients for the kernel mixture. The same mixing
+#' coefficient values must be used as in training.
+#'
+#' @param svmIndex integer value selecting one of the pairwise SVMs in case of
+#' pairwise multiclass classification. Default=1
+#'
+#' @param sel subset of indices into \code{x} as integer vector. When this
+#' parameter is present the prediction profiles are computed for the specified
+#' subset of samples only. Default=\code{integer(0)}
+#'
+#' @param weightLimit the feature weight limit is a single numeric value and
+#' allows pruning of feature weights. All feature weights with an absolute
+#' value below this limit are set to 0 and are not considered for the
+#' prediction profile computation. This parameter is only relevant when
+#' feature weights are calculated in KeBABS during training.
+#' Default=.Machine$double.eps
+#'
+#' @details
+#'
+#' With this method prediction profiles can be generated explicitely for a
+#' given set of sequences with a model trained on a precomputed kernel matrix
+#' as mixture of multiple kernels.\cr\cr
+#'
+#' @return
+#' upon successful completion, the function returns a set
+#' of prediction profiles for the sequences as class
+#' \code{\linkS4class{PredictionProfile}}.
+#'
+#' @seealso \code{\linkS4class{PredictionProfile}}, \code{\link{predict}},
+#' \code{\link{plot}}, \code{\link{featureWeights}},
+#' \code{\link{getPredictionProfile}}
+#'
+#'
+#'
+#' @examples
+#'
+#'
+#' ## set random generator seed to make the results of this example
+#' ## reproducable
+#' set.seed(123)
+#'
+#' ## load coiled coil data
+#' data(CCoil)
+#' gappya1 <- gappyPairKernel(k=1,m=11, annSpec=TRUE)
+#' gappya2 <- gappyPairKernel(k=2,m=9, annSpec=TRUE)
+#' kernels <- list(gappya1, gappya2)
+#' mixCoef <- c(0.7,0.3)
+#'
+#' ## precompute mixed kernel matrix
+#' km <- as.KernelMatrix(mixCoef[1]*gappya1(ccseq) +
+#'                       mixCoef[2]*gappya2(ccseq))
+#' mixModel <- kbsvm(x=km, y=as.numeric(yCC),
+#'                pkg="e1071", svm="C-svc", cost=15)
+#'
+#' ## define two new sequences to be predicted
+#' GCN4 <- AAStringSet(c("MKQLEDKVEELLSKNYHLENEVARLKKLV",
+#'                       "MKQLEDKVEELLSKYYHTENEVARLKKLV"))
+#' names(GCN4) <- c("GCN4wt", "GCN_N16Y,L19T")
+#' ## assign annotation metadata
+#' annCharset <- annotationCharset(ccseq)
+#' annot <- c("abcdefgabcdefgabcdefgabcdefga",
+#'            "abcdefgabcdefgabcdefgabcdefga")
+#' annotationMetadata(GCN4, annCharset=annCharset) <- annot
+#'
+#' ## compute prediction profiles
+#' predProf <- getPredProfMixture(GCN4, ccseq, mixModel,
+#'                                kernels, mixCoef)
+#'
+#' ## show prediction profiles
+#' predProf
+#'
+#' ## plot prediction profile of both aa sequences
+#' plot(predProf, sel=c(1,2), ylim=c(-0.4, 0.2), heptads=TRUE, annotate=TRUE)
+#'
+#'
+#' @author Johannes Palme <kebabs@@bioinf.jku.at>
+#' @references
+#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' (Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer,
+#' R. Volkmer, and S. Hochreiter. Complex networks govern coiled coil
+#' oligomerization - predicting and profiling by means of a machine learning
+#' approach.\cr\cr
+#' (Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, S. Ionescu, and
+#' S. Hochreiter. Modeling Position Specificity in Sequence Kernels by
+#' Fuzzy Equivalence Relations. \cr\cr
+#' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
+#' for kernel-based analysis of biological sequences.
+#' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
+#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' @keywords prediction profile
+#' @keywords feature weights
+#' @keywords methods
+#'
+
+#' @rdname getPredProfMixture-methods
+#' @aliases
+#' getPredProfMixture,BioVector-method
+#' @export
+
+setMethod("getPredProfMixture", signature(object = "BioVector"),
+          getPredProfMixture.BioVectorOrXSS)
+
+#' @rdname getPredProfMixture-methods
+#' @aliases
+#' getPredProfMixture,XStringSet-method
+#' @export
+#'
+
+setMethod("getPredProfMixture", signature(object = "XStringSet"),
+          getPredProfMixture.BioVectorOrXSS)
+
+
+getPredProfMixture.XString <- function(object, trainseqs, mixModel,
+                                  kernels, mixCoef, svmIndex=1, sel=1,
+                                  weightLimit=.Machine$double.eps)
+{
+    return(
+        switch(class(object),
+            "DNAString" = getPredProfMixture(object=DNAStringSet(object),
+                                trainseqs=trainseqs, kernels=kernels,
+                                mixModel=mixModel, mixCoef=mixCoef,
+                                svmIndex=svmIndex, sel=sel,
+                                weightLimit=weightLimit),
+            "RNAString" = getPredProfMixture(object=RNAStringSet(object),
+                                trainseqs=trainseqs, kernels=kernels,
+                                mixModel=mixModel, mixCoef=mixCoef,
+                                svmIndex=svmIndex, sel=sel,
+                                weightLimit=weightLimit),
+            "AAString" = getPredProfMixture(object=AAStringSet(object),
+                                trainseqs=trainseqs, kernels=kernels,
+                                mixModel=mixModel, mixCoef=mixCoef,
+                                svmIndex=svmIndex, sel=sel,
+                                weightLimit=weightLimit),
+            stop("wrong class of x\n")
+        )
+    )
+}
+
+#' @rdname getPredProfMixture-methods
+#' @aliases
+#' getPredProfMixture,XString-method
+#' @export
+#'
+
+setMethod("getPredProfMixture", signature(object = "XString"),
+          getPredProfMixture.XString)
+

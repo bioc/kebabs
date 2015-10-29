@@ -4,7 +4,7 @@ import(methods)
 import(Matrix)
 import(e1071)
 import(LiblineaR)
-importFrom(stats, heatmap)
+importFrom(stats, heatmap, runif, hclust, dist, as.dendrogram)
 importFrom(kernlab, ksvm, predict, kernelMatrix, as.kernelMatrix, kpar, 
            vanilladot, polydot, plot, SVindex)
 import(Rcpp)
@@ -33,5 +33,5 @@ exportMethods(kbsvm, predict, show, kernelParameters, as.KernelMatrix,
               selGridCol, fullModel, length, width, names, "names<-", width,
               performCrossValidation, auc, "auc<-", tpr, "tpr<-", fpr,
               "fpr<-", trainSVM, predictSVM, SVindex, heatmap, folds,
-              isUserDefined, getFeatureSpaceDimension)
+              isUserDefined, getFeatureSpaceDimension, getPredProfMixture)
 
