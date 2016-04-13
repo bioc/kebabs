@@ -120,7 +120,7 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
         if (!is.numeric(try(col2rgb(col), silent=TRUE)[1]))
             stop("argument `col' must be a string denoting a color\n")
 
-        if (!isSingleString(legend))
+        if (!is.null(legend) && !isSingleString(legend))
             stop("argument `legend' must be a string\n")
     }
     else
@@ -359,8 +359,8 @@ plotPredictionProfile.Missing <- function(x, sel=NULL, col=c("red", "blue"),
 #' in colors \code{shades[1]} and \code{shades[2]}, respectively. Default=NULL
 #'
 #' @param legend a character vector with one or two character strings
-#' containing the legend/description of the profile. If empty, no legend is
-#' displayed.
+#' containing the legend/description of the profile. If set to an empty vector
+#' or to NULL, no legend is displayed.
 #'
 #' @param legendPos position specification for the legend(if \code{legend} is
 #' specified). Can either be a vector with coordinates or a single keyword like

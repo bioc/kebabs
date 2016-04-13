@@ -1,6 +1,17 @@
 Change history of package kebabs:
 ====================================
 
+
+Version 1.5.2
+- correction in distance weights for mixed distance weighted
+  spectrum and gappy pair kernel
+- allow featureWeights as numeric vector for method
+  getPredictionProfile
+- correction for plot of single prediction profile 
+  without legend
+- change of copyright note
+- namespace fixes
+
 Version 1.5.1
 - new method to compute prediction profiles from models
   trained with mixture kernels
@@ -10,8 +21,3 @@ Version 1.5.1
 
 Version 1.5.0:
 - first devel version created from release version 1.4.0
-
-
-
-
-

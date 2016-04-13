@@ -441,15 +441,20 @@ spectrumProcessing <- function(x, y, selx, sely, k, r, annSpec, distWeight,
 
         if (is.function(distWeight))
         {
+            if (length(mixCoef) == 0)
+                minK <- k
+            else
+                minK <- 1
+
             ## precompute distance weight vector
             ## terminate on stop and warning
             ## assuming that all distances are partially overlapping
-            distWeight <- tryCatch(distWeight(0:(maxDist - k + 1)),
+            distWeight <- tryCatch(distWeight(0:(maxDist - minK + 1)),
                                    warning=function(w) {stop(w)},
                                    error=function(e) {stop(e)})
 
-            if (!(is.numeric(distWeight) && length(distWeight) ==
-                  (maxDist - k + 2)))
+            if (!(is.vector(distWeight, mode="numeric") &&
+                  length(distWeight) == (maxDist - minK + 2)))
             {
                 stop("distance weighting function did not return a numeric\n",
                      "       vector of correct length\n")
@@ -457,13 +462,16 @@ spectrumProcessing <- function(x, y, selx, sely, k, r, annSpec, distWeight,
 
             ## limit to values larger than .Machine$double.eps
             ## for non-monotonic decreasing functions search from end
-            for (i in (maxDist - k + 2):1)
+            if (length(mixCoef) == 0)
             {
-                if (distWeight[i] > .Machine$double.eps)
-                    break
-            }
+                for (i in (maxDist - minK + 2):1)
+                {
+                    if (distWeight[i] > .Machine$double.eps)
+                        break
+                }
 
-            distWeight <- distWeight[1:i]
+                distWeight <- distWeight[1:i]
+            }
         }
 
         if (length(distWeight) == 0)
@@ -529,6 +537,7 @@ spectrumProcessing <- function(x, y, selx, sely, k, r, annSpec, distWeight,
     else
     {
         currK <- 0
+        distWeightCurr <- distWeight
 
         if (is.null(y))
             res <- matrix(0, length(selxC), length(selxC))
@@ -541,6 +550,20 @@ spectrumProcessing <- function(x, y, selx, sely, k, r, annSpec, distWeight,
 
             if (mixCoef[i] != 0)
             {
+                if (length(distWeight) > 0)
+                {
+                    distWeightCurr <- distWeight[1:(length(distWeight) -
+                                                    currK + 1)]
+
+                    for (j in length(distWeightCurr):1)
+                    {
+                        if (distWeightCurr[j] > .Machine$double.eps)
+                            break
+                    }
+
+                    distWeightCurr <- distWeightCurr[1:j]
+                }
+
                 res <- res + mixCoef[i] *
                 .Call("spectrumKernelMatrixC", x, y, selxC, selyC,
                       as.integer(length(selxC)), as.integer(length(selyC)),
@@ -548,7 +571,7 @@ spectrumProcessing <- function(x, y, selx, sely, k, r, annSpec, distWeight,
                       offsetX, offsetY, annCharset, annX, annY,
                       as.integer(bioCharset[[2]]), as.logical(ignoreLower),
                       as.logical(unmapped), as.integer(maxSeqLength),
-                      as.integer(currK), as.logical(posSpec), distWeight,
+                      as.integer(currK), as.logical(posSpec), distWeightCurr,
                       as.logical(normalized), as.logical(presence),
                       as.logical(revComplement))
             }

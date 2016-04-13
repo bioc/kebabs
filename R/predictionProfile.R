@@ -18,6 +18,21 @@ getPredictionProfile.BioVectorOrXSS <- function(object, kernel, featureWeights,
     if (is.null(featureWeights))
         stop("'featureWeights' are missing\n")
 
+    if (is.vector(featureWeights, mode="numeric"))
+    {
+        if (length(names(featureWeights)) == length(featureWeights))
+        {
+            featureWeights <- matrix(featureWeights, nrow=1,
+                                     dimnames=list(NULL, names(featureWeights)))
+        }
+        else
+            stop("missing feature names in 'featureWeights'\n")
+    }
+
+    if (!(is.matrix(featureWeights) || is(featureWeights, "dgCMatrix") ||
+          is.list(featureWeights)))
+        stop("'featureWeights' must be a matrix or a list of matrices\n")
+
     if (!is.numeric(b))
         stop("'b' must be a single numeric\n")
 

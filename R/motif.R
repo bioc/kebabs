@@ -441,8 +441,8 @@ motifProcessing <- function(x, y, selx, sely, motifs, motifLengths, r,
                                    warning=function(w) {stop(w)},
                                    error=function(e) {stop(e)})
 
-            if (!(is.numeric(distWeight) && length(distWeight) ==
-                  (maxDist - minMotifLength + 2)))
+            if (!(is.vector(distWeight, mode="numeric") &&
+                  length(distWeight) == (maxDist - minMotifLength + 2)))
             {
                 stop("distWeight function did not return a numeric vector\n",
                      "       of correct length\n")

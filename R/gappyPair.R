@@ -471,15 +471,20 @@ gappyPairProcessing <- function(x, y, selx, sely, k, m, r, annSpec, distWeight,
 
         if (is.function(distWeight))
         {
+            if (length(mixCoef) == 0)
+                min2K <- 2 * k
+            else
+                min2K <- 2
+            
             ## precompute distance weight vector
             ## terminate on stop and warning
             ## assuming that all distances are partially overlapping
-            distWeight <- tryCatch(distWeight(0:(maxDist - 2 * k + 1)),
+            distWeight <- tryCatch(distWeight(0:(maxDist - min2K + 1)),
                                    warning=function(w) {stop(w)},
                                    error=function(e) {stop(e)})
 
-            if (!(is.numeric(distWeight) && length(distWeight) ==
-                  (maxDist - 2 * k + 2)))
+            if (!(is.vector(distWeight, mode="numeric") &&
+                  length(distWeight) == (maxDist - min2K + 2)))
             {
                 stop("distWeight function did not return a numeric vector\n",
                      "       of correct length\n")
@@ -487,13 +492,16 @@ gappyPairProcessing <- function(x, y, selx, sely, k, m, r, annSpec, distWeight,
 
             ## limit to values larger than .Machine$double.eps
             ## for non-monotonic decreasing functions search from end
-            for (i in (maxDist - 2 * k + 2):1)
+            if (length(mixCoef) == 0)
             {
-                if (distWeight[i] > .Machine$double.eps)
-                    break
-            }
+                for (i in (maxDist - min2K + 2):1)
+                {
+                    if (distWeight[i] > .Machine$double.eps)
+                        break
+                }
 
-            distWeight <- distWeight[1:i]
+                distWeight <- distWeight[1:i]
+            }
         }
 
         if (length(distWeight) == 0)
@@ -559,6 +567,7 @@ gappyPairProcessing <- function(x, y, selx, sely, k, m, r, annSpec, distWeight,
     else
     {
         currK <- 0
+        distWeightCurr <- distWeight
 
         if (is.null(y))
             res <- matrix(0, length(selxC), length(selxC))
@@ -571,6 +580,20 @@ gappyPairProcessing <- function(x, y, selx, sely, k, m, r, annSpec, distWeight,
 
             if (mixCoef[i] != 0)
             {
+                if (length(distWeight) > 0)
+                {
+                    distWeightCurr <- distWeight[1:(length(distWeight) -
+                                                    2 * currK + 2)]
+
+                    for (j in length(distWeightCurr):1)
+                    {
+                        if (distWeightCurr[j] > .Machine$double.eps)
+                            break
+                    }
+
+                    distWeightCurr <- distWeightCurr[1:j]
+                }
+
                 res <- res + mixCoef[i] *
                 .Call("gappyPairKernelMatrixC", x, y, selxC, selyC,
                       as.integer(length(selxC)), as.integer(length(selyC)),
@@ -579,8 +602,8 @@ gappyPairProcessing <- function(x, y, selx, sely, k, m, r, annSpec, distWeight,
                       as.integer(bioCharset[[2]]), as.logical(ignoreLower),
                       as.logical(unmapped), as.integer(maxSeqLength),
                       as.integer(currK), as.integer(m), as.logical(posSpec),
-                      distWeight, as.logical(normalized), as.logical(presence),
-                      as.logical(revComplement))
+                      distWeightCurr, as.logical(normalized),
+                      as.logical(presence), as.logical(revComplement))
             }
         }
     }

@@ -4,8 +4,15 @@ import(methods)
 import(Matrix)
 import(e1071)
 import(LiblineaR)
-importFrom(stats, heatmap, runif, hclust, dist, as.dendrogram)
-importFrom(kernlab, ksvm, predict, kernelMatrix, as.kernelMatrix, kpar, 
+importFrom(stats, heatmap, runif, hclust, dist, as.dendrogram,
+           delete.response, fitted, model.extract, model.matrix,
+           na.fail, na.omit, napredict, terms, var)
+importFrom(graphics, axis, boxplot, frame, hist, layout,
+           lines, mtext, par, polygon, text, title)
+importFrom(grDevices, col2rgb, dev.flush, dev.hold)
+importFrom(utils, data, installed.packages, packageVersion,
+           sessionInfo)
+importFrom(kernlab, ksvm, predict, kernelMatrix, as.kernelMatrix, kpar,
            vanilladot, polydot, plot, SVindex)
 import(Rcpp)
 importFrom(XVector, subseq, width)

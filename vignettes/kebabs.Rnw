@@ -1712,6 +1712,12 @@ Additional sequence kernels like the local alignment kernel, Fisher kernel and T
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.5.2:] \hfill
+\begin{itemize}
+\item correction in distance weights for mixed distance weighted spectrum and gappy pair kernel
+\item allow featureWeights as numeric vector for method getPredictionProfile
+\item correction for plot of single prediction profile without legend
+\end{itemize}
 \item[Version 1.5.1:] \hfill
 \begin{itemize}
 \item new method to compute prediction profiles from models trained with mixture kernels

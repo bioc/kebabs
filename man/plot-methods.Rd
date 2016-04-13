@@ -51,8 +51,8 @@ the background area above and below the base line \code{y=-b/L} are shaded
 in colors \code{shades[1]} and \code{shades[2]}, respectively. Default=NULL}
 
 \item{legend}{a character vector with one or two character strings
-containing the legend/description of the profile. If empty, no legend is
-displayed.}
+containing the legend/description of the profile. If set to an empty vector
+or to NULL, no legend is displayed.}
 
 \item{legendPos}{position specification for the legend(if \code{legend} is
 specified). Can either be a vector with coordinates or a single keyword like
