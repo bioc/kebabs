@@ -1,6 +1,11 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.5.3
+- correction in prediction via feature weights for very large 
+  sparse explicit representation
+- adaption of vignette template
+- vignette engine changed from Sweave to knitr
 
 Version 1.5.2
 - correction in distance weights for mixed distance weighted
@@ -21,3 +26,8 @@ Version 1.5.1
 
 Version 1.5.0:
 - first devel version created from release version 1.4.0
+
+
+
+
+

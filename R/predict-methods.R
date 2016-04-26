@@ -445,23 +445,27 @@ predict.FeatureWeights <- function(model, x, predictionType, sel, exrep=NULL,
     }
     else
     {
-        ##    the subsetting of feature weights is only local to this
+        ##  the subsetting of feature weights is only local to this
         ##  function and not returned to the calling level
         if (!isTRUE(all.equal(colnames(model@featureWeights),
                               relevantFeatures)))
             model@featureWeights <- model@featureWeights[,relevantFeatures,
                                                          drop=FALSE]
 
-        ## could be explicit with linear kernel or featureWeights
-        ## for training with kernel matrix
         if (ncol(exrep) == 0)
             pred <- rep(model@b, nrow(exrep))
         else
         {
-            # pred <- model@b + exrep %*% model@featureWeights
-            ## work around - missing matrix multipl of dgRMatrix
-            pred <- model@b + (as(exrep, "matrix") %*%
-                               t(model@featureWeights))
+            if (is(exrep, "ExplicitRepresentationSparse"))
+            {
+                ## convert sparse ER to dgRMatrix to allow manipulation
+                ## of class attribute in package Matrix
+                pred <- model@b + as(as(exrep, "dgRMatrix") %*%
+                                     t(model@featureWeights), "matrix")
+            }
+            else
+                pred <- model@b + as(exrep, "matrix") %*%
+                                  t(model@featureWeights)
         }
 
         if (model@ctlInfo@classification && (predictionType == "response"))
