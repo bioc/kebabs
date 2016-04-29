@@ -4,7 +4,7 @@ import(methods)
 import(Matrix)
 import(e1071)
 import(LiblineaR)
-importFrom(stats, heatmap, runif, hclust, dist, as.dendrogram,
+importFrom(stats, runif, hclust, dist, as.dendrogram,
            delete.response, fitted, model.extract, model.matrix,
            na.fail, na.omit, napredict, terms, var)
 importFrom(graphics, axis, boxplot, frame, hist, layout,
@@ -14,6 +14,7 @@ importFrom(utils, data, installed.packages, packageVersion,
            sessionInfo)
 importFrom(kernlab, ksvm, predict, kernelMatrix, as.kernelMatrix, kpar,
            vanilladot, polydot, plot, SVindex)
+importFrom(apcluster, heatmap)
 import(Rcpp)
 importFrom(XVector, subseq, width)
 importFrom(S4Vectors, DataFrame, metadata, "metadata<-", elementMetadata,

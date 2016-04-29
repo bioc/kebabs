@@ -67,12 +67,6 @@ if (!isGeneric("getPredProfMixture"))
                function(object, ...) standardGeneric("getPredProfMixture"))
 }
 
-if (!isGeneric("heatmap"))
-{
-    setGeneric(name="heatmap",
-               function(x, y, ...) standardGeneric("heatmap"))
-}
-
 if (!isGeneric("annotationMetadata"))
 {
     setGeneric("annotationMetadata", function(x, ..., value)
@@ -150,7 +144,7 @@ if (!isGeneric("selGridRow"))
         fun <- selGridRow
     else
         fun <- function(object, ...) standardGeneric("selGridRow")
-    
+
     setGeneric("selGridRow", fun)
 }
 
@@ -160,7 +154,7 @@ if (!isGeneric("selGridCol"))
         fun <- selGridCol
     else
         fun <- function(object, ...) standardGeneric("selGridCol")
-    
+
     setGeneric("selGridCol", fun)
 }
 
@@ -170,7 +164,7 @@ if (!isGeneric("fullModel"))
         fun <- fullModel
     else
         fun <- function(object, ...) standardGeneric("fullModel")
-    
+
     setGeneric("fullModel", fun)
 }
 
@@ -180,7 +174,7 @@ if (!isGeneric("folds"))
         fun <- folds
     else
         fun <- function(object, ...) standardGeneric("folds")
-    
+
     setGeneric("folds", fun)
 }
 
@@ -249,7 +243,7 @@ if (!isGeneric("SVindex"))
         fun <- SVindex
     else
         fun <- function(object, ...) standardGeneric("SVindex")
-    
+
     setGeneric("SVindex", fun)
 }
 
@@ -345,7 +339,7 @@ if (!isGeneric("auc"))
         fun <- auc
     else
         fun <- function(object, ...) standardGeneric("auc")
-    
+
     setGeneric("auc", fun)
 }
 
@@ -358,7 +352,7 @@ if (!isGeneric("tpr"))
         fun <- tpr
     else
         fun <- function(object, ...) standardGeneric("tpr")
-    
+
     setGeneric("tpr", fun)
 }
 
@@ -371,7 +365,7 @@ if (!isGeneric("fpr"))
         fun <- fpr
     else
         fun <- function(object, ...) standardGeneric("fpr")
-    
+
     setGeneric("fpr", fun)
 }
 
