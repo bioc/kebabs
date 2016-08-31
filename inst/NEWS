@@ -1,6 +1,21 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.7.3:
+- fix of citation info file
+- fix of inst/NEWS
+
+Version 1.7.2:
+- version number bump for technical reasons related to Bioconductor
+  build servers
+
+Version 1.7.1:
+- version number bump for technical reasons related to Bioconductor
+  build servers
+
+Version 1.7.0:
+- new branch for Bioconductor 3.4 devel
+
 Version 1.6.0:
 - release as part of Bioconductor 3.3
 

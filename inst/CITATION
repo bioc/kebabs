@@ -1,17 +1,9 @@
 ##345678901234567890123456789012345678901234567890123456789012345678901234567890
 citHeader("To cite package 'kebabs' in publications use:")
 
-#year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE) 
-#vers <- paste("R package version", meta$Version)
-desc <- packageDescription("kebabs")
-year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", desc$Date)
-vers <- paste("R package version", desc$Version)
-url  <- desc$URL
-
-
-citEntry(entry="Article", 
+citEntry(entry="Article",
          title=paste("KeBABS: an R Package for kernel-based",
-                     "analysis of biological sequences."), 
+                     "analysis of biological sequences."),
          author=personList(as.person("Johannes Palme"),
                            as.person("Sepp Hochreiter"),
                            as.person("Ulrich Bodenhofer")),
@@ -20,9 +12,9 @@ citEntry(entry="Article",
          number="15",
          pages="2574-2576",
          year="2015",
-         doi="10.1093/bioinformatics/btv176", 
-         textVersion = 
-             paste("J. Palme, S. Hochreiter, and U. Bodenhofer (2015)",
+         doi="10.1093/bioinformatics/btv176",
+         textVersion =
+             paste("Johannes Palme, Sepp Hochreiter, and Ulrich Bodenhofer (2015)",
                    "KeBABS: an R package for kernel-based analysis of",
                    "biological sequences.",
                    "Bioinformatics, 31(15):2574-2576, 2015.",

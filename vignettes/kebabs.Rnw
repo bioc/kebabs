@@ -1709,6 +1709,14 @@ Additional sequence kernels like the local alignment kernel, Fisher kernel and T
 \section{Change Log}
 
 \begin{description}
+\item[Version 1.7.3:] \hfill
+\begin{itemize}
+\item fix of citation info file
+\item fix of inst/NEWS
+\end{itemize}
+\item[Versions 1.7.1 and 1.7.2:] version number bumps for technical reasons
+  related to Bioconductor build servers
+\item[Version 1.7.0:] devel branch created from version 1.6.0
 \item[Version 1.6.0:] release as part of Bioconductor 3.3
 \item[Version 1.5.4:] \hfill
 \begin{itemize}
