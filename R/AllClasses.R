@@ -340,9 +340,9 @@ setClass("SymmetricPairKernel",
 ##
 ###################################################
 
-## imported classes from IRanges
-## setClassUnion("DataTableORNULL", c("NULL", "DataTable"))
-## setClassUnion("characterORNULL", c("NULL", "character"))
+## imported classes from S4Vectors
+## setClassUnion("DataTable_OR_NULL", c("NULL", "DataTable"))
+## setClassUnion("character_OR_NULL", c("NULL", "character"))
 
 #' @rdname BioVector-class
 #' @title BioVector, DNAVector, RNAVector and AAVector Classes
@@ -385,8 +385,8 @@ setClass("SymmetricPairKernel",
 setClass("BioVector",
     representation=representation
     (
-        NAMES           = "characterORNULL",
-        elementMetadata = "DataTableORNULL",
+        NAMES           = "character_OR_NULL",
+        elementMetadata = "DataTable_OR_NULL",
         metadata        = "list"
     ),
     prototype = prototype
@@ -1020,7 +1020,7 @@ setClass("KBModel",
         SV               = "ANY",             # support vectors
         svIndex          = "ANY",             # support vector indices
         alphaIndex       = "ANY",             # list of SV indices per SVM
-        trainingFeatures = "characterORNULL", # feature names of training
+        trainingFeatures = "character_OR_NULL", # feature names of training
         featureWeights   = "ANY",             # feature weights
         b                = "numeric",         # b (bias)
         probA            = "numeric",         # fitted logistic function param A

@@ -277,7 +277,7 @@ setAnnotationMetadata.seq <- function(x, ... , value)
         ## reset element metadata
         emd <- mcols(x)
 
-        if (is(emd, "DataTableORNULL"))
+        if (is(emd, "DataTable_OR_NULL"))
         {
             annCol <- which(colnames(emd) == "annotation")
 
@@ -355,7 +355,7 @@ setAnnotationMetadata.seq <- function(x, ... , value)
     }
     else
     {
-        if (!is(emd, "DataTableORNULL"))
+        if (!is(emd, "DataTable_OR_NULL"))
         {
             stop("element metadata in 'x' must be a DataTable\n",
                  "       object or NULL\n", call.=FALSE)
