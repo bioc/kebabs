@@ -16,7 +16,6 @@ typedef struct {
 
 ByteStringVector charVector2ByteStringVec(SEXP cvR);
 ByteStringVector XStringSet2ByteStringVec(SEXP xssR);
-const char * getXStringSetClass(SEXP xR);
 char DNAorRNAdecode(int code, int decodeType);
 char DNAorRNAencode(int c, int encodeType);
 //void getBioStringCodes(const char * xStringsetClass, int * codes, int * noOfCodes);

@@ -54,11 +54,6 @@ ByteStringVector XStringSet2ByteStringVec(SEXP xssR)
     return(result);
 }
 
-const char * getXStringSetClass(SEXP xR)
-{
-    return get_XStringSet_xsbaseclassname(xR);
-}
-
 char DNAorRNAdecode(int c, int decodeType)
 {
     if (decodeType == DT_RNA_BIOSTRING)
