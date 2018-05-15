@@ -1,4 +1,4 @@
-# APCluster - An R Package for Affinity Propagation Clustering
+# KeBABS - An R Package for Kernel-Based Analysis of Biological Sequences
 The package provides functionality for kernel-based analysis of
 DNA, RNA, and amino acid sequences via SVM-based methods. As core
 functionality, kebabs implements following sequence kernels:
