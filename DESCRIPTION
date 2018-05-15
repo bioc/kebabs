@@ -36,6 +36,7 @@ Description: The package provides functionality for kernel-based analysis of
         relevance of sequence sections for the learning result and the
         underlying biological functions.
 URL: http://www.bioinf.jku.at/software/kebabs/
+     https://github.com/UBod/kebabs
 ##Roxygen: list(wrap=TRUE)
 License: GPL (>= 2.1)
 Collate: AllClasses.R AllGenerics.R access-methods.R svmModel.R
