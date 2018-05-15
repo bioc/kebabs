@@ -34,3 +34,6 @@ This is the source code repository. The package can be installed from
 [Bioconductor](https://bioconductor.org/packages/release/bioc/html/kebabs.html).
 Further information and installation instructions are also available from
 http://www.bioinf.jku.at/software/kebabs/.
+
+Although the package is maintained by Ulrich Bodenhofer, the package itself
+has been implemented by Johannes Palme.
