@@ -136,8 +136,9 @@ The flexible and efficient kernels and the supporting SVM related functionality 
 The \R\ package \kebabs\ (current version: \kebabsVersion) is part of the Bioconductor Project\footnote{\url{http://www.bioconductor.org/}}. To install the package from this repository, please enter the following commands into your \R\ session:
 
 <<eval=F>>=
-source("http://bioconductor.org/biocLite.R")
-biocLite("kebabs")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("kebabs")
 @
 
 \subsection{Manual installation from source}
@@ -147,7 +148,7 @@ The above described install method is the standard way of installing the package
 \begin{itemize}
 \item{install packages on which \kebabs\ depends via Bioconductor with\\\\
 \texttt{source("http://bioconductor.org/biocLite.R")\\
-biocLite(c("Rcpp", "S4Vectors", "XVector", "Biostrings", "SparseM",\\
+BiocManager::install(c("Rcpp", "S4Vectors", "XVector", "Biostrings", "SparseM",\\
 \mbox{\hspace{57pt} "kernlab",} "e1071","LiblineaR"))}}
 \item{open the Bioconductor page of the package\footnote{\url{http://www.bioconductor.org/packages/release/bioc/html/kebabs.html}} in your web browser, download the source package \texttt{kebabs\_\kebabsVersion.tar.gz} and save the source package on your hard disk.}
 \item{open a shell/terminal/command prompt window and change to the directory where the source package \texttt{kebabs\_\kebabsVersion.tar.gz} is stored. Then install the package with:\\\\
