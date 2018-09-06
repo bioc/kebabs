@@ -147,7 +147,8 @@ The above described install method is the standard way of installing the package
 
 \begin{itemize}
 \item{install packages on which \kebabs\ depends via Bioconductor with\\\\
-\texttt{source("http://bioconductor.org/biocLite.R")\\
+\texttt{if (!requireNamespace("BiocManager", quietly=TRUE))\\
+    install.packages("BiocManager")\\
 BiocManager::install(c("Rcpp", "S4Vectors", "XVector", "Biostrings", "SparseM",\\
 \mbox{\hspace{57pt} "kernlab",} "e1071","LiblineaR"))}}
 \item{open the Bioconductor page of the package\footnote{\url{http://www.bioconductor.org/packages/release/bioc/html/kebabs.html}} in your web browser, download the source package \texttt{kebabs\_\kebabsVersion.tar.gz} and save the source package on your hard disk.}
