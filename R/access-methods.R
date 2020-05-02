@@ -403,8 +403,8 @@ setMethod("elementMetadata", signature(x="BioVector"),
 setReplaceMethod("elementMetadata", signature(x="BioVector"),
     function(x, ..., value)
     {
-        if (!is(value, "DataTable_OR_NULL"))
-            stop("replacement value must be a DataTable object or NULL\n")
+        if (!is(value, "DataFrame_OR_NULL"))
+            stop("replacement value must be a DataFrame object or NULL\n")
 
         if (!is.null(value) && length(x) != nrow(value))
         {

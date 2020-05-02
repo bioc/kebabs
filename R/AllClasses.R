@@ -341,7 +341,7 @@ setClass("SymmetricPairKernel",
 ###################################################
 
 ## imported classes from S4Vectors
-## setClassUnion("DataTable_OR_NULL", c("NULL", "DataTable"))
+## setClassUnion("DataFrame_OR_NULL", c("NULL", "DataFrame"))
 ## setClassUnion("character_OR_NULL", c("NULL", "character"))
 
 #' @rdname BioVector-class
@@ -368,7 +368,7 @@ setClass("SymmetricPairKernel",
 #'
 #' @slot NAMES sequence names
 #' @slot elementMetadata element metadata, which is applicable per element
-#'       and holds a DataTable with one entry per sequence in each column.
+#'       and holds a DataFrame with one entry per sequence in each column.
 #'       KeBABS uses the column names "annotation" and "offset".
 #' @slot metadata metadata applicable for the entire sequence set as list.
 #'       KeBABS stores the annotation character set as list element
@@ -386,7 +386,7 @@ setClass("BioVector",
     representation=representation
     (
         NAMES           = "character_OR_NULL",
-        elementMetadata = "DataTable_OR_NULL",
+        elementMetadata = "DataFrame_OR_NULL",
         metadata        = "list"
     ),
     prototype = prototype

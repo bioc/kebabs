@@ -1,8 +1,8 @@
 Package: kebabs
 Type: Package
 Title: Kernel-Based Analysis Of Biological Sequences
-Version: 1.23.0
-Date: 2019-10-18
+Version: 1.23.1
+Date: 2020-05-01
 Author: Johannes Palme
 Maintainer: Ulrich Bodenhofer <bodenhofer@bioinf.jku.at>
 Description: The package provides functionality for kernel-based analysis of
@@ -51,7 +51,7 @@ Collate: AllClasses.R AllGenerics.R access-methods.R svmModel.R
         symmetricPair.R svm.R utils.R zzz.R
 Depends: R (>= 3.2.0), Biostrings (>= 2.35.5), kernlab
 Imports: methods, stats, Rcpp (>= 0.11.2), Matrix, XVector (>= 0.7.3),
-        S4Vectors (>= 0.5.11), e1071, LiblineaR, graphics, grDevices,
+        S4Vectors (>= 0.27.3), e1071, LiblineaR, graphics, grDevices,
         utils, apcluster
 LinkingTo: IRanges, XVector, Biostrings, Rcpp, S4Vectors
 Suggests: SparseM, Biobase, BiocGenerics, knitr

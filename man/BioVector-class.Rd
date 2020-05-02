@@ -44,7 +44,7 @@ amino acid sequences.
 \item{\code{NAMES}}{sequence names}
 
 \item{\code{elementMetadata}}{element metadata, which is applicable per element
-and holds a DataTable with one entry per sequence in each column.
+and holds a DataFrame with one entry per sequence in each column.
 KeBABS uses the column names "annotation" and "offset".}
 
 \item{\code{metadata}}{metadata applicable for the entire sequence set as list.

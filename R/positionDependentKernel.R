@@ -320,7 +320,7 @@ setPositionMetadata.seq <- function(x, ... , value)
         ## reset offset element metadata
         emd <- mcols(x)
 
-        if (is(emd, "DataTable_OR_NULL"))
+        if (is(emd, "DataFrame_OR_NULL"))
         {
             posCol <- which(colnames(emd) == "offset")
 
@@ -358,9 +358,9 @@ setPositionMetadata.seq <- function(x, ... , value)
     }
     else
     {
-        if (!is(emd, "DataTable_OR_NULL"))
+        if (!is(emd, "DataFrame_OR_NULL"))
         {
-            stop("element metadata in 'x' must be a DataTable\n",
+            stop("element metadata in 'x' must be a DataFrame\n",
                  "       object or NULL\n")
         }
 
