@@ -2305,9 +2305,9 @@ void genPredProfileMismatch(NumericMatrix pprof, ByteStringVector x, IntegerVect
     hmap = NULL;
     fchmap = NULL;
 
-    dimFeatureSpace = pow((uint64_t) alphaInf.numAlphabetChars, k);
-
     getAlphabetInfo(bioCharset, lowercase, unmapped, &alphaInf, &allIndexMaps);
+
+    dimFeatureSpace = pow((uint64_t) alphaInf.numAlphabetChars, k);
 
     // if not all features present use hash map
     if ((uint64_t) featureWeights.ncol() != dimFeatureSpace)
