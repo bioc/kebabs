@@ -4,6 +4,9 @@ Change history of package kebabs:
 Version 1.26.0:
 - release as part of Bioconductor 3.13
 
+Version 1.25.2:
+- removed 'register' from macro in ksort.h in order to avoid warnings on Mac OS
+
 Version 1.25.1:
 - minor fix in MismatchC.cpp
 
