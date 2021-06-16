@@ -1,6 +1,15 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.27.1:
+- fix to avoid warnings arising from compiled code
+- fix in kebabsDemo() to avoid build warnings; executing this function now does
+  not have any side effects anymore (previously, data objects were loaded into the
+  global workspace)
+
+Version 1.27.0:
+- new branch for Bioconductor 3.14 devel
+
 Version 1.26.0:
 - release as part of Bioconductor 3.13
 

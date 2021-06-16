@@ -131,7 +131,7 @@ RcppExport SEXP genExplRepC(SEXP xR, SEXP isXStringSetR, SEXP selXR, SEXP annCha
 
 extern "C" {
 
-void freeHeapCallocsC(SEXP kernelTypeR)
+SEXP freeHeapCallocsC(SEXP kernelTypeR)
 {
     int kernelType = as<int>(kernelTypeR);
 
@@ -150,6 +150,8 @@ void freeHeapCallocsC(SEXP kernelTypeR)
             freeHeapMotif();
             break;
     }
+
+    return R_NilValue;
 }
 
 }
