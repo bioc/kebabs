@@ -40,7 +40,7 @@
 #' prediction result and give an indication about the relevance of
 #' sequence sections for the learning result and the underlying
 #' biological functions.
-#' @return 
+#' @return
 #' see above
 #' @examples
 #' ## load package provided sequence dataset
@@ -86,10 +86,17 @@
 
 kebabsDemo <- function()
 {
-    ## load sequence data and labels
-    data(TFBS)
+    ## nullify objects loaded from TFBS data set in order to avoid warnings about
+    ## global variables without visible binding
+    enhancerFB <- NULL
+    yFB <- NULL
+    ccseq <- NULL
+    yCC <- NULL
 
-    ## show seqeuences
+    ## load sequence data and labels
+    data(TFBS, envir=environment())
+
+    ## show sequences
     cat("\nExample1: Classification of DNA sequence as enhancer region\n",
         "with binding of EP300/CREBBP\n\n")
     print(enhancerFB)
@@ -111,7 +118,7 @@ kebabsDemo <- function()
     specK5 <- spectrumKernel(k=5)
 
     cat("\n## training is performed with 80% of the sequences\n",
-        "## selected randomly from the dataset with following kernel:\n", 
+        "## selected randomly from the dataset with following kernel:\n",
         sep="")
 
     print(specK5)
@@ -124,7 +131,7 @@ kebabsDemo <- function()
                               pkg="LiblineaR", svm="C-svc", cost=10))[3]
 
     cat("\ntraining time:", ttimeL, "sec\n")
-    ## predict test sequences 
+    ## predict test sequences
     predL <- predict(modelL, enhancerFB[test])
 
     cat("\nprediction result:\n\n")
@@ -142,7 +149,7 @@ kebabsDemo <- function()
 
     cat("\ntraining time:", ttimeE, "sec\n")
 
-    ## predict test sequences 
+    ## predict test sequences
     predE <- predict(modelE, enhancerFB[test])
 
     cat("\nprediction result:\n\n")
@@ -160,7 +167,7 @@ kebabsDemo <- function()
 
     cat("\ntraining time:", ttimeK, "sec\n")
 
-    ## predict test sequences 
+    ## predict test sequences
     predK <- predict(modelK, enhancerFB[test])
 
     cat("\n## prediction result:\n\n")
@@ -170,10 +177,10 @@ kebabsDemo <- function()
     readline("\nType <Return> \t to continue\n")
 
     ## load sequence data and labels
-    data(CCoil)
+    data(CCoil, envir=environment())
 
     cat("\n---------------------------------------------------------------\n\n")
-    
+
     ## show seqeuences
     cat("\nExample2: Computation of prediction profile for dimeric\n",
         "coil protein GCN4 wild type and trimeric mutation\n\n")
@@ -192,7 +199,7 @@ kebabsDemo <- function()
     gappya <- gappyPairKernel(k=1, m=11, annSpec=TRUE)
 
     cat("\n## training is performed with all sequences of the\n",
-        "## dataset with following annotation specific kernel:\n", 
+        "## dataset with following annotation specific kernel:\n",
         sep="")
 
     print(gappya)
@@ -220,7 +227,7 @@ kebabsDemo <- function()
 
     print(GCN4)
 
-    predProf <- getPredictionProfile(GCN4, gappya, 
+    predProf <- getPredictionProfile(GCN4, gappya,
                                      featureWeights(model),
                                      modelOffset(model))
     cat("\n## show prediction profile\n\n")

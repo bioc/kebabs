@@ -62,7 +62,7 @@ kebabsCollectInfo <- function(onlyKebabsRelated=TRUE)
                             "S4Vectors", "BiocGenerics", "kernlab", "SparseM"))
         ldViaNamespace <- intersect(names(sInfo$loadedOnly),
                           c("Rcpp","Matrix","e1071","LiblineaR","lattice"))
-        
+
         sInfo$otherPkgs <- sInfo$otherPkgs[attachedSubset]
         sInfo$loadedOnly <- sInfo$loadedOnly[ldViaNamespace]
     }
@@ -851,7 +851,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL,
 
     if (length(prediction) != length(label))
         stop("length of 'prediction' and 'label' do not match\n")
-    
+
     computeAUC <- FALSE
 
     if (is.factor(label))
@@ -869,13 +869,13 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL,
     else
     {
         allLabels <- sortWith_LC_Collate_C(allLabels, decreasing=TRUE)
-        
+
         ## AUC currently only for binary classification
-        if (!is.null(decValues) && !(is.na(decValues)))
+        if (!is.null(decValues) && !any(is.na(decValues)))
         {
             if (length(decValues) != length(label))
                 stop("length of 'decValues' and 'label' do not match\n")
-            
+
             computeAUC <- TRUE
         }
     }
@@ -938,7 +938,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL,
         }
         else
             trainBalance <- NA
-            
+
         if ((computeAUC == TRUE) && sum(x[,1]) > 0 && sum(x[,2]) > 0)
             auc <- auc(computeROCandAUC(decValues, label, allLabels))
     }
@@ -980,7 +980,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL,
         {
             cat("Accuracy:            ",
                 format(accuracy, width=8, digits=3, nsmall=numPrecision,
-                       trim=FALSE), "% (", sum(corrClassified), " of ", l, 
+                       trim=FALSE), "% (", sum(corrClassified), " of ", l,
                        ")\n", sep="")
             cat("Balanced accuracy:   ",
                 format(balAccuracy, width=8, digits=3, nsmall=numPrecision,
@@ -995,7 +995,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL,
                 cat("Sensitivity:         ",
                     format(100 * corrClassified[i] / sum(x[,i]), width=8,
                            digits=3, nsmall=numPrecision, trim=FALSE),
-                    "% (", corrClassified[i] , " of ", sum(x[,i]), ")\n", 
+                    "% (", corrClassified[i] , " of ", sum(x[,i]), ")\n",
                     sep="")
                 cat("Specificity:         ",
                     format(100 * sum(corrClassified[-i]) / sum(x[,-i]), width=8,
@@ -1013,7 +1013,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL,
             if (length(numPosNegTrainSamples) > 0)
             {
                 cat("Training set balance:",
-                    format(trainBalance, width=8, digits=3, 
+                    format(trainBalance, width=8, digits=3,
                            nsmall=numPrecision),
                     "% (", numPosNegTrainSamples[1], " positive of ",
                     numPosNegTrainSamples[1] + numPosNegTrainSamples[1],
