@@ -1,6 +1,9 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.27.2:
+- fix in evaluatePrediction() (avoid length>1 logical condition)
+
 Version 1.27.1:
 - fix to avoid warnings arising from compiled code
 - fix in kebabsDemo() to avoid build warnings; executing this function now does
