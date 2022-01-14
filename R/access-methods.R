@@ -91,11 +91,11 @@ maxAnnotationCharsetLength <- 32
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 ###################################################
 ##
@@ -508,11 +508,11 @@ setReplaceMethod("mcols", signature(x="BioVector"),
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setMethod("folds", "CrossValidationResult",
 function(object) object@folds)
@@ -638,11 +638,11 @@ performance.CrossValidationResult)
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setMethod("gridRows", "ModelSelectionResult",
           function(object) object@gridRows)
@@ -741,11 +741,11 @@ setMethod("fullModel", "ModelSelectionResult",
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 ## accessor auc
 setMethod("auc", "ROCData", function(object) object@AUC)
@@ -868,11 +868,11 @@ setReplaceMethod("fpr", "ROCData",
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 
 ## accessor modelOffset for b
@@ -1018,11 +1018,11 @@ setReplaceMethod("probabilityModel", "KBModel",
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 
 setMethod("[", signature(x="KernelMatrix", i="index", j="missing"),
@@ -1219,11 +1219,11 @@ setMethod("[", signature(x="KernelMatrix", i="index", j="index"),
 #' @return see details above 
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setMethod("[", signature(x="ExplicitRepresentationDense", i="index",
                          j="missing"),
@@ -1769,11 +1769,11 @@ setMethod("[", signature(x="ExplicitRepresentationSparse", i="index",
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setMethod("sequences", "PredictionProfile", function(object) object@sequences)
 setMethod("profiles", "PredictionProfile", function(object) object@profiles)

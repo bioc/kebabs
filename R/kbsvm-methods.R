@@ -832,11 +832,11 @@ kbsvm.seqs <- function(x, y, kernel=NULL, pkg="auto", svm="C-svc",
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 #' @keywords kbsvm
 #' @keywords training
 #' @keywords cross validation

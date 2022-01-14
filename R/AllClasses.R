@@ -24,11 +24,11 @@
 #        The boolean is set by default and reset by the \code{kebabs} kernels.
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("SequenceKernel",
     representation = representation
@@ -68,11 +68,11 @@ setClass("SequenceKernel",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("SpectrumKernel",
     representation = representation
@@ -130,11 +130,11 @@ setClass("SpectrumKernel",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("MismatchKernel",
     representation=representation
@@ -191,11 +191,11 @@ setClass("MismatchKernel",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("MotifKernel",
     representation = representation
@@ -253,11 +253,11 @@ setClass("MotifKernel",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("GappyPairKernel",
     representation = representation
@@ -311,11 +311,11 @@ setClass("GappyPairKernel",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("SymmetricPairKernel",
     representation = representation
@@ -376,11 +376,11 @@ setClass("SymmetricPairKernel",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("BioVector",
     representation=representation
@@ -464,11 +464,11 @@ setClass("AAVector",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("KernelMatrix",representation("matrix"),
          prototype=structure(.Data=matrix()))
@@ -500,11 +500,11 @@ setClass("KernelMatrix",representation("matrix"),
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("ExplicitRepresentation",
     representation = representation
@@ -580,11 +580,11 @@ setClass("ExplicitRepresentationSparse",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("PredictionProfile",
     representation=representation
@@ -627,11 +627,11 @@ setClass("PredictionProfile",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("ROCData",
     representation=representation
@@ -686,11 +686,11 @@ setClass("ROCData",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("SVMInformation",
     representation = representation
@@ -757,11 +757,11 @@ setClass("SVMInformation",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("ControlInformation",
     representation = representation
@@ -818,11 +818,11 @@ setClass("ControlInformation",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("CrossValidationResult",
     representation = representation
@@ -904,11 +904,11 @@ setClass("CrossValidationResult",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("ModelSelectionResult",
     representation = representation
@@ -1000,11 +1000,11 @@ setClass("ModelSelectionResult",
 #'
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 
 setClass("KBModel",
     representation = representation

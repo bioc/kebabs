@@ -166,11 +166,11 @@ kebabsCollectInfo <- function(onlyKebabsRelated=TRUE)
 #' km[1:5, 1:5]
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 #' @keywords kernel, linearKernel
 #' @export
 
@@ -493,11 +493,11 @@ setMethod("%*%", signature(x="dgRMatrix", y="numeric"),
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs//}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 #' @keywords methods
 #' @export
 
@@ -636,11 +636,11 @@ genRandBioSeqs <- function(seqType=c("DNA", "RNA", "AA"), numSequences,
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs//}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 #' @keywords prediction performance
 #' @keywords methods
 #' @export
@@ -833,11 +833,11 @@ computeROCandAUC <- function(prediction, labels, allLabels=NULL)
 #' }
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs//}\cr\cr
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 #' @keywords prediction performance
 #' @keywords methods
 #' @export
@@ -1031,7 +1031,7 @@ evaluatePrediction <- function(prediction, label, allLabels=NULL,
             cat("Matthews CC:         ",
                 format(mcc, width=8, digits=3, nsmall=numPrecision, trim=FALSE),
                 "\n", sep="")
-                
+
             if (!is.na(auc))
             {
                 cat("AUC:                 ",

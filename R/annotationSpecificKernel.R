@@ -144,7 +144,7 @@
 #' \code{\link{metadata}}, \code{\link{mcols}}
 #' @author Johannes Palme <kebabs@@bioinf.jku.at>
 #' @references
-#' \url{http://www.bioinf.jku.at/software/kebabs}\cr\cr
+#' \url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
 #' C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer and
 #' S. Hochreiter (2011) Complex networks govern coiled coil
 #' oligomerization - predicting and profiling by means of a machine
@@ -153,7 +153,7 @@
 #' J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 #' for kernel-based analysis of biological sequences.
 #' \emph{Bioinformatics}, 31(15):2574-2576, 2015.
-#' DOI: \href{http://dx.doi.org/10.1093/bioinformatics/btv176}{10.1093/bioinformatics/btv176}.
+#' DOI: \doi{10.1093/bioinformatics/btv176}.
 #' @keywords kernel
 #' @keywords annotation
 #' @keywords methods
