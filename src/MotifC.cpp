@@ -766,7 +766,7 @@ void setFeatureIndex(struct prefTreeMotif *pTree, int maxMotifLength, int maxPat
                 {
                     // realloc pool
                     (*keyPoolSize) *= 2;
-                    pKeypool = (char *) Realloc(*keyPool, *keyPoolSize, char);
+                    pKeypool = (char *) R_Realloc(*keyPool, *keyPoolSize, char);
                     *keyPool = pKeypool;
                 }
 
@@ -805,7 +805,7 @@ void setFeatureIndex(struct prefTreeMotif *pTree, int maxMotifLength, int maxPat
         if (numEntries > 0)
         {
             // get key pointers
-            char **keys = (char **) Calloc(numEntries, char *);
+            char **keys = (char **) R_Calloc(numEntries, char *);
             pKeys = keys;
             curr = 0;
 
@@ -852,7 +852,7 @@ void setFeatureIndex(struct prefTreeMotif *pTree, int maxMotifLength, int maxPat
                 }
             }
 
-            Free(pKeys);
+            R_Free(pKeys);
             pKeys = NULL;
         }
     }
@@ -954,7 +954,7 @@ RcppExport void findUnweightedPositions(ByteStringVector motifs, IntegerVector *
     bool substGroupOpen;
 
     arraySize = motifs.length * 2; // start with two unweighted positions per motif on average
-    pUnweightedPos = (uint32_t *) Calloc(arraySize, uint32_t);
+    pUnweightedPos = (uint32_t *) R_Calloc(arraySize, uint32_t);
     *unweightedPos = pUnweightedPos;
     currIndex = 0;
 
@@ -987,7 +987,7 @@ RcppExport void findUnweightedPositions(ByteStringVector motifs, IntegerVector *
                         if (currIndex >=  arraySize)
                         {
                             arraySize = arraySize * 2;
-                            pUnweightedPos = Realloc(pUnweightedPos, arraySize, uint32_t);
+                            pUnweightedPos = R_Realloc(pUnweightedPos, arraySize, uint32_t);
                             *unweightedPos = pUnweightedPos;
                         }
 
@@ -1046,7 +1046,7 @@ bool findAnnotatedMotif(uint32_t leafBlock, uint32_t motifStart, uint32_t currPo
         {
             // realloc pool
             *intf->keyPoolSize *= 2;
-            pKeypool = (char *) Realloc(intf->keyPool, *intf->keyPoolSize, char);
+            pKeypool = (char *) R_Realloc(intf->keyPool, *intf->keyPoolSize, char);
             intf->keyPool = pKeypool;
         }
 
@@ -1600,8 +1600,8 @@ void descendOnBranchPos(uint32_t startPos, uint32_t endPos, uint32_t startBlock,
                             if (intf->elemIndex >= intf->currFeatVecLength)
                             {
                                 intf->currFeatVecLength = intf->currFeatVecLength * 1.4;
-                                intf->pFeatVecIndex = (uint32_t *) Realloc(intf->pFeatVecIndex, intf->currFeatVecLength, uint32_t);
-                                intf->pFeatVecValue = (int32_t *) Realloc(intf->pFeatVecValue, intf->currFeatVecLength, int32_t);
+                                intf->pFeatVecIndex = (uint32_t *) R_Realloc(intf->pFeatVecIndex, intf->currFeatVecLength, uint32_t);
+                                intf->pFeatVecValue = (int32_t *) R_Realloc(intf->pFeatVecValue, intf->currFeatVecLength, int32_t);
                             }
 
                             intf->pFeatVecValue[intf->elemIndex] = *motifBegin - intf->offset + 1;
@@ -1649,9 +1649,9 @@ void descendOnBranchPos(uint32_t startPos, uint32_t endPos, uint32_t startBlock,
                                         if (intf->elemIndex >= intf->currFeatVecLength)
                                         {
                                             intf->currFeatVecLength = intf->currFeatVecLength * 1.4;
-                                            intf->pFeatVecIndex = (uint32_t *) Realloc(intf->pFeatVecIndex, intf->currFeatVecLength,
+                                            intf->pFeatVecIndex = (uint32_t *) R_Realloc(intf->pFeatVecIndex, intf->currFeatVecLength,
                                                                                        uint32_t);
-                                            intf->pFeatVecValue = (int32_t *) Realloc(intf->pFeatVecValue, intf->currFeatVecLength,
+                                            intf->pFeatVecValue = (int32_t *) R_Realloc(intf->pFeatVecValue, intf->currFeatVecLength,
                                                                                       int32_t);
                                         }
 
@@ -1699,8 +1699,8 @@ void descendOnBranchPos(uint32_t startPos, uint32_t endPos, uint32_t startBlock,
                         if (intf->elemIndex >= intf->currFeatVecLength)
                         {
                             intf->currFeatVecLength = intf->currFeatVecLength * 1.4;
-                            intf->pFeatVecIndex = (uint32_t *) Realloc(intf->pFeatVecIndex, intf->currFeatVecLength, uint32_t);
-                            intf->pFeatVecValue = (int32_t *) Realloc(intf->pFeatVecValue, intf->currFeatVecLength, int32_t);
+                            intf->pFeatVecIndex = (uint32_t *) R_Realloc(intf->pFeatVecIndex, intf->currFeatVecLength, uint32_t);
+                            intf->pFeatVecValue = (int32_t *) R_Realloc(intf->pFeatVecValue, intf->currFeatVecLength, int32_t);
                         }
 
                         intf->pFeatVecValue[intf->elemIndex] = *motifBegin - intf->offset + 1;
@@ -1974,7 +1974,7 @@ void getNonzeroMotifsERS(bool annSpec, struct prefTreeMotif *pTree, khash_t(fim)
         if (numEntries > 0)
         {
             // get key pointers
-            char **keys = (char **) Calloc(numEntries, char *);
+            char **keys = (char **) R_Calloc(numEntries, char *);
             pKeys = keys;
             curr = 0;
 
@@ -2016,7 +2016,7 @@ void getNonzeroMotifsERS(bool annSpec, struct prefTreeMotif *pTree, khash_t(fim)
                 }
             }
 
-            Free(keys);
+            R_Free(keys);
             pKeys = NULL;
         }
     }
@@ -2067,7 +2067,7 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
         intf.keyPoolSize = &keyPoolSize;
         poolNextFree = 0;
         intf.poolNextFree = &poolNextFree;
-        intf.keyPool = (char *) Calloc(keyPoolSize, char);
+        intf.keyPool = (char *) R_Calloc(keyPoolSize, char);
         pKeypool = intf.keyPool;
 
         unweightedPos = &unweightedPositions;
@@ -2234,7 +2234,7 @@ void getKMStdAnnMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y, 
 
     if (pKeypool != NULL)
     {
-        Free(pKeypool);
+        R_Free(pKeypool);
         pKeypool = NULL;
     }
 
@@ -2271,16 +2271,16 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     if (!symmetric)
         numSamples += sizeY;
 
-    double *normValues = (double *) Calloc(numSamples, double);
+    double *normValues = (double *) R_Calloc(numSamples, double);
 
     // allocate arrays for sparse feature vectors with 32 or 64 bit index
     // store only unnormalized k-mer counts to avoid double space usage
     // add one for the sentinel
     fDim = 2 * maxSeqLength + 1;
     
-    featVectorValue = (int32_t *) Calloc(numSamples * fDim, int32_t);
-    featVectorIndex = (uint32_t *) Calloc(numSamples * fDim, uint32_t);
-    featVectorsStart = (uint64_t *) Calloc(numSamples + 1, uint64_t);
+    featVectorValue = (int32_t *) R_Calloc(numSamples * fDim, int32_t);
+    featVectorIndex = (uint32_t *) R_Calloc(numSamples * fDim, uint32_t);
+    featVectorsStart = (uint64_t *) R_Calloc(numSamples + 1, uint64_t);
 
     // alloc mem for prefix tree
     maxNoOfNodes = MAX_BLOCK;
@@ -2296,10 +2296,10 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     {
         Rprintf("Allocation of heap for tree failed\n");
         initMatrixWithNA(km, sizeX, sizeY);
-        Free(featVectorIndex);
-        Free(featVectorValue);
-        Free(featVectorsStart);
-        Free(normValues);
+        R_Free(featVectorIndex);
+        R_Free(featVectorValue);
+        R_Free(featVectorsStart);
+        R_Free(normValues);
         return;
     }
 
@@ -2309,10 +2309,10 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
     {
         Rprintf("Creation of tree failed\n");
         initMatrixWithNA(km, sizeX, sizeY);
-        Free(featVectorIndex);
-        Free(featVectorValue);
-        Free(featVectorsStart);
-        Free(normValues);
+        R_Free(featVectorIndex);
+        R_Free(featVectorValue);
+        R_Free(featVectorsStart);
+        R_Free(normValues);
         return;
     }
 
@@ -2386,10 +2386,10 @@ void getKMPosDistMotif(NumericMatrix km, ByteStringVector x, ByteStringVector y,
                            normValues, maxFeaturesPerSample, motifs.length, sizeX, sizeY, normalized, symmetric,
                            FALSE, distWeight);
     
-    Free(featVectorIndex);
-    Free(featVectorValue);
-    Free(featVectorsStart);
-    Free(normValues);
+    R_Free(featVectorIndex);
+    R_Free(featVectorValue);
+    R_Free(featVectorsStart);
+    R_Free(normValues);
 
     return;
 }
@@ -2632,7 +2632,7 @@ RcppExport SEXP genExplRepMotif(ByteStringVector x, int sizeX, IntegerVector sel
         intf.keyPoolSize = &keyPoolSize;
         poolNextFree = 0;
         intf.poolNextFree = &poolNextFree;
-        intf.keyPool = (char *) Calloc(keyPoolSize, char);
+        intf.keyPool = (char *) R_Calloc(keyPoolSize, char);
         pKeypool = intf.keyPool;
         unweightedPos = &unweightedPositions;
         
@@ -3142,12 +3142,12 @@ void genFeatVectorsMotif(ByteStringVector x, int sizeX, IntegerVector selX, Inte
     if (intf.currFeatVecLength > MAX_FEAT_VEC_LENGTH)
         intf.currFeatVecLength = MAX_FEAT_VEC_LENGTH;
 
-    *featVectorIndex = (uint32_t *) Calloc(intf.currFeatVecLength, uint32_t);
-    *featVectorValue = (int32_t *) Calloc(intf.currFeatVecLength, int32_t);
-    *startIndex = (uint64_t *) Calloc(sizeX + 1, uint64_t);
+    *featVectorIndex = (uint32_t *) R_Calloc(intf.currFeatVecLength, uint32_t);
+    *featVectorValue = (int32_t *) R_Calloc(intf.currFeatVecLength, int32_t);
+    *startIndex = (uint64_t *) R_Calloc(sizeX + 1, uint64_t);
 
     if (normalized)
-        *kernelValue = (double *) Calloc(sizeX, double);
+        *kernelValue = (double *) R_Calloc(sizeX, double);
 
     intf.markUsedOnly = FALSE;
     intf.markMotifsInSample = FALSE;
@@ -3274,12 +3274,12 @@ bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(p
                 kh_value(pdfwmap, iter) = kh_value(pdfwmap, iter) + normFactor * coefs[sel[0]];
         }
 
-        Free(featVectorIndex);
-        Free(featVectorValue);
-        Free(startIndex);
+        R_Free(featVectorIndex);
+        R_Free(featVectorValue);
+        R_Free(startIndex);
 
         if (normalized)
-            Free(kernelValue);
+            R_Free(kernelValue);
     }
 
     *numKeys = kh_size(pdfwmap);
@@ -3288,7 +3288,7 @@ bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(p
         return(TRUE);
 
     // create mapping to index
-    *keys = (T *) Calloc(kh_size(pdfimap) + 1, T);
+    *keys = (T *) R_Calloc(kh_size(pdfimap) + 1, T);
     numEntries = 0;
 
     for (iter = kh_begin(pdfimap); iter != kh_end(pdfimap); iter++)
@@ -3313,7 +3313,7 @@ bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(p
     else
         limit = weightLimit;
 
-    *keys = (T *) Calloc(kh_size(pdfwmap), T);
+    *keys = (T *) R_Calloc(kh_size(pdfwmap), T);
     numEntries = 0;
 
     for (iter = kh_begin(pdfwmap); iter != kh_end(pdfwmap); iter++)
@@ -3329,7 +3329,7 @@ bool getSVWeightsFeatMotif(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_t(p
     if (*numKeys != numEntries)
     {
         *numKeys = numEntries;
-        *keys = (T *) Realloc(*keys, *numKeys, T);
+        *keys = (T *) R_Realloc(*keys, *numKeys, T);
     }
 
     // sort keys according to position and feature index
@@ -3562,7 +3562,7 @@ void genPredProfileMotif(NumericMatrix profiles, ByteStringVector x, IntegerVect
         intf.keyPoolSize = &keyPoolSize;
         poolNextFree = 0;
         intf.poolNextFree = &poolNextFree;
-        pKeypool = (char *) Calloc(keyPoolSize, char);
+        pKeypool = (char *) R_Calloc(keyPoolSize, char);
         keyPool = pKeypool;
         intf.keyPool = keyPool;
     }
@@ -3689,19 +3689,19 @@ void freeHeapMotif()
 
     if (pKeypool != NULL)
     {
-        Free(pKeypool);
+        R_Free(pKeypool);
         pKeypool = NULL;
     }
 
     if (pKeys != NULL)
     {
-        Free(pKeys);
+        R_Free(pKeys);
         pKeys = NULL;
     }
 
     if (pUnweightedPos != NULL)
     {
-        Free(pUnweightedPos);
+        R_Free(pUnweightedPos);
         pUnweightedPos = NULL;
     }
 }

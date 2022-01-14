@@ -159,9 +159,9 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     vectorSize = sizeX + sizeY;
     growBy = 1.6;
     
-    pptr = (int *) Calloc(sizeY + 1, int);
-    iptr = (int *) Calloc(vectorSize, int);
-    xptr = (double *) Calloc(vectorSize, double);
+    pptr = (int *) R_Calloc(sizeY + 1, int);
+    iptr = (int *) R_Calloc(vectorSize, int);
+    xptr = (double *) R_Calloc(vectorSize, double);
     ptrP = pptr;
     ptrI = iptr;
     ptrX = xptr;
@@ -205,8 +205,8 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
                     {
                         // realloc arrays i and x
                         vectorSize *= growBy;
-                        iptr = (int *) Realloc(iptr, vectorSize, int);
-                        xptr = (double *) Realloc(xptr, vectorSize, double);
+                        iptr = (int *) R_Realloc(iptr, vectorSize, int);
+                        xptr = (double *) R_Realloc(xptr, vectorSize, double);
                         ptrI = iptr;
                         ptrX = xptr;
                     }
@@ -260,8 +260,8 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
                     {
                         // realloc arrays i and x
                         vectorSize = (uint64_t) (vectorSize * growBy);
-                        iptr = (int *) Realloc(iptr, vectorSize, int);
-                        xptr = (double *) Realloc(xptr, vectorSize, double);
+                        iptr = (int *) R_Realloc(iptr, vectorSize, int);
+                        xptr = (double *) R_Realloc(xptr, vectorSize, double);
                         ptrI = iptr;
                         ptrX = xptr;
                     }
@@ -280,14 +280,14 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     if (nextFree == 0)  // realloc with 0 bytes does not work on Ubuntu
     {
         // shrink to one element
-        iptr = (int *) Realloc(iptr, 1, int);
-        xptr = (double *) Realloc(xptr, 1, double);
+        iptr = (int *) R_Realloc(iptr, 1, int);
+        xptr = (double *) R_Realloc(xptr, 1, double);
     }
     else
     {
         // shrink to actual size
-        iptr = (int *) Realloc(iptr, nextFree, int);
-        xptr = (double *) Realloc(xptr, nextFree, double);
+        iptr = (int *) R_Realloc(iptr, nextFree, int);
+        xptr = (double *) R_Realloc(xptr, nextFree, double);
     }
 
     // allocate sparse km as dgCMatrix
@@ -319,7 +319,7 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     for (i=0; i < sizeY + 1; i++)
         INTEGER(slot_p)[i] = pptr[i];
     
-    Free(pptr);
+    R_Free(pptr);
     ptrP = NULL;
     
     slot_i = PROTECT(Rf_allocVector(INTSXP, nextFree));
@@ -328,7 +328,7 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     for (i=0; i < nextFree; i++)
         INTEGER(slot_i)[i] = iptr[i];
     
-    Free(iptr);
+    R_Free(iptr);
     ptrI = NULL;
     
     slot_x = PROTECT(Rf_allocVector(REALSXP, nextFree));
@@ -337,7 +337,7 @@ RcppExport SEXP linearKernelSparseKMdgRMatrixC(SEXP sizeXR, SEXP pXR, SEXP jXR, 
     for (i=0; i < nextFree; i++)
         REAL(slot_x)[i] = xptr[i];
     
-    Free(xptr);
+    R_Free(xptr);
     ptrX = NULL;
     
     numProtect += 3;
@@ -453,19 +453,19 @@ void freeHeapLinearKernelC()
 {
     if (ptrP != NULL)
     {
-        Free(ptrP);
+        R_Free(ptrP);
         ptrP = NULL;
     }
 
     if (ptrI != NULL)
     {
-        Free(ptrI);
+        R_Free(ptrI);
         ptrI = NULL;
     }
 
     if (ptrX != NULL)
     {
-        Free(ptrX);
+        R_Free(ptrX);
         ptrX = NULL;
     }
 }
