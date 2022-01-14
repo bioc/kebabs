@@ -1,6 +1,16 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.29.1:
+- fixed C++ code to work with newer version of Rcpp (enforced STRICT_R_HEADERS)
+- updated URLs and DOIs (now requires R version >= 3.3.0)
+
+Version 1.29.0:
+- new branch for Bioconductor 3.15 devel
+
+Version 1.28.0:
+- release as part of Bioconductor 3.14
+
 Version 1.27.2:
 - fix in evaluatePrediction() (avoid length>1 logical condition)
 
