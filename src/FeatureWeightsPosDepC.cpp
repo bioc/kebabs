@@ -56,7 +56,7 @@ bool getWeightsPerPosition(T maxUnSignedIndex, SEXP *pdFeatWeights, khash_t(pdfw
         if (iter == kh_end(pdfwmap))
         {
             Rprintf("key %llu not found in hashmap during determination of feature weights\n", keys[i]);
-            Free(keys);
+            R_Free(keys);
             return(FALSE);
         }
 
@@ -73,7 +73,7 @@ bool getWeightsPerPosition(T maxUnSignedIndex, SEXP *pdFeatWeights, khash_t(pdfw
         if (iter == kh_end(pdfimap))
         {
             Rprintf("pattern %llu not found in hashmap during determination of feature weights\n", featIndex);
-            Free(keys);
+            R_Free(keys);
             return(FALSE);
         }
 
@@ -83,7 +83,7 @@ bool getWeightsPerPosition(T maxUnSignedIndex, SEXP *pdFeatWeights, khash_t(pdfw
     while (currCol < numCols)
         INTEGER(slot_p)[++currCol] = currElem;
 
-    Free(keys);
+    R_Free(keys);
     return(TRUE);
 }
 

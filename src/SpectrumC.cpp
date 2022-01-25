@@ -1195,7 +1195,7 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
         if (normalized && !(zeroFeatures && features.length < 1))
         {
             calcKernelValue = TRUE;
-            *normValues = (double *) Calloc(sizeX, double);
+            *normValues = (double *) R_Calloc(sizeX, double);
             pNormValues = *normValues;
 
             if (useHash)
@@ -1207,7 +1207,7 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
             {
                 DEFINE_BITARRAY(usedFeatures, dimFeatureSpace);
                 featuresInSample = usedFeatures;
-                featureCounts = (uint32_t *) Calloc(dimFeatureSpace, uint32_t);
+                featureCounts = (uint32_t *) R_Calloc(dimFeatureSpace, uint32_t);
                 pFeatureCounts = featureCounts;
             }
         }
@@ -1284,7 +1284,7 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
         }
         else
         {
-            featIndexMap = (uint32_t *) Calloc(dimFeatureSpace, uint32_t);
+            featIndexMap = (uint32_t *) R_Calloc(dimFeatureSpace, uint32_t);
             pFeatureMap = featIndexMap;
             *indexMap = (void *) featIndexMap;
 
@@ -2024,7 +2024,7 @@ void getERDSpectrum(NumericMatrix erd, ByteStringVector x, int sizeX, IntegerVec
 
     if (normalized && normValues == NULL)
     {
-        normValues = (double *) Calloc(sizeX, double);
+        normValues = (double *) R_Calloc(sizeX, double);
         pNormValues = normValues;
         calcKernelValue = TRUE;
     }
@@ -2427,7 +2427,7 @@ bool getERSSpectrum(ByteStringVector x, int sizeX, IntegerVector selX, ByteStrin
 
     if (normalized && normValues == NULL)
     {
-        normValues = (double *) Calloc(sizeX, double);
+        normValues = (double *) R_Calloc(sizeX, double);
         pNormValues = normValues;
         saveKernelValue = TRUE;
     }
@@ -3793,7 +3793,7 @@ bool getSVWeightsFeatSpectrum(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_
         return(TRUE);
 
     // create mapping to index
-    *keys = (T *) Calloc(kh_size(pdfimap) + 1, T);
+    *keys = (T *) R_Calloc(kh_size(pdfimap) + 1, T);
     numEntries = 0;
 
     for (iter = kh_begin(pdfimap); iter != kh_end(pdfimap); iter++)
@@ -3810,7 +3810,7 @@ bool getSVWeightsFeatSpectrum(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_
         kh_value(pdfimap, iter) = i;
     }
 
-    Free(*keys);
+    R_Free(*keys);
     
     // perform weight pruning for pos specific kernels
     // for pos dependent kernels weight pruning is done at prediction or
@@ -3820,7 +3820,7 @@ bool getSVWeightsFeatSpectrum(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_
     else
         limit = weightLimit;
 
-    *keys = (T *) Calloc(kh_size(pdfwmap), T);
+    *keys = (T *) R_Calloc(kh_size(pdfwmap), T);
     numEntries = 0;
 
     for (iter = kh_begin(pdfwmap); iter != kh_end(pdfwmap); iter++)
@@ -3836,7 +3836,7 @@ bool getSVWeightsFeatSpectrum(T maxUnSignedIndex, khash_t(pdfw) *pdfwmap, khash_
     if (*numKeys != numEntries)
     {
         *numKeys = numEntries;
-        *keys = (T *) Realloc(*keys, *numKeys, T);
+        *keys = (T *) R_Realloc(*keys, *numKeys, T);
     }
 
     // sort keys according to position and feature index
@@ -4041,7 +4041,7 @@ void genPredProfileSpectrum(NumericMatrix pprof, ByteStringVector x, IntegerVect
 
     if (normalized)
     {
-        normValues = (double *) Calloc(numSamples, double);
+        normValues = (double *) R_Calloc(numSamples, double);
         pNormValues = normValues;
         fchmap = kh_init(fc);
         pFeatureCountsHMap = fchmap;
@@ -4449,13 +4449,13 @@ void freeHeapSpectrum()
 {
     if (pNormValues != NULL)
     {
-        Free(pNormValues);
+        R_Free(pNormValues);
         pNormValues = NULL;
     }
 
     if (pFeatureCounts != NULL)
     {
-        Free(pFeatureCounts);
+        R_Free(pFeatureCounts);
         pFeatureCounts = NULL;
     }
 
@@ -4467,7 +4467,7 @@ void freeHeapSpectrum()
 
     if (pFeatureMap != NULL)
     {
-        Free(pFeatureMap);
+        R_Free(pFeatureMap);
         pFeatureMap = NULL;
     }
 
@@ -4479,7 +4479,7 @@ void freeHeapSpectrum()
 
     if (pUnweightedPos != NULL)
     {
-        Free(pUnweightedPos);
+        R_Free(pUnweightedPos);
         pUnweightedPos = NULL;
     }
 

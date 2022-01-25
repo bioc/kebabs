@@ -985,7 +985,7 @@ bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, bool unmappe
     if (normalized && !(zeroFeatures && features.length < 1))
     {
         calcKernelValue = TRUE;
-        *normValues = (double *) Calloc(sizeX, double);
+        *normValues = (double *) R_Calloc(sizeX, double);
         pNormValues = *normValues;
 
         if (useHash)
@@ -997,7 +997,7 @@ bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, bool unmappe
         {
             DEFINE_BITARRAY(usedFeatures, dimFeatureSpace);
             featuresInSample = usedFeatures;
-            featureCounts = (uint32_t *) Calloc(dimFeatureSpace, uint32_t);
+            featureCounts = (uint32_t *) R_Calloc(dimFeatureSpace, uint32_t);
             pFeatureCounts = featureCounts;
         }
     }
@@ -1021,7 +1021,7 @@ bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, bool unmappe
     }
     else
     {
-        featIndexMap = (uint32_t *) Calloc(dimFeatureSpace, uint32_t);
+        featIndexMap = (uint32_t *) R_Calloc(dimFeatureSpace, uint32_t);
         pfeatIndexMap = featIndexMap;
         *indexMap = (void *) featIndexMap;
         vmax = vmaxget();
@@ -1031,7 +1031,7 @@ bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, bool unmappe
 
         if (!calcKernelValue)
         {
-            indexSet = (uint32_t *) Calloc(dimFeatureSpace, uint32_t);
+            indexSet = (uint32_t *) R_Calloc(dimFeatureSpace, uint32_t);
             pIndexMap = indexSet;
         }
 
@@ -1397,7 +1397,7 @@ void getERDMismatch(ByteStringVector x, int sizeX, IntegerVector selX, bool unma
 
     if (normalized && normValues == NULL)
     {
-        normValues = (double *) Calloc(sizeX, double);
+        normValues = (double *) R_Calloc(sizeX, double);
         pNormValues = normValues;
         calcKernelValue = TRUE;
     }
@@ -2318,7 +2318,7 @@ void genPredProfileMismatch(NumericMatrix pprof, ByteStringVector x, IntegerVect
 
     if (normalized)
     {
-        normValues = (double *) Calloc(numSamples, double);
+        normValues = (double *) R_Calloc(numSamples, double);
         pNormValues = normValues;
         fchmap = kh_init(fc);
         pFeatureCountsHMap = fchmap;
@@ -2419,19 +2419,19 @@ void freeHeapMismatch()
 {
     if (pNormValues != NULL)
     {
-        Free(pNormValues);
+        R_Free(pNormValues);
         pNormValues = NULL;
     }
 
     if (pfeatIndexMap != NULL)
     {
-        Free(pfeatIndexMap);
+        R_Free(pfeatIndexMap);
         pfeatIndexMap = NULL;
     }
 
     if (pIndexMap != NULL)
     {
-        Free(pIndexMap);
+        R_Free(pIndexMap);
         pIndexMap = NULL;
     }
 
