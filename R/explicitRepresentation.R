@@ -701,7 +701,7 @@ getExRepQuadraticSparse <- function(exRepLin, useRowNames=TRUE,
     if (!zeroFeatures)
         erq <- erq[, which(colSums(erq) != 0)]
 
-    ersq <- as(erq, "dgRMatrix")
+    ersq <- as(as(erq, "RsparseMatrix"), "dgRMatrix")
 
     expRepQuad@Dimnames <- list(exRepLin@Dimnames[[1]], colnames(ersq))
     expRepQuad@Dim <- c(exRepLin@Dim[[1]], ersq@Dim[[2]])

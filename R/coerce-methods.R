@@ -78,7 +78,7 @@ asERS.ExplicitRepresentationDense <- function(from)
     expRepS <- new("ExplicitRepresentationSparse")
     expRepS@usedKernel <- from@usedKernel
     expRepS@quadratic <- from@quadratic
-    smat <- as(from@.Data, "dgRMatrix")
+    smat <- as(as(from@.Data, "RsparseMatrix"), "dgRMatrix")
     expRepS@p <- smat@p
     expRepS@j <- smat@j
     expRepS@Dim <- smat@Dim
@@ -140,7 +140,7 @@ distWeightKernelToString <- function(distWeight)
 {
     dwLength <- length(distWeight)
     distWeightChar <- ""
-    
+
     if (is.numeric(distWeight))
     {
         if (dwLength == 1)
@@ -163,7 +163,7 @@ distWeightKernelToString <- function(distWeight)
         func <- deparse(distWeight)[2]
         index <- grep("(", strsplit(func, split="")[[1]], fixed=TRUE,
                       value=FALSE)
-        
+
         if (length(index) > 0)
             distWeightChar <- substr(func, 1, index[1] - 1)
         {
@@ -273,7 +273,7 @@ seqKernelAsChar <- function(from)
         else
             kChar <- paste(kChar, ", ", sep="")
 
-        kChar <- paste(kChar, "ignoreLower=", 
+        kChar <- paste(kChar, "ignoreLower=",
                        kernelParameters(from)$ignoreLower, sep="")
     }
 

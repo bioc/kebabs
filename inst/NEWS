@@ -1,6 +1,15 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.31.1:
+- minor changes in coercions in accordance with latest version of 'Matrix' package
+
+Version 1.31.0:
+- new branch for Bioconductor 3.16 devel
+
+Version 1.30.0:
+- release as part of Bioconductor 3.15
+
 Version 1.29.1:
 - fixed C++ code to work with newer version of Rcpp (enforced STRICT_R_HEADERS)
 - updated URLs and DOIs (now requires R version >= 3.3.0)
