@@ -25,11 +25,11 @@ CrossValidationResult Accessors
 
 
 \describe{
-  \item{}{\code{folds}:
-  return the CV folds.
+  \item{\code{folds}}{
+    returns the CV folds.
   }
-  \item{}{\code{performance}:
-  return the collected performance parameters.
+  \item{\code{performance}}{
+    returns the collected performance parameters.
   }
 }
 }

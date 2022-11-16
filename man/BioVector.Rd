@@ -97,15 +97,13 @@ is possible in KeBABS with sequence data in \code{BioVector} based format.
 In the code snippets below, \code{x} is a \code{BioVector}.
 
 \describe{
-  \item{}{\code{length(x)}:
-  the number of sequences in \code{x}.
+  \item{\code{length(x)}}{gives the number of sequences in \code{x}.
   }
-  \item{}{\code{width(x)}:
-  vector of integer values with the number of bases/amino
-  acids for each sequence in the set.
+  \item{\code{width(x)}}{provides vector of integer
+    values with the number of bases/amino
+    acids for each sequence in the set.
   }
-  \item{}{\code{names(x)}:
-  character vector of sample names.
+  \item{\code{names(x)}}{provides character vector of sample names.
   }
 }
 }
@@ -115,15 +113,15 @@ In the code snippets below, \code{x} is a \code{BioVector}.
 In the code snippets below, \code{x} is a \code{BioVector}.
 
 \describe{
-  \item{}{\code{x[i]}:
-  return a \code{BioVector} object that only contains the samples selected
+  \item{\code{x[i]}}{
+  returns a \code{BioVector} object that only contains the samples selected
   with the subsetting parameter \code{i}. This parameter can be a numeric
   vector with indices or a character vector which is matched against the
   names of \code{x}. Element related metadata is subsetted accordingly if
   available.
   }
-  \item{}{\code{c(x, ...)}:
-  return a sequence set that is a concatination of the given sequence sets.
+  \item{\code{c(x, ...)}}{
+  returns a sequence set that is a concatination of the given sequence sets.
   }
 }
 }
@@ -133,9 +131,9 @@ In the code snippets below, \code{x} is a \code{BioVector}.
 In the code snippets below, \code{x} is a \code{BioVector}.
 
 \describe{
-  \item{}{\code{as.character(x, use.names=TRUE)}:
-  return the sequence set as named or unnamed character vector dependent on
-  the use.names parameter.
+  \item{\code{as.character(x, use.names=TRUE)}}{
+  returns the sequence set as named or unnamed character vector dependent on
+  the \code{use.names} parameter.
   }
 }
 }

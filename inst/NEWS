@@ -1,6 +1,15 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.33.1:
+- fixes in several help pages to avoid warnings
+
+Version 1.33.0:
+- new branch for Bioconductor 3.17 devel
+
+Version 1.32.0:
+- release as part of Bioconductor 3.16
+
 Version 1.31.2:
 - changed dependency to 'Matrix' package (now requires at least version 1.5-0)
 

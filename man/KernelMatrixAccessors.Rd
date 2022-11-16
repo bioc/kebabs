@@ -31,19 +31,19 @@ KernelMatrix Accessors
 
 
 \describe{
-  \item{}{\code{x[i,]}:
-  return a \code{KernelMatrix} object that only contains the rows selected
+  \item{\code{x[i, ]}}{
+  return as \code{KernelMatrix} object that only contains the rows selected
   with the subsetting parameter i. This parameter can be a numeric vector
   with indices or a character vector which is matched against the names of
   \code{x}.
   }
-  \item{}{\code{x[,j]}:
+  \item{\code{x[, j]}}{
   return a \code{KernelMatrix} object that only contains the columns selected
   with the subsetting parameter j. This parameter can be a numeric vector
   with indices or a character vector which is matched against the names of
   \code{x}.
   }
-  \item{}{\code{x[i,j]}:
+  \item{\code{x[i, j]}}{
   return a \code{KernelMatrix} object that only contains the rows selected
   with the subsetting parameter i and columns selected by j. Both parameters
   can be a numeric vector with indices or a character vector which is matched
@@ -57,8 +57,8 @@ KernelMatrix Accessors
 In the code snippets below, \code{x} is a kernel matrix.
 
 \describe{
-  \item{}{\code{as.KernelMatrix(x, center=FALSE)}:
-  center the kernel matrix dependent on the center parameter and coerce
+  \item{\code{as.KernelMatrix(x, center=FALSE)}}{
+  centers the kernel matrix dependent on the center parameter and coerce
   it to class \code{\linkS4class{KernelMatrix}} .
   }
 }

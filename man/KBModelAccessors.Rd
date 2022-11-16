@@ -59,29 +59,31 @@ KBModel Accessors
 }
 \section{Accessor-like methods}{
 
+  In all descriptions below, \code{object} is an object of class
+  \code{\linkS4class{KBModel}}.
 
 \describe{
-  \item{}{\code{modelOffset}:
+  \item{\code{modelOffset(object)}}{
   returns the model offset.
   }
-  \item{}{\code{featureWeights}:
+  \item{\code{featureWeights(object)}}{
   returns the feature weights.
   }
-  \item{}{\code{SVindex}:
+  \item{\code{SVindex(object)}}{
   returns the support vector indices for the training samples.
   }
-  \item{}{\code{cvResult}:
+  \item{\code{cvResult(object)}}{
   returns result of cross validation as object of class
   \code{\linkS4class{CrossValidationResult}}.
   }
-  \item{}{\code{modelSelResult}:
+  \item{\code{modelSelResult(object)}}{
   returns result of model selection as object of class
   \code{\linkS4class{ModelSelectionResult}}.
   }
-  \item{}{\code{svmModel}:
+  \item{\code{svmModel(object)}}{
   returns the native svm model stored within KeBABS model.
   }
-  \item{}{\code{probabilityModel}:
+  \item{\code{probabilityModel(object)}}{
   returns the probability model stored within KeBABS model.
   }
 }

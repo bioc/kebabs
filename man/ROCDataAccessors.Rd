@@ -32,15 +32,17 @@ ROCData Accessors
 }
 \section{Accessor-like methods}{
 
+  In the descriptions below, \code{object} is an object of class
+  \code{\linkS4class{ROCData}}.
 
 \describe{
-  \item{}{\code{auc}:
+  \item{\code{auc(object)}}{
   returns the area under the ROC curve.
   }
-  \item{}{\code{tpr}:
+  \item{\code{tpr(object)}}{
   returns the true positive rate values as numeric vector.
   }
-  \item{}{\code{fpr}:
+  \item{\code{fpr(object)}}{
   returns the false positive rate values as numeric vector.
   }
 }

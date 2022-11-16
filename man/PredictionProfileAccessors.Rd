@@ -28,18 +28,20 @@ PredictionProfile Accessors
 }
 \section{Accessor-like methods}{
 
+  In the descriptions below, \code{object} and \code{x} are objects of class
+  \code{\linkS4class{PredictionProfile}}.
 
 \describe{
-  \item{}{\code{sequences}:
-  return the sequences.
+  \item{\code{sequences(object)}}{
+  returns the sequences.
   }
-  \item{}{\code{profiles}:
+  \item{\code{profiles(object)}}{
   return the prediction profiles.
   }
-  \item{}{\code{baselines}:
+  \item{\code{baselines(object)}}{
   return the baselines.
   }
-  \item{}{\code{x[i]}:
+  \item{\code{x[i]}}{
   return a \code{PredictionProfile} object that only contains the
   prediction profiles selected with the subsetting parameter \code{i}. This
   parameter can be a numeric vector with indices or a character vector with

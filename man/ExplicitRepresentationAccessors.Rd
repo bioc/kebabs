@@ -52,20 +52,20 @@ ExplicitRepresentation Accessors
 
 
 \describe{
-  \item{}{\code{x[i,]}:
-  return a \code{KernelMatrix} object that only contains the rows selected
+  \item{\code{x[i, ]}}{
+  returns a \code{KernelMatrix} object that only contains the rows selected
   with the subsetting parameter \code{i}. This parameter can be a numeric
   vector with indices or a character vector which is matched against the
   names of \code{x}.
   }
-  \item{}{\code{x[,j]}:
-  return a \code{KernelMatrix} object that only contains the columns
+  \item{\code{x[ ,j]}}{
+  returns a \code{KernelMatrix} object that only contains the columns
   selected with the subsetting parameter \code{j}. This parameter can be a
   numeric vector with indices or a character vector which is matched against
   the names of \code{x}.
   }
-  \item{}{\code{x[i,j]}:
-  return a \code{KernelMatrix} object that only contains the rows selected
+  \item{\code{x[i, j]}}{
+  returns a \code{KernelMatrix} object that only contains the rows selected
   with the subsetting parameter \code{i} and columns selected by \code{j}.
   Both parameters can be a numeric vector with indices or a character vector
   which is matched against the names of \code{x}.
@@ -76,8 +76,8 @@ ExplicitRepresentation Accessors
 \section{Accessor-like methods}{
 
 \describe{
-  \item{}{\code{\%*\%}:
-  this function provides the multiplication of a \code{dgRMatrix} or
+  \item{\code{\%*\%}}{
+  this operator provides the multiplication of a \code{dgRMatrix} or
   a sparse explicit representation (which is derived from \code{dgRMatrix})
   with a matrix or a vector. This functionality is not available in package
   \bold{Matrix} for a \code{dgRMatrix}.

@@ -41,28 +41,30 @@ ModelSelectionResult Accessors
 }
 \section{Accessor-like methods}{
 
+  In all descriptions below, \code{object} is an object of class
+  \code{\linkS4class{ModelSelectionResult}}.
 
 \describe{
-  \item{}{\code{gridRows}:
-  return the grid rows containing the kernels.
+  \item{\code{gridRows(object)}}{
+  returns the grid rows containing the kernels.
   }
-  \item{}{\code{gridColumns}:
-  return the grid columns.
+  \item{\code{gridColumns(object)}}{
+  returns the grid columns.
   }
-  \item{}{\code{gridErrors}:
-  return the grid CV errors.
+  \item{\code{gridErrors(object)}}{
+  returns the grid CV errors.
   }
-  \item{}{\code{performance}:
+  \item{\code{performance(object)}}{
   return the collected performance parameters.
   }
-  \item{}{\code{selGridRow}:
-  return the selected grid row.
+  \item{\code{selGridRow(object)}}{
+  returns the selected grid row.
   }
-  \item{}{\code{selGridCol}:
-  return the selected grid column.
+  \item{\code{selGridCol(object)}}{
+  returns the selected grid column.
   }
-  \item{}{\code{fullModel}:
-  return the full model.
+  \item{\code{fullModel(object)}}{
+  returns the full model.
   }
 }
 }
