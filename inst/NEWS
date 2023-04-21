@@ -1,6 +1,9 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.33.2:
+- fix in src/Kebabs.h in order to avoid memory problems on 32-bit architectures
+
 Version 1.33.1:
 - fixes in several help pages to avoid warnings
 

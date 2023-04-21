@@ -7,6 +7,8 @@
 #if defined(_WIN32) || defined(_WIN64)
 #define MAX_BLOCK            8388608         // 2^23 nodes maximum
 #define drand48()            (rand() * (1. / RAND_MAX))
+#elif defined(__i386__) || defined(__ppc__)
+#define MAX_BLOCK            8388608         // 2^23 nodes maximum
 #else
 #define MAX_BLOCK            33554432         // 2^25 nodes maximum
 #endif
