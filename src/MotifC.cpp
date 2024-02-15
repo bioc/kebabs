@@ -283,7 +283,7 @@ bool createMotifTree(ByteStringVector motifs, int maxMotifLength, struct prefTre
                 {
                     if (substitutionGroup)
                     {
-                        Rprintf("Substitution group within substitution group\n",
+                        Rprintf("Substitution group within substitution group\n"
                                 "        not allowed\n");
                         return(FALSE);
                     }

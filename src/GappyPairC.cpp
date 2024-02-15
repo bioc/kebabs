@@ -1958,7 +1958,7 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
                                                 if (result == -1)
                                                 {
                                                     Rprintf("Storage of key %llu in feature count hashmap failed\n",
-                                                            fIndex);
+                                                            (unsigned long long int)fIndex);
                                                     return (FALSE);
                                                 }
 
@@ -1988,7 +1988,8 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
 
                                             if (result == -1)
                                             {
-                                                Rprintf("Storage of key %llu in hashmap failed\n", fIndex);
+                                                Rprintf("Storage of key %llu in hashmap failed\n",
+                                                        (unsigned long long int)fIndex);
                                                 return (FALSE);
                                             }
 
@@ -2136,7 +2137,7 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
                                                 if (result == -1)
                                                 {
                                                     Rprintf("Storage of key %llu in feature count hashmap failed\n",
-                                                            fIndex);
+                                                            (unsigned long long int)fIndex);
                                                     return (FALSE);
                                                 }
 
@@ -2166,7 +2167,8 @@ static bool getIndexMap(ByteStringVector x, int sizeX, IntegerVector selX, ByteS
 
                                             if (result == -1)
                                             {
-                                                Rprintf("Storage of key %llu in hashmap failed\n", fIndex);
+                                                Rprintf("Storage of key %llu in hashmap failed\n",
+                                                        (unsigned long long int)fIndex);
                                                 return (FALSE);
                                             }
 
@@ -3668,7 +3670,8 @@ RcppExport void featuresToHashmapGappyPair(NumericMatrix featureWeights, int svm
 
         if (result == -1)
         {
-            Rprintf("Storage of key %llu in hashmap failed\n", featureIndex);
+            Rprintf("Storage of key %llu in hashmap failed\n",
+                    (unsigned long long int)featureIndex);
             return;
         }
 
@@ -4612,7 +4615,7 @@ void genPredProfileGappyPair(NumericMatrix pprof, ByteStringVector x, IntegerVec
                                         if (result == -1)
                                         {
                                             Rprintf("Storage of key %llu in feature count hashmap failed\n",
-                                                    fIndex);
+                                                    (unsigned long long int)fIndex);
                                             return;
                                         }
 
@@ -4735,7 +4738,7 @@ void genPredProfileGappyPair(NumericMatrix pprof, ByteStringVector x, IntegerVec
                                         if (result == -1)
                                         {
                                             Rprintf("Storage of key %llu in feature count hashmap failed\n",
-                                                    featureIndex1);
+                                                    (unsigned long long int)featureIndex1);
                                             return;
                                         }
 

@@ -762,7 +762,8 @@ void mutateFeatureIndex(uint64_t featureIndex, struct ifMutateFeature *intf)
 
                     if (iter == kh_end(intf->hmap))
                     {
-                        Rprintf("Feature index %llu not found in index mapping\n", currFeatureIndex);
+                        Rprintf("Feature index %llu not found in index mapping\n",
+                                (unsigned long long int)currFeatureIndex);
                         return;
                     }
 
@@ -844,7 +845,7 @@ void mutateFeatureIndex(uint64_t featureIndex, struct ifMutateFeature *intf)
                         if (result == -1)
                         {
                             Rprintf("Storage of key %llu in feature count hashmap failed\n",
-                                    currFeatureIndex);
+                                    (unsigned long long int)currFeatureIndex);
                             return;
                         }
 
@@ -876,7 +877,8 @@ void mutateFeatureIndex(uint64_t featureIndex, struct ifMutateFeature *intf)
 
                             if (result == -1)
                             {
-                                Rprintf("Storage of key %llu in hashmap failed\n", currFeatureIndex);
+                                Rprintf("Storage of key %llu in hashmap failed\n",
+                                        (unsigned long long int)currFeatureIndex);
                                 return;
                             }
 
@@ -2120,7 +2122,8 @@ RcppExport void featuresToHashmapMismatch(NumericMatrix featureWeights, int svmI
 
         if (result == -1)
         {
-            Rprintf("Storage of key %llu in hashmap failed\n", featureIndex);
+            Rprintf("Storage of key %llu in hashmap failed\n",
+                    (unsigned long long int)featureIndex);
             return;
         }
 
@@ -2189,7 +2192,7 @@ void mutateFeatureIndexPredProf(uint64_t featureIndex, int svmIndex, int sampleI
                     if (result == -1)
                     {
                         Rprintf("Storage of key %llu in feature count hashmap failed\n",
-                                featureIndex);
+                                (unsigned long long int)featureIndex);
                         return;
                     }
 
