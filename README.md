@@ -24,4 +24,4 @@ If you encounter any issues or if you have any question that might be of interes
 
 If you use this package for research that is published later, you are kindly asked to cite it as follows:
 
-- J. Palme, S. Hochreiter, and U. Bodenhofer (2015). KeBABS: an R package for kernel-based analysis of biological sequences. *Bioinformatics* **31**:2574-2576. DOI: [10.1093/bioinformatics/bty176](http://doi.org/10.1093/bioinformatics/bty176)
+- J. Palme, S. Hochreiter, and U. Bodenhofer (2015). KeBABS: an R package for kernel-based analysis of biological sequences. *Bioinformatics* **31**:2574-2576. DOI: [10.1093/bioinformatics/btv176](http://doi.org/10.1093/bioinformatics/btv176)
