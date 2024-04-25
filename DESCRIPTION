@@ -1,10 +1,10 @@
 Package: kebabs
 Type: Package
-Title: Kernel-Based Analysis Of Biological Sequences
-Version: 1.37.1
-Date: 2024-02-15
-Author: Johannes Palme
-Maintainer: Ulrich Bodenhofer <bodenhofer@bioinf.jku.at>
+Title: Kernel-Based Analysis of Biological Sequences
+Version: 1.37.2
+Date: 2024-04-25
+Author: Johannes Palme [aut], Ulrich Bodenhofer [aut,cre]
+Maintainer: Ulrich Bodenhofer <ulrich@bodenhofer.com>
 Description: The package provides functionality for kernel-based analysis of
         DNA, RNA, and amino acid sequences via SVM-based methods. As core
         functionality, kebabs implements following sequence kernels:
@@ -35,9 +35,7 @@ Description: The package provides functionality for kernel-based analysis of
         sequence positions to the prediction result and indicate the
         relevance of sequence sections for the learning result and the
         underlying biological functions.
-URL: http://www.bioinf.jku.at/software/kebabs/
-     https://github.com/UBod/kebabs
-##Roxygen: list(wrap=TRUE)
+URL: https://github.com/UBod/kebabs
 License: GPL (>= 2.1)
 Collate: AllClasses.R AllGenerics.R access-methods.R svmModel.R
         kebabs.R kebabsData.R runtimeMessage.R parameters.R

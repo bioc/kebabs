@@ -1,6 +1,12 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.37.2:
+- changed e-mail address of maintainer
+- updated README.md and formatting of package vignette
+- updated references in documentation
+- fixed registration of API calls to C/C++ routines
+
 Version 1.37.1:
 - minor changes to C++ source code to avoid warnings related to printf-style
   format strings

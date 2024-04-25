@@ -1,12 +1,12 @@
 ##345678901234567890123456789012345678901234567890123456789012345678901234567890
 citHeader("To cite package 'kebabs' in publications use:")
 
-citEntry(entry="Article",
+bibentry(bibtype="Article",
          title=paste("KeBABS: an R Package for kernel-based",
                      "analysis of biological sequences."),
-         author=personList(as.person("Johannes Palme"),
-                           as.person("Sepp Hochreiter"),
-                           as.person("Ulrich Bodenhofer")),
+         author=c(person("Johannes", "Palme"),
+                  person("Sepp", "Hochreiter"),
+                  person("Ulrich", "Bodenhofer")),
          journal="Bioinformatics",
          volume="31",
          number="15",

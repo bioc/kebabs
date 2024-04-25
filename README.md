@@ -1,39 +1,27 @@
 # KeBABS - An R Package for Kernel-Based Analysis of Biological Sequences
-The package provides functionality for kernel-based analysis of
-DNA, RNA, and amino acid sequences via SVM-based methods. As core
-functionality, kebabs implements following sequence kernels:
-spectrum kernel, mismatch kernel, gappy pair kernel, and
-motif kernel. Apart from an efficient implementation of standard
-position-independent functionality, the kernels are extended in a
-novel way to take the position of patterns into account for the
-similarity measure. Because of the flexibility of the kernel
-formulation, other kernels like the weighted degree kernel or
-the shifted weighted degree kernel with constant weighting of
-positions are included as special cases. An annotation-specific
-variant of the kernels uses annotation information placed along
-the sequence together with the patterns in the sequence.
-The package allows for the generation of a kernel matrix or an
-explicit feature representation in dense or sparse format for all
-available kernels which can be used with methods implemented in
-other R packages. With focus on SVM-based methods, kebabs
-provides a framework which simplifies the usage of existing
-SVM implementations in kernlab, e1071, and LiblineaR. Binary and
-multi-class classification as well as regression tasks can be used
-in a unified way without having to deal with the different
-functions, parameters, and formats of the selected SVM. As support
-for choosing hyperparameters, the package provides cross
-validation - including grouped cross validation, grid search and
-model selection functions. For easier biological interpretation of
-the results, the package computes feature weights for all SVMs and
-prediction profiles which show the contribution of individual
-sequence positions to the prediction result and indicate the
-relevance of sequence sections for the learning result and the
-underlying biological functions.
-
-This is the source code repository. The package can be installed from
-[Bioconductor](https://bioconductor.org/packages/release/bioc/html/kebabs.html).
-Further information and installation instructions are also available from
-http://www.bioinf.jku.at/software/kebabs/.
+The 'kebabs' package provides functionality for kernel based analysis of biological sequences via Support Vector Machine (SVM) based methods. Biological sequences include DNA, RNA, and amino acid (AA) sequences. Sequence kernels define similarity measures between sequences. The package implements some of the most important kernels for sequence analysis in a very flexible and efficient way and extends the standard position-independent functionality of these kernels in a novel way to take the position of patterns in the sequences into account for the similarity measure.
 
 Although the package is maintained by Ulrich Bodenhofer, the package itself
 has been implemented by Johannes Palme.
+
+## Installation
+
+The package can be installed from
+[Bioconductor](https://bioconductor.org/). Therefore, the the simplest way to install the package is to enter
+```
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("kebabs")
+```
+into your R session. If, for what reason ever, you prefer to install the package manually, follow the instructions in the [user manual](https://bioconductor.org/packages/release/bioc/vignettes/kebabs/inst/doc/kebabs.pdf).
+
+## User support
+
+If you encounter any issues or if you have any question that might be of interest also for other users, before writing a private message to the package developers/maintainers, please create an issue in this repository and also consider posting on [Bioconductor Support](https://support.bioconductor.org/) or on [StackOverflow](https://stackoverflow.com/). For other matters regarding the package, please contact the package author(s).
+
+## Citing this package
+
+If you use this package for research that is published later, you are kindly asked to cite it as follows:
+
+- J. Palme, S. Hochreiter, and U. Bodenhofer (2015). KeBABS: an R package for kernel-based analysis of biological sequences. *Bioinformatics* **31**:2574-2576. DOI: [10.1093/bioinformatics/bty176](http://doi.org/10.1093/bioinformatics/bty176](http://doi.org/10.1093/bioinformatics/btr406)

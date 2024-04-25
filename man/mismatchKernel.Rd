@@ -110,15 +110,18 @@ heatmap(km, symm=TRUE)
 }
 }
 \author{
-Johannes Palme <kebabs@bioinf.jku.at>
+Johannes Palme
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
-(Leslie, 2002) -- C. Leslie, E. Eskin, J. Weston and W.S. Noble.
-Mismatch String Kernels for SVM Protein Classification. \cr\cr
+\url{https://github.com/UBod/kebabs}\cr\cr
+C.S. Leslie, E. Eskin, J. Weston, and W.S. Noble.
+Mismatch string kernels for discriminative protein classification.
+\emph{Bioinformatics}, 1:1-10.
+DOI: \doi{10.1093/bioinformatics/btg431}.
+\cr\cr
 J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 for kernel-based analysis of biological sequences.
-\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+\emph{Bioinformatics}, 31(15):2574-2576.
 DOI: \doi{10.1093/bioinformatics/btv176}.
 }
 \seealso{
@@ -130,5 +133,5 @@ DOI: \doi{10.1093/bioinformatics/btv176}.
 \keyword{kernel}
 \keyword{methods}
 \keyword{mismatch}
-\keyword{mismatchKernel,}
+\keyword{mismatchKernel}
 

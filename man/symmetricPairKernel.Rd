@@ -92,19 +92,20 @@ heatmap(km, symm=TRUE)
 }
 }
 \author{
-Johannes Palme <kebabs@bioinf.jku.at>
+Johannes Palme
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
-(Hue, 2002) -- M.Hue and J.-P.Vert. On learning with kernels for unordered
-pairs. \cr\cr
-(Ben-Hur, 2005) -- A. Ben-Hur and W.S. Noble. Kernel methods for predicting
+\url{https://github.com/UBod/kebabs}\cr\cr
+M. Hue and J.-P.Vert (2010) On learning with kernels for unordered
+pairs. \emph{Proc. 27th Int. Conf. on Machine Learning}, pp. 463-470.\cr\cr
+A. Ben-Hur and W.S. Noble (2005) Kernel methods for predicting
 protein-protein interactions. \cr\cr
-(Gaertner, 2002) -- T. Gaertner, P.A. Flach, A. Kowalczyk, A.J. Smola.
-Multi-Instance Kernels. \cr\cr
+T. Gaertner, P.A. Flach, A. Kowalczyk, and A.J. Smola (2002)
+Multi-instance kernels. \emph{Proc. 19th Int. Conf. on Machine Learning},
+pp. 179-186.\cr\cr
 J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 for kernel-based analysis of biological sequences.
-\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+\emph{Bioinformatics}, 31(15):2574-2576.
 DOI: \doi{10.1093/bioinformatics/btv176}.
 }
 \seealso{
@@ -118,7 +119,7 @@ DOI: \doi{10.1093/bioinformatics/btv176}.
 \keyword{learning}
 \keyword{methods}
 \keyword{multiple}
-\keyword{pair,}
-\keyword{symmetric,}
-\keyword{symmetricPairKernel,}
+\keyword{pair}
+\keyword{symmetric}
+\keyword{symmetricPairKernel}
 

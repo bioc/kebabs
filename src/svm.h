@@ -120,6 +120,86 @@ int svm_check_probability_model(const struct svm_model *model);
 
 void svm_set_print_string_function(void (*print_func)(const char *));
 
+#ifndef _DENSE_REP
+void svmtrain (double *x, int *r, int *c,
+#else
+void svmtraind (double *x, int *r, int *c,
+#endif
+	       double *y,
+	       int    *rowindex, int *colindex,
+	       int    *svm_type,
+	       int    *kernel_type,
+	       int    *degree,
+	       double *gamma,
+	       double *coef0,
+	       double *cost,
+	       double *nu,
+	       int    *weightlabels,
+	       double *weights,
+	       int    *nweights,
+	       double *cache,
+	       double *tolerance,
+	       double *epsilon,
+	       int    *shrinking,
+	       int    *cross,
+           int    *sparse,
+	       int    *probability,
+	       
+	       int    *nclasses,
+	       int    *nr,
+	       int    *index,
+	       int    *labels,
+	       int    *nSV,
+	       double *rho,
+	       double *coefs,
+	       double *sigma,
+	       double *probA,
+	       double *probB,
+
+	       double *cresults,
+	       double *ctotal1,
+	       double *ctotal2,
+	       char   **error);
+
+
+#ifndef _DENSE_REP
+void svmpredict  (int    *decisionvalues,
+#else
+void svmpredictd  (int    *decisionvalues,
+#endif
+		  int    *probability,
+
+		  double *v, int *r, int *c,
+		  int    *rowindex,
+		  int    *colindex,
+		  double *coefs,
+		  double *rho,
+		  int    *compprob,
+		  double *probA,
+		  double *probB,
+		  int    *nclasses,
+		  int    *totnSV,
+		  int    *labels,
+		  int    *nSV,
+		  int    *sparsemodel,
+
+		  int    *svm_type,
+		  int    *kernel_type,
+		  int    *degree,
+		  double *gamma,
+		  double *coef0,
+
+		  double *x, int *xr,
+		  int    *xrowindex,
+		  int    *xcolindex,
+		  int    *sparsex,
+		  
+		  double *ret,
+		  double *dec,
+		  double *prob);
+
+
+
 #ifdef __cplusplus
 }
 #endif

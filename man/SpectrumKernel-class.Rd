@@ -38,13 +38,12 @@ as the same feature}
 \item{\code{mixCoef}}{mixing coefficients for mixture kernel}
 }}
 \author{
-Johannes Palme <kebabs@bioinf.jku.at>
+Johannes Palme
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
+\url{https://github.com/UBod/kebabs}\cr\cr
 J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 for kernel-based analysis of biological sequences.
-\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+\emph{Bioinformatics}, 31(15):2574-2576.
 DOI: \doi{10.1093/bioinformatics/btv176}.
 }
-

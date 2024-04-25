@@ -1,4 +1,4 @@
-\documentclass[article]{bioinf}
+\documentclass{ubmanual}
 
 \usepackage{amsmath,amssymb}
 \usepackage{hyperref}
@@ -9,13 +9,15 @@
 \hypersetup{colorlinks=false,
    pdfborder=0 0 0,
    pdftitle={KeBABS\\ An R Package for Kernel Based Analysis of Biological Sequences},
-   pdfauthor={Johannes Palme}}
+   pdfauthor={Johannes Palme and Ulrich Bodenhofer}}
 
 \title{KeBABS ---\\ An R Package for Kernel Based Analysis of Biological Sequences}
-\author{Johannes Palme and Ulrich Bodenhofer}
-\affiliation{Institute of Bioinformatics, Johannes Kepler University
-Linz\\Altenberger Str. 69, 4040 Linz, Austria\\
-\email{kebabs@bioinf.jku.at}}
+\author{Johannes Palme\affilmark{2} and Ulrich Bodenhofer\affilmark{1,2}}
+\affiliation{\affilmark{1} School of Informatics, Communication and Media\\
+University of Applied Sciences Upper Austria\\
+Softwarepark 11, 4232 Hagenberg, Austria\\[2mm]
+{\grey\affilmark{2} previously with: Institute of Bioinformatics,
+Johannes Kepler University\\Altenberger Str.\ 69, 4040 Linz, Austria}}
 
 %\VignetteIndexEntry{KeBABS - An R Package for Kernel Based Analysis of Biological Sequences}
 %\VignetteKeywords{Kernel, kernels, similarity, sequences, biological sequences, prediction profiles, SVM, classification, regression, multiclass, kernlab, e1071, LiblineaR}
@@ -51,7 +53,7 @@ kebabsDate <- paste(month.name[kebabsDateMonth], " ",
 @
 \newcommand{\kebabsVersion}{\Sexpr{kebabsVersion}}
 \newcommand{\kebabsDate}{\Sexpr{kebabsDate}}
-\manualtitlepage[Version \kebabsVersion, \kebabsDate]
+\manualtitlepage{Version \kebabsVersion, \kebabsDate}{https://github.com/UBod/kebabs}
 
 \section*{Scope and Purpose of this Document}
 

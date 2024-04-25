@@ -51,7 +51,7 @@ variables are defined:\cr\cr
 sequences with a minimum length of 8 and a maximun length of 123 AAs.
 \item \code{yCC} contains the associated oligomerization state "DIMER" or
 "TRIMER".
-\item \code{ccannot} is a charcter vector with the heptad annotations for
+\item \code{ccannot} is a character vector with the heptad annotations for
 the sequences. Characters 'a' to 'f' represent specific positions within the
 coiled coil structure. The AA string set already contains the annotation
 as metadata. But for demonstration purpose it is available as separate data

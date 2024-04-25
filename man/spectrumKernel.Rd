@@ -144,21 +144,27 @@ heatmap(km, symm=TRUE)
 }
 }
 \author{
-Johannes Palme <kebabs@bioinf.jku.at>
+Johannes Palme
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
-(Leslie, 2002) -- C. Leslie, E. Eskin and W.S. Noble. The Spectrum Kernel:
-A String Kernel for SVM Protein Classification. \cr\cr
-(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M. Ionescu and
-S. Hochreiter. Modelling position specificity in sequence kernels by fuzzy
-equivalence relations. \cr\cr
-(Mahrenholz, 2011) -- C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer
-and S. Hochreiter. Complex networks govern coiled-coil oligomerizations -
-predicting and profiling by means of a machine learning approach.\cr\cr
+\url{https://github.com/UBod/kebabs}\cr\cr
+C.S. Leslie, E. Eskin and W.S. Noble (2002) The spectrum kernel:
+a string kernel for SVM protein classification.
+\emph{Proc. Pacific Symposium on Biocomputing}, pp. 566-575.
+\cr\cr
+U. Bodenhofer, K. Schwarzbauer, M. Ionescu, and
+S. Hochreiter (2009)
+Modelling position specificity in sequence kernels by fuzzy
+equivalence relations. \emph{Proc. Joint 13th IFSA World Congress and 6th
+EUSFLAT Conference}, pp. 1376-1381, Lisbon.\cr\cr
+C.C. Mahrenholz, I.G. Abfalter, U. Bodenhofer, R. Volkmer and
+S. Hochreiter (2011) Complex networks govern coiled coil
+oligomerization - predicting and profiling by means of a machine
+learning approach. \emph{Mol. Cell. Proteomics}, 10(5):M110.004994.
+DOI: \doi{10.1074/mcp.M110.004994}. \cr\cr
 J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 for kernel-based analysis of biological sequences.
-\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+\emph{Bioinformatics}, 31(15):2574-2576.
 DOI: \doi{10.1093/bioinformatics/btv176}.
 }
 \seealso{
@@ -169,6 +175,6 @@ DOI: \doi{10.1093/bioinformatics/btv176}.
 }
 \keyword{kernel}
 \keyword{methods}
-\keyword{spectrum,}
+\keyword{spectrum}
 \keyword{spectrumKernel}
 

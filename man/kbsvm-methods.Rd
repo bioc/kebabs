@@ -284,7 +284,7 @@ Package and SVM selection\cr
 The user specifies the SVM implementation to be used for a learning task by
 selecting the package with the \code{pkg} parameter and the SVM method in
 the package with the \code{SVM} parameter. Currently the packages
-code{\link[kernlab:ksvm]{kernlab}}, \code{\link[e1071:svm]{e1071}} and
+\code{\link[kernlab:ksvm]{kernlab}}, \code{\link[e1071:svm]{e1071}} and
 \code{\link[LiblineaR:LiblineaR]{LiblineaR}} are supported. The names for
 SVM methods vary from package to package and KeBABS provide following
 unified names which can be selected across packages. The following table
@@ -551,13 +551,13 @@ probabilityModel(model)
 }
 }
 \author{
-Johannes Palme <kebabs@bioinf.jku.at>
+Johannes Palme
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
+\url{https://github.com/UBod/kebabs}\cr\cr
 J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 for kernel-based analysis of biological sequences.
-\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+\emph{Bioinformatics}, 31(15):2574-2576.
 DOI: \doi{10.1093/bioinformatics/btv176}.
 }
 \seealso{

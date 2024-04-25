@@ -265,18 +265,23 @@ specud <- spectrumKernel(k=3, distWeight=expWeightUserDefined(sigma=5),
 }
 }
 \author{
-Johannes Palme <kebabs@bioinf.jku.at>
+Johannes Palme
 }
 \references{
-\url{http://www.bioinf.jku.at/software/kebabs/}\cr\cr
-(Bodenhofer, 2009) -- U. Bodenhofer, K. Schwarzbauer, M. Ionescu and
-S. Hochreiter. Modelling position specificity in sequence kernels by fuzzy
-equivalence relations. \cr\cr
-(Sonnenburg, 2005) -- S. Sonnenburg, G. Raetsch and B. Schoelkopf.
-Large Scale Genomic Sequence SVM Classifiers. \cr\cr
+\url{https://github.com/UBod/kebabs}\cr\cr
+U. Bodenhofer, K. Schwarzbauer, M. Ionescu, and
+S. Hochreiter (2009)
+Modelling position specificity in sequence kernels by fuzzy
+equivalence relations. \emph{Proc. Joint 13th IFSA World Congress and 6th
+EUSFLAT Conference}, pp. 1376-1381, Lisbon.\cr\cr
+S. Sonnenburg, G. Raetsch, and B. Schoelkopf (2005)
+Large scale genomic sequence SVM classifiers.
+\emph{Proc. 22nd Int. Conf. on Machine learning}, pp. 848-855.
+DOI: \doi{10.1145/1102351.1102458}.
+\cr\cr
 J. Palme, S. Hochreiter, and U. Bodenhofer (2015) KeBABS: an R package
 for kernel-based analysis of biological sequences.
-\emph{Bioinformatics}, 31(15):2574-2576, 2015.
+\emph{Bioinformatics}, 31(15):2574-2576.
 DOI: \doi{10.1093/bioinformatics/btv176}.
 }
 \seealso{
