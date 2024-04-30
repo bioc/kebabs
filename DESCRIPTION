@@ -1,7 +1,7 @@
 Package: kebabs
 Type: Package
 Title: Kernel-Based Analysis of Biological Sequences
-Version: 1.37.2
+Version: 1.38.0
 Date: 2024-04-25
 Author: Johannes Palme [aut], Ulrich Bodenhofer [aut,cre]
 Maintainer: Ulrich Bodenhofer <ulrich@bodenhofer.com>
