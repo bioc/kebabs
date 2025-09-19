@@ -1,9 +1,15 @@
 Package: kebabs
 Type: Package
 Title: Kernel-Based Analysis of Biological Sequences
-Version: 1.43.0
-Date: 2024-04-25
-Author: Johannes Palme [aut], Ulrich Bodenhofer [aut,cre]
+Version: 1.43.1
+Date: 2025-09-19
+Authors@R: c(person(given = "Johannes",
+                    family = "Palme",
+		    role = c("aut")),
+             person(given = "Ulrich",
+	            family = "Bodenhofer",
+		    role = c("aut", "cre", "ths"),
+		    email = "ulrich@bodenhofer.com"))
 Maintainer: Ulrich Bodenhofer <ulrich@bodenhofer.com>
 Description: The package provides functionality for kernel-based analysis of
         DNA, RNA, and amino acid sequences via SVM-based methods. As core
