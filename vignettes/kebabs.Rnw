@@ -3,7 +3,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{hyperref}
 \usepackage{float}
-\usepackage[authoryear]{natbib}
+\usepackage[authoryear,round]{natbib}
 \renewcommand{\bibfont}{\small}
 
 \hypersetup{colorlinks=false,
@@ -23,6 +23,17 @@ Johannes Kepler University\\Altenberger Str.\ 69, 4040 Linz, Austria}}
 %\VignetteKeywords{Kernel, kernels, similarity, sequences, biological sequences, prediction profiles, SVM, classification, regression, multiclass, kernlab, e1071, LiblineaR}
 %\VignetteEngine{knitr::knitr}
 
+\newcommand{\TP}{\text{TP}}
+\newcommand{\TN}{\text{TN}}
+\newcommand{\FP}{\text{FP}}
+\newcommand{\FN}{\text{FN}}
+\newcommand{\ACC}{\text{ACC}}
+\newcommand{\MCC}{\text{MCC}}
+\newcommand{\BACC}{\text{BACC}}
+\newcommand{\SENS}{\text{SENS}}
+\newcommand{\SPEC}{\text{SPEC}}
+\newcommand{\PREC}{\text{PREC}}
+\newcommand{\AUC}{\text{AUC}}
 
 
 \newcommand{\KeBABS}{\text{KeBABS}}
@@ -67,13 +78,13 @@ Please also consider that this manual is not an introduction to \R\ nor an intro
 
 Except for the header files \texttt{khash.h} and \texttt{ksort.h}, three small stub files for Bioconductor packages and four files for the dense version of LIBSVM this package was written entirely by Johannes Palme as part of his master thesis in the Bioinformatics master program at the Johannes Kepler University in Linz, Austria, under the supervision of Ulrich Bodenhofer. The author wants to express his sincere gratitude to Ulrich Bodenhofer for numerous lively discussions throughout the development of the package. The two header files mentioned above provide a fast hash table implementation and sorting algorithms implemented in pure C code and are part of the open-source C-library \texttt{klib} \citep{klib2011}. The R code for prediction profile plots partly uses a similar functionality in the package \texttt{procoil} as inspiration \citep{procoil2011}.
 
-Starting with \kebabs\ version 1.2.0 the dense implementation of the LIBSVM support vector machine is included in the \kebabs\ package. This is now the reliable way for training and prediction via kernel matrices. Up to this version only the SVMs in package \texttt{kernlab} supported kernel matrices. The two files svm.cpp and svm.h were taken from the dense distribution of LIBSVM. In addition the interface files Rsvm.c and svm.R were used from package \texttt{e1071} and adapted to the dense LIBSVM. The author expresses his appreciation for the excellent work of Chih-Chung Chang and Chih-Jen Lin and the contributions from \R\ pacakge \texttt{e1071} written by David Meyer.
+Starting with \kebabs\ version 1.2.0 the dense implementation of the LIBSVM support vector machine is included in the \kebabs\ package. This is now the reliable way for training and prediction via kernel matrices. Up to this version only the SVMs in package \texttt{kernlab} supported kernel matrices. The two files \texttt{svm.cpp} and \texttt{svm.h} were taken from the dense distribution of LIBSVM. In addition the interface files \texttt{Rsvm.c} and \texttt{svm.R} were used from package \texttt{e1071} and adapted to the dense LIBSVM. The author expresses his appreciation for the excellent work of Chih-Chung Chang and Chih-Jen Lin and the contributions from \R\ pacakge \texttt{e1071} written by David Meyer.
 
 The datasets delivered with the package come from two sources:
 \begin{itemize}
-\item TFBS - transcription factor binding site data:
+\item TFBS --- transcription factor binding site data:
 This data set is based on supplementary data provided with the publication "Discriminative prediction of mammalian enhancers from DNA sequence by \cite{Lee2011}.
-\item CCoil - protein sequences for coiled coil proteins :
+\item CCoil --- protein sequences for coiled coil proteins :
 This dataset is part of the data collection for package \texttt{procoil}\footnote{\url{http://www.bioinf.jku.at/software/procoil/data.html}}.
 \end{itemize}
 
@@ -86,9 +97,6 @@ KeBABS relies heavily on functionality provided by other R packages, especially 
 Special thanks go to the persons who have contributed to these packages, the C library \texttt{klib} or any of the data mentioned above.
 
 \newpage
-
-\vspace{1cm}
-
 \newlength{\auxparskip}
 \setlength{\auxparskip}{\parskip}
 \setlength{\parskip}{0pt}
@@ -148,11 +156,14 @@ BiocManager::install("kebabs")
 The above described install method is the standard way of installing the package. If you e.g. want to compile the C/C++ code included in the package with special compile flags, manual installation of the package from source might be necessary. This is done in the following way:
 
 \begin{itemize}
-\item{install packages on which \kebabs\ depends via Bioconductor with\\\\
-\texttt{if (!requireNamespace("BiocManager", quietly=TRUE))\\
-    install.packages("BiocManager")\\
-BiocManager::install(c("Rcpp", "S4Vectors", "XVector", "Biostrings", "SparseM",\\
-\mbox{\hspace{57pt} "kernlab",} "e1071","LiblineaR"))}}
+\item{install packages on which \kebabs\ depends via Bioconductor with
+<<eval=F>>=
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install(c("Rcpp", "S4Vectors", "XVector", "Biostrings",
+                       "SparseM", "kernlab", "e1071","LiblineaR"))
+@
+}
 \item{open the Bioconductor page of the package\footnote{\url{http://www.bioconductor.org/packages/release/bioc/html/kebabs.html}} in your web browser, download the source package \texttt{kebabs\_\kebabsVersion.tar.gz} and save the source package on your hard disk.}
 \item{open a shell/terminal/command prompt window and change to the directory where the source package \texttt{kebabs\_\kebabsVersion.tar.gz} is stored. Then install the package with:\\\\
 \texttt{R CMD install kebabs\_\kebabsVersion.tar.gz}}
@@ -471,7 +482,7 @@ gappyK1M2 <- gappyPairKernel(k=1, m=2)
 
 The feature space for the gappy pair kernel is $| \mathcal{M} | = (m + 1) | \mathcal{A} | ^ {2k}$. It is considerably larger than that of the spectrum or mismatch kernel with same values for \texttt{k}. Through the factor 2 in the exponent the dimensionality grows much faster with increasing k. For amino acids with $k=2$ and $m=10$ the feature space size is already larger than 2 million features. The feature space size grows exponentially with \texttt{k} and linearly with \texttt{m}, which means that through the parameter \texttt{m} the complexity of the kernel can be adjusted better than for other sequence kernels.
 
-The other kernel parameters are identical to the spectrum kernel as described in section \ref{sec:SpectrumKernel}.
+The other kernel parameters are identical to the spectrum kernel as described in Section \ref{sec:SpectrumKernel}.
 
 \subsubsection{Motif Kernel}
 \label{sec:MotifKernel}
@@ -503,7 +514,7 @@ Hint: For a normalized motif kernel with a feature subset of a normalized spectr
 \subsection{Position-Dependent Kernels}
 \label{sec:PosDepKernel}
 
-Position-dependent kernels take the position into account where a pattern occurs in two sequences. To ensure that positions in both sequences are comparable some kind of alignment is required for all kinds of position-dependent kernels as prerequisite. In the simplest form, the kernel only considers patterns which are found at the same position for the similarity measure. This kernel is named as position-specific kernel. Patterns occur in two sequences at exactly the same position only if the sequences are evolutionary or functionally related and when no position-changing mutation occurred. Once a single insert or deletion happens, the pattern sequence with the same patterns at identical positions is disturbed. A more flexible approach is to define a neighborhood of a pattern in which to look for the same pattern on the other sequence. This neighborhood is defined in \KeBABS\ through introduction of a parameterized distance weighting function. The following two subsections describe both kernel variants. More detailed information on the modeling of position dependency can be found in \cite{Bodenhofer2009}.
+Position-dependent kernels take the position into account where a pattern occurs in two sequences. To ensure that positions in both sequences are comparable some kind of alignment is required for all kinds of position-dependent kernels as prerequisite. In the simplest form, the kernel only considers patterns which are found at the same position for the similarity measure. This kernel is named as position-specific kernel. Patterns occur in two sequences at exactly the same position only if the sequences are evolutionary or functionally related and when no position-changing mutation occurred. Once a single insert or deletion happens, the pattern sequence with the same patterns at identical positions is disturbed. A more flexible approach is to define a neighborhood of a pattern in which to look for the same pattern on the other sequence. This neighborhood is defined in \KeBABS\ through introduction of a parameterized distance weighting function. The following two subsections describe both kernel variants. More detailed information on the modeling of position dependency can be found in \citep{Bodenhofer2009}.
 
 
 \subsubsection{Position-Specific Kernel}
@@ -593,11 +604,11 @@ The position-independent kernel also is a special case of this kernel with the t
 With a parameterized distance function, the neighborhood can be adjusted as needed. The package contains three pre-defined distance weighting functions, here defined as functions of the distance $d = |p - q|$
 
 \begin{itemize}
- \item {linear distance weigthing:\\
+ \item {linear distance weigthing:\qquad
            $E_{\mathrm{lin, \sigma}}(d) = \max(1 - \frac{d}{\sigma}, 0)$}
- \item {exponential distance weigthing:\\
+ \item {exponential distance weigthing:\qquad
            $E_{\mathrm{exp, \sigma}}(d) = \exp(- \frac{d}{\sigma})$}
- \item {gaussian distance weigthing:\\
+ \item {Gaussian distance weigthing:\qquad
            $E_{\mathrm{exp, \sigma}}(d) = \exp(- \frac{d^2}{\sigma^2})$}
 \end{itemize}
 
@@ -640,7 +651,7 @@ The shifted weighted degree kernel (SWD) \citep{Raetsch2005} with equal position
 
 \begin{align}
 \label{eq:ShiftedWDKernel}
-E_{SWD}(d) = \frac{1}{2*(| d | + 1)}
+E_{\text{SWD}}(d) = \frac{1}{2*(| d | + 1)}
 \end{align}
 
 This weighting function is similar to exponential distance weighting for $\sigma = 2$ but has a lower peak and larger tails. For brevity input parameter checks are omitted.
@@ -670,7 +681,7 @@ The function \texttt{swdWeight} was a simple example of a user-defined weighting
 
 \begin{align}
 \label{eq:ShiftedWDKernel}
-E_{SWD}(d, b) = b ^ {- | d |}
+E_{\text{SWD}}(d, b) = b ^ {- | d |}
 \end{align}
 
 with the base \texttt{b} as parameter. This example is meant to show the definition of parameterized user-defined weighting functions and of course does not lead to anything new as it is just a scaled version of exponential weighting.
@@ -877,7 +888,7 @@ which(perfData$BACC[1, ] == max(perfData$BACC[1, ]))
 which(perfData$BACC[2, ] == max(perfData$BACC[2, ]))
 @
 
-\noindent We see from the balanced accuracy of both kernels that the balanced accuracy of the annotated gappy pair kernel is often higher than that of the kernel without annotation. The best performing hyper parameter value is different for both kernels. This example also shows clearly that the accuracy as performance measure does not help at all. Also the Matthews correlation coefficient can be selected as performance objective for unbalanced datasets and would have delivered similar results. The best value for MCC is observed for the annotated gappy pair kernel for the same cost value of 30. Finally we can plot the grid performance data for one performance measure. This is helpful especially in situations where multiple kernels and a larger number of hyperparameter values should be compared. Then kernels and regions of good or worse performance can be identified more easily.
+\noindent We see that the balanced accuracy of the annotation-specific gappy pair kernel is most often higher than that of the kernel without annotation. The best performing hyperparameter value is the same for both kernels. This example also shows clearly that the accuracy as performance measure does not help at all. Also the Matthews correlation coefficient can be selected as performance objective for unbalanced datasets and would have delivered the same results in terms of selected kernel and hyperparameters. The best value for MCC is observed for the annotated gappy pair kernel for the same cost value of 10, the same is true if we selected according to AUC. Finally we can plot the grid performance data for one performance measure. This is helpful especially in situations where multiple kernels and a larger number of hyperparameter values should be compared. Then kernels and regions of good or worse performance can be identified more easily.
 
 <<eval=FALSE>>=
 plot(result, sel="BACC")
@@ -1012,16 +1023,16 @@ If the argument \texttt{y} is not specified in the call of getKernelMatrix, a qu
 heatmap(km, symm=TRUE)
 @
 
-%<<echo=FALSE,results='hide'>>=
-%pdf("003.pdf")
-%heatmap(km, symm=TRUE)
-%dev.off()
-%@
+<<echo=FALSE,results='hide'>>=
+png("Heatmap.png", width=700, height=700)
+heatmap(km, symm=TRUE)
+dev.off()
+@
 
 % use precreated heatmap with lower resolution to save space
 \begin{figure}[htp]
 \begin{center}
-\includegraphics[width=0.7\columnwidth]{Heatmap.png}
+\includegraphics[width=0.9\columnwidth]{Heatmap.png}
 \end{center}
 \end{figure}
 
@@ -1136,7 +1147,7 @@ dev.off()
 
 \begin{figure}[htp]
 \begin{center}
-\includegraphics[width=0.6\columnwidth]{004.pdf}
+\includegraphics[width=0.5\columnwidth]{004.pdf}
 \end{center}
 \end{figure}
 
@@ -1307,7 +1318,7 @@ cvResult(model)
 \subsection{Grid Search}
 \label{sec:GridSearch}
 
-The grid search functionality gives an overview of the performance behavior for different parameter settings and supports the user in the selection of the sequence kernel and optimal values for the kernel parameters and SVM hyperparameters. The grid in this functionality is defined as rectangular data structure, where the rows correspond to different sequence kernels including their kernel parameters. Each row corresponds to a single sequence kernel object with a specific setting of the kernel parameters. The columns correspond to the SVM parameters. \KeBABS\ automatically performs cross validations for each of these grid points and returns the CV error as performance measure by default.  Also grouped CV can be used for each grid point as shown above. The accessor \texttt{modelSelResult} to the grid search results in the model is identical to the accessor for model selection results.
+The grid search functionality gives an overview of the performance behavior for different parameter settings and supports the user in the selection of the sequence kernel and optimal values for the kernel parameters and SVM hyperparameters. The grid in this functionality is defined as rectangular data structure, where the rows correspond to different sequence kernels including their kernel parameters. Each row corresponds to a single sequence kernel object with a specific setting of the kernel parameters. The columns correspond to the SVM parameters. \KeBABS\ automatically performs cross validations for each of these grid points and returns the CV error as performance measure by default.  Also grouped CV can be used for each grid point as shown above. 
 
 <<>>=
 specK24 <- spectrumKernel(k=2:4)
@@ -1317,6 +1328,11 @@ cost <- c(1, 10, 100, 1000, 10000)
 model <- kbsvm(x=enhancerFB, y=yFB, kernel=gridKernels,
                pkg="LiblineaR", svm="C-svc", cost=cost, cross=3,
                explicit="yes", showProgress=TRUE)
+@
+
+The accessor \texttt{modelSelResult} to the grid search results in the model is identical to the accessor for model selection results:
+
+<<>>=
 modelSelResult(model)
 @
 
@@ -1343,7 +1359,7 @@ modelSelResult(model)
 \subsection{Model Selection}
 \label{sec:ModelSelection}
 
-In \KeBABS\ model selection is performed very similar to grid search. It is based on nested cross validation with an inner cross validation loop that determines the best setting of the hyper parameters and an outer cross validation loop to test the performance of the model with the best parameter settings on independent test sets. The result of model selection is the performance of the complete model selection process, not that of a single best model.
+In \KeBABS\ model selection is performed very similar to grid search. It is based on nested cross validation with an inner cross validation loop that determines the best setting of the hyperparameters and an outer cross validation loop to test the performance of the model with the best parameter settings on independent test sets. The result of model selection is the performance of the complete model selection process, not that of a single best model.
 
 Model selection is triggered when the parameter \texttt{nestedCross} in \kbsvm\ is set to a value larger than 1. This parameter defines the number of folds in the outer cross validation. The number of folds in the inner cross validation is defined through the parameter \texttt{cross} as usual. Multiple repetitions of model selection can be requested with the parameter \texttt{noNestedCross}.
 
@@ -1475,7 +1491,7 @@ g(x) & = b + \sum_i^l \alpha_i \cdot y_i \cdot k(x, x_i)\\
 \end{split}
 \end{align}
 
-In a similar way as in the position-independent case a part that is independent of the current sample can be split off through exchange of sums and rearrangement. In the case of position-specific kernels the feature weights are dependent both on patterns and positions. For more details see \cite{Bodenhofer2009}.
+In a similar way as in the position-independent case a part that is independent of the current sample can be split off through exchange of sums and rearrangement. In the case of position-specific kernels the feature weights are dependent both on patterns and positions. For more details see \citep{Bodenhofer2009}.
 
 As feature weights for the position-dependent kernel are dependent on the positions, they are not computed fully during the training. Only a first step of feature weight computation is performed during training allowing faster computation of full feature weights during prediction or computation of feature profiles when the actual sequences are available.
 
@@ -1599,37 +1615,37 @@ Several performance measures are computed in \KeBABS\ to estimate the performanc
 Accuracy (ACC)
 \begin{align}
 \label{eq:ACC}
-ACC = \frac{TP + TN}{TP + FP + FN + TN}
+\ACC = \frac{\TP + \TN}{\TP + \FP + \FN + \TN}
 \end{align}
 
 Sensitivity (SENS)
 \begin{align}
 \label{eq:SENS}
-SENS = \frac{TP}{TP + FN}
+\SENS = \frac{\TP}{\TP + \FN}
 \end{align}
 
 Specificity (SPEC)
 \begin{align}
 \label{eq:SPEC}
-SPEC = \frac{TN}{TN + FP}
+\SPEC = \frac{\TN}{\TN + \FP}
 \end{align}
 
 Precision (PREC)
 \begin{align}
 \label{eq:PREC}
-PREC = \frac{TP}{TP + FP}
+\PREC = \frac{\TP}{\TP + \FP}
 \end{align}
 
 Balanced Accuracy (BACC)
 \begin{align}
 \label{eq:BACC}
-BACC = \frac{SENS + SPEC}{2} = \frac{1}{2}(\frac{TP}{TP + FN} + \frac{TN}{TN + FP})
+\BACC = \frac{\SENS + \SPEC}{2} = \frac{1}{2}\Big(\frac{\TP}{\TP + \FN} + \frac{\TN}{\TN + \FP}\Big)
 \end{align}
 
 Matthews Correlation Coefficient (MCC)
 \begin{align}
 \label{eq:MCC}
-MCC = \frac{TP * TN - FP * FN}{\sqrt{(TP + FP) * (TP + FN) * (TN + FP) * (TN + FN)}}
+\MCC = \frac{\TP \cdot \TN - \FP \cdot \FN}{\sqrt{(\TP + \FP) \cdot (\TP + \FN) \cdot (\TN + \FP) \cdot (\TN + \FN)}}
 \end{align}\\
 \\
 
@@ -1639,40 +1655,40 @@ Using $\mathbf{M}$ as the $m \times m$ confusion matrix for $m$ classes with row
 Accuracy (ACC)
 \begin{align}
 \label{eq:ACC}
-ACC = \frac{\sum_{i=1}^m M_{ii}}{\sum_{i,j=1}^m M_{ij}}
+\ACC = \frac{\sum_{i=1}^m M_{ii}}{\sum_{i,j=1}^m M_{ij}}
 \end{align}
 
 Balanced Accuracy (BACC)
 \begin{align}
 \label{eq:BACC}
-BACC = \frac{1}{m} \sum_{j=1}^m \frac{M_{jj}}{\sum_{i=1}^m M_{ij}}
+\BACC = \frac{1}{m} \sum_{j=1}^m \frac{M_{jj}}{\sum_{i=1}^m M_{ij}}
 \end{align}
 
 Matthews Correlation Coefficient (MCC) according to \cite{Gorodkin2004}
 \begin{align}
 \label{eq:MCC}
-MCC = \frac{\sum_{i,j,k=1}^m M_{ii} M_{jk} - M_{ij} M_{ki}}{\sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ij})(\sum_{\substack{k,l=1\\k \ne i}}^m M_{kl})} \sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ji})(\sum_{\substack{k,l=1\\k \ne i}}^m M_{lk})}}
+\MCC = \frac{\sum_{i,j,k=1}^m M_{ii} M_{jk} - M_{ij} M_{ki}}{\sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ij})(\sum_{\substack{k,l=1\\k \ne i}}^m M_{kl})} \sqrt{\sum_{i=1}^m (\sum_{j=1}^m M_{ji})(\sum_{\substack{k,l=1\\k \ne i}}^m M_{lk})}}
 \end{align}\\
 
-In the multi class scenario sensitivity, specificity and precision are defined as class specific measures.\\
+In the multi class scenario sensitivity, specificity and precision are defined as class specific measures (which can also be averaged over all classes):\\
 \\
 
 Sensitivity (SENS)
 \begin{align}
 \label{eq:SENS}
-SENS_i = \frac{M_{ii}}{\sum_{j=1}^m M_{ji}}
+\SENS_i = \frac{M_{ii}}{\sum_{j=1}^m M_{ji}}
 \end{align}
 
 Specificity (SPEC)
 \begin{align}
 \label{eq:SPEC}
-SPEC_i = \frac{\sum_{\substack{j=1\\j \ne i}}^m M_{jj}}{\sum_{\substack{j,k=1\\k \ne i}}^m M_{jk}}
+\SPEC_i = \frac{\sum_{\substack{j=1\\j \ne i}}^m M_{jj}}{\sum_{\substack{j,k=1\\k \ne i}}^m M_{jk}}
 \end{align}
 
 Precision (PREC)
 \begin{align}
 \label{eq:PREC}
-PREC_i = \frac{M_{ii}}{\sum_{j=1}^m M_{ij}}
+\PREC_i = \frac{M_{ii}}{\sum_{j=1}^m M_{ij}}
 \end{align}
 
 

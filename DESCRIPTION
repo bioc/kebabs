@@ -1,8 +1,8 @@
 Package: kebabs
 Type: Package
 Title: Kernel-Based Analysis of Biological Sequences
-Version: 1.46.0
-Date: 2025-09-19
+Version: 1.46.1
+Date: 2026-09-17
 Authors@R: c(person(given = "Johannes",
                     family = "Palme",
 		    role = c("aut")),

@@ -1,6 +1,19 @@
 Change history of package kebabs:
 ====================================
 
+Version 1.46.1:
+- fixed bug in model selection that led to an error with new version of LiblineaR
+- various improvements of package vignette
+
+Version 1.46.0:
+- release as part of Bioconductor 3.23
+
+Version 1.45.0:
+- new branch for Bioconductor 3.23 devel
+
+Version 1.44.0:
+- release as part of Bioconductor 3.22
+
 Version 1.43.1:
 - updated DESCRIPTION file to new format (Authors@R)
 

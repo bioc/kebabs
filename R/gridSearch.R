@@ -927,7 +927,17 @@ performGridSearch <- function(object, model, y, explicit, featureWeights,
             }
         }
 
-        if (noSVMPar > 0)
+        if (noSVMPar == 1)
+        {
+            fullModel@svmInfo <- addOrReplaceSVMParameters(
+                    colnames(model@modelSelResult@selGridCol)[startIndex+1],
+                    model@modelSelResult@selGridCol[[startIndex+1]],
+                    fullModel)
+
+            if (convertSVMParameters)
+                fullModel@svmInfo <- convertSVMParameters(fullModel)
+        }
+        else if (noSVMPar > 1)
         {
             for (j1 in 1:noSVMPar)
             {
